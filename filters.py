@@ -173,7 +173,7 @@ class MusicNet(data.Dataset):
             y = np.zeros(self.m,dtype=np.float32)
             for label in self.labels[rec_id][s+scale*self.window/2]:
                 y[label.data[1]+shift] = 1
-        else: 
+        else:
             y = np.zeros((sequence,self.m),dtype=np.float32)
             for num_frame in range(sequence):
                 for label in self.labels[rec_id][(s + num_frame*self.window)+scale*self.window/2]:
@@ -337,24 +337,24 @@ class MusicNet(data.Dataset):
 def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', windowing="no"):
     if freq_bins==None:
         freq_bins = n_fft//2+1
-    
+
     s = np.arange(0, n_fft, 1.)
-    wsin = np.empty((freq_bins,1,n_fft))
-    wcos = np.empty((freq_bins,1,n_fft))
+    wsin = np.empty((freq_bins,1,n_fft),dtype=np.float32)
+    wcos = np.empty((freq_bins,1,n_fft),dtype=np.float32)
     start_freq = low
     end_freq = high
-    
+
 
     # num_cycles = start_freq*d/44000.
     # scaling_ind = np.log(end_freq/start_freq)/k
-    
+
     if windowing=="no":
         window_mask = 1
     elif windowing=="hann":
-        window_mask = 0.5-0.5*np.cos(2*np.pi*s/(n_fft)) # same as hann(n_fft, sym=False)
+        window_mask = 0.5-0.5*np.cos(2*np.pi*s/(n_fft),dtype=np.float32) # same as hann(n_fft, sym=False)
     else:
         raise Exception("Unknown windowing mode, please chooes either \"no\" or \"hann\"")
-        
+
     if freq_scale == 'linear':
         start_bin = start_freq*n_fft/sr
         scaling_ind = (end_freq/start_freq)/freq_bins
@@ -366,14 +366,14 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
         scaling_ind = np.log(end_freq/start_freq)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)   
+            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
+            wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft, dtype=np.float32)
+            wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft, dtype=np.float32)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-    
+
     return wsin,wcos
 
 def get_mir_accuracy(Yhat, Y_true, threshold=0.4, m=128):
@@ -408,20 +408,20 @@ def get_piano_roll(rec_id, test_set, model, device, window=16384, stride=1000, o
     else:
         count = (test_set.records[rec_id][1] - offset - int(sf*window))/stride + 1
         count = int(count)
-        
+
     X = np.zeros([count, window])
-    Y = np.zeros([count, m])    
-        
+    Y = np.zeros([count, m])
+
     for i in range(count):
         X[i,:], Y[i] =  test_set.access(rec_id, offset+i*stride)
-    
+
     with torch.no_grad():
         Y_pred = torch.zeros([count,m])
         for i in range(len(X)//batch_size):
             print(f"{i}/{(len(X)//batch_size)} batches", end = '\r')
             X_batch = torch.tensor(X[batch_size*i:batch_size*(i+1)]).float().to(device)
             Y_pred[batch_size*i:batch_size*(i+1)] = model(X_batch).cpu()
-    
+
     return Y_pred, Y
 
 
@@ -455,17 +455,17 @@ def get_piano_roll(rec_id, test_set, model, device, window=16384, stride=1000, o
 #     else:
 #         count = (test_set.records[rec_id][1] - offset - int(sf*window))/stride + 1
 #         count = int(count)
-        
+
 #     X = np.zeros([count, window])
-#     Y = np.zeros([count, m])    
-        
+#     Y = np.zeros([count, m])
+
 #     for i in range(count):
 #         X[i,:], Y[i] =  test_set.access(rec_id, offset+i*stride)
-        
+
 #     Y_pred = torch.zeros([count,m])
 #     for i in range(len(X)//batch_size):
-#         X_batch = torch.tensor(X[batch_size*i:batch_size*(i+1)]).float().cuda()   
+#         X_batch = torch.tensor(X[batch_size*i:batch_size*(i+1)]).float().cuda()
 #         Y_pred[batch_size*i:batch_size*(i+1)] = model(X_batch)
-    
+
 #     return Y_pred, Y
-    
+
