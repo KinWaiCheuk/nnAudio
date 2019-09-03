@@ -339,8 +339,8 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
         freq_bins = n_fft//2+1
 
     s = np.arange(0, n_fft, 1.)
-    wsin = np.empty((freq_bins,1,n_fft),dtype=np.float32)
-    wcos = np.empty((freq_bins,1,n_fft),dtype=np.float32)
+    wsin = np.empty((freq_bins,1,n_fft))
+    wcos = np.empty((freq_bins,1,n_fft))
     start_freq = low
     end_freq = high
 
@@ -369,12 +369,11 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft, dtype=np.float32)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft, dtype=np.float32)
+            wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
+            wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-
-    return wsin,wcos
+    return wsin.astype(np.float32),wcos.astype(np.float32)
 
 def get_mir_accuracy(Yhat, Y_true, threshold=0.4, m=128):
     if isinstance(Yhat, torch.Tensor):
