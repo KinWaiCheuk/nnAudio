@@ -30,7 +30,10 @@ def complex_mul(cqt_filter, stft):
 
 
 ## Kernal generation functions ##
-def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', windowing="no"):
+def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', window='hann'):
+    """
+    If freq_scale is 'no', then low and high arguments will be ignored
+    """
     if freq_bins==None:
         freq_bins = n_fft//2+1
 
@@ -44,12 +47,10 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
     # num_cycles = start_freq*d/44000.
     # scaling_ind = np.log(end_freq/start_freq)/k
 
-    if windowing=="no":
-        window_mask = 1
-    elif windowing=="hann":
-        window_mask = 0.5-0.5*np.cos(2*np.pi*s/(n_fft),dtype=np.float32) # same as hann(n_fft, sym=False)
-    else:
-        raise Exception("Unknown windowing mode, please chooes either \"no\" or \"hann\"")
+    # Choosing window shape
+
+    window_mask = get_window(window,int(n_fft), fftbins=True)
+
 
     if freq_scale == 'linear':
         start_bin = start_freq*n_fft/sr
@@ -71,7 +72,9 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
         print("Please select the correct frequency scale, 'linear' or 'log'")
     return wsin.astype(np.float32),wcos.astype(np.float32)
 
-def create_cqt_kernals(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, window='hann'):
+def create_cqt_kernals(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
+    # norm arg is not functioning
+    
     Q = 1/(2**(1/bins_per_octave)-1)
     fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
     # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
@@ -90,21 +93,26 @@ def create_cqt_kernals(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, windo
     for k in range(0, int(n_bins)):
         freq = freqs[k]
         l = np.ceil(Q * fs / freq)
+        lenghts = np.ceil(Q * fs / freqs)
         # Centering the kernals
         if l%2==1: # pad more zeros on RHS
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
         else:
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))
-        tempKernel[k, start:start + int(l)] = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
+        sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
+#         if norm: # Normalizing the filter # Trying to normalize like librosa
+#             tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
+#         else:
+        tempKernel[k, start:start + int(l)] = sig
         # specKernel[k, :]=fft(conj(tempKernel[k, :]))
         specKernel[k, :] = fft(tempKernel[k])
         
-    return specKernel[:,:fftLen//2+1], fftLen
+    return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
 
 class CQT(torch.nn.Module):
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=False, pad_mode='reflect'):
         super(CQT, self).__init__()
-        #To Do center = False#
+        # norm arg is not functioning
         
         self.hop_length = hop_length
         self.center = center
@@ -112,19 +120,14 @@ class CQT(torch.nn.Module):
         self.norm = norm
         
         # creating kernals for CQT
-        self.cqt_kernals, self.kernal_width = create_cqt_kernals(sr, fmin, fmax, n_bins, bins_per_octave, window)
+        self.cqt_kernals, self.kernal_width, lenghts = create_cqt_kernals(sr, fmin, fmax, n_bins, bins_per_octave, norm, window)
         self.cqt_kernals_real = torch.tensor(self.cqt_kernals.real)
         self.cqt_kernals_imag = torch.tensor(self.cqt_kernals.imag)
-        print("before norm", self.cqt_kernals_real.max())
-        if self.norm: # Normalizing the filter
-            torch_complex = torch.stack((self.cqt_kernals_real, self.cqt_kernals_imag), dim=0) 
-            # froming a complex number shape = (real/imag, bins, n_fft)
-            norm_value = torch.norm(torch_complex, p=2, dim=0)
-            self.cqt_kernals_real = torch_complex[0]/torch.norm(norm_value, p=self.norm, dim=0)
-            self.cqt_kernals_imag = torch_complex[1]/torch.norm(norm_value, p=self.norm, dim=0)
-            print("after norm", self.cqt_kernals_real.max())
+
         # creating kernals for stft
-        wsin, wcos = create_fourier_kernals(self.kernal_width, windowing="no", freq_scale='no')
+#         self.cqt_kernals_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
+#         self.cqt_kernals_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        wsin, wcos = create_fourier_kernals(self.kernal_width, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos)        
         
@@ -135,9 +138,9 @@ class CQT(torch.nn.Module):
                 padding = nn.ConstantPad1d(self.kernal_width//2, 0)
             elif self.pad_mode == 'reflect':
                 padding = nn.ReflectionPad1d(self.kernal_width//2)
-            print(x.shape)
+
             x = padding(x)
-            print(x.shape)
+
         # STFT
         fourier_real = conv1d(x, self.wcos, stride=self.hop_length)
         fourier_imag = conv1d(x, self.wsin, stride=self.hop_length)
@@ -150,3 +153,31 @@ class CQT(torch.nn.Module):
         CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
         
         return CQT
+    
+class Spectrogram(torch.nn.Module):
+    def __init__(self, n_fft, freq_bins=None, hop_length=None, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000):
+        super(Spectrogram, self).__init__()
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+        
+        # Create filter windows for stft
+        wsin, wcos = create_fourier_kernals(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high)
+        self.wsin = torch.tensor(wsin, dtype=torch.float)
+        self.wcos = torch.tensor(wcos, dtype=torch.float)
+
+    def forward(self,x):
+        x = x[None, None, :]
+        if self.center:
+            if self.pad_mode == 'constant':
+                padding = nn.ConstantPad1d(self.n_fft//2, 0)
+            elif self.pad_mode == 'reflect':
+                padding = nn.ReflectionPad1d(self.n_fft//2)
+
+            x = padding(x)
+        
+        spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
+           + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
+        return spec
+    
