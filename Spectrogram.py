@@ -454,9 +454,9 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
 
 
 ### ------------------Spectrogram Classes---------------------------###
-class CQT(torch.nn.Module):
+class CQT1992(torch.nn.Module):
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=False, pad_mode='reflect'):
-        super(CQT, self).__init__()
+        super(CQT1992, self).__init__()
         # norm arg is not functioning
         
         self.hop_length = hop_length
@@ -477,7 +477,12 @@ class CQT(torch.nn.Module):
         self.wcos = torch.tensor(wcos)        
         
     def forward(self,x):
-        x = x[None, None, :]
+        if x.dim() == 2:
+            x = x[:, None, :]
+        elif x.dim() == 1:
+            x = x[None, None, :]
+        else:
+            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.kernal_width//2, 0)
@@ -499,7 +504,7 @@ class CQT(torch.nn.Module):
         
         return CQT
     
-class Spectrogram(torch.nn.Module):
+class STFT(torch.nn.Module):
     def __init__(self, n_fft, freq_bins=None, hop_length=None, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
         super(Spectrogram, self).__init__()
         self.stride = hop_length
@@ -513,7 +518,12 @@ class Spectrogram(torch.nn.Module):
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
     def forward(self,x):
-        x = x[None, None, :]
+        if x.dim() == 2:
+            x = x[:, None, :]
+        elif x.dim() == 1:
+            x = x[None, None, :]
+        else:
+            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
@@ -543,7 +553,12 @@ class MelSpectrogram(torch.nn.Module):
         mel_basis = mel(sr, n_fft, n_mels, low, high, htk=False, norm=norm)
         self.mel_basis = torch.tensor(mel_basis)
     def forward(self,x):
-        x = x[None, None, :]
+        if x.dim() == 2:
+            x = x[:, None, :]
+        elif x.dim() == 1:
+            x = x[None, None, :]
+        else:
+            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
