@@ -55,16 +55,20 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
 
     if freq_scale == 'linear':
         start_bin = start_freq*n_fft/sr
-        scaling_ind = (end_freq/start_freq)/freq_bins
+        scaling_ind = (end_freq-start_freq)/freq_bins*(n_fft/sr)
         for k in range(freq_bins): # Only half of the bins contain useful info
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*(k*scaling_ind*start_bin)*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind*start_bin)*s/n_fft)
+#             print("linear freq = {}".format(k*scaling_ind+start_bin))
+            wsin[k,0,:] = window_mask*np.sin(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
+            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
+            
     elif freq_scale == 'log':
         start_bin = start_freq*n_fft/sr
         scaling_ind = np.log(end_freq/start_freq)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
+#             print("log freq = {}".format(np.exp(k*scaling_ind)*start_bin*sr/n_fft))
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
+            
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
@@ -455,7 +459,7 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
 
 ### ------------------Spectrogram Classes---------------------------###
 class CQT1992(torch.nn.Module):
-    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=False, pad_mode='reflect'):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect'):
         super(CQT1992, self).__init__()
         # norm arg is not functioning
         
@@ -505,8 +509,8 @@ class CQT1992(torch.nn.Module):
         return CQT
     
 class STFT(torch.nn.Module):
-    def __init__(self, n_fft, freq_bins=None, hop_length=None, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
-        super(Spectrogram, self).__init__()
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
+        super(STFT, self).__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
