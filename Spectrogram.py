@@ -10,6 +10,8 @@ from scipy.signal import get_window
 from scipy import fft
 import warnings
 
+from librosa.core import cqt_frequencies
+
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -43,7 +45,7 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
     wcos = np.empty((freq_bins,1,n_fft))
     start_freq = low
     end_freq = high
-
+    bins2freq = []
 
     # num_cycles = start_freq*d/44000.
     # scaling_ind = np.log(end_freq/start_freq)/k
@@ -55,9 +57,10 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
 
     if freq_scale == 'linear':
         start_bin = start_freq*n_fft/sr
-        scaling_ind = (end_freq-start_freq)/freq_bins*(n_fft/sr)
+        scaling_ind = (end_freq-start_freq)*(n_fft/sr)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
-#             print("linear freq = {}".format(k*scaling_ind+start_bin))
+#             print("linear freq = {}".format((k*scaling_ind+start_bin)*sr/n_fft))
+            bins2freq.append((k*scaling_ind+start_bin)*sr/n_fft)
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
             
@@ -66,16 +69,18 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
         scaling_ind = np.log(end_freq/start_freq)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
 #             print("log freq = {}".format(np.exp(k*scaling_ind)*start_bin*sr/n_fft))
+            bins2freq.append(np.exp(k*scaling_ind)*start_bin*sr/n_fft)
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
             
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
+            bins2freq.append(k*sr/n_fft)
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-    return wsin.astype(np.float32),wcos.astype(np.float32)
+    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq
 
 def create_cqt_kernals(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
     # norm arg is not functioning
@@ -105,14 +110,15 @@ def create_cqt_kernals(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=
         else:
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))
         sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
-#         if norm: # Normalizing the filter # Trying to normalize like librosa
-#             tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
-#         else:
-        tempKernel[k, start:start + int(l)] = sig
+        if norm: # Normalizing the filter # Trying to normalize like librosa
+            tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
+        else:
+            tempKernel[k, start:start + int(l)] = sig
         # specKernel[k, :]=fft(conj(tempKernel[k, :]))
         specKernel[k, :] = fft(tempKernel[k])
         
     return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
+
 
 ### ----------------Functions for generating kenral for Mel Spectrogram------------ ###
 def mel_to_hz(mels, htk=False):
@@ -476,7 +482,7 @@ class CQT1992(torch.nn.Module):
         # creating kernals for stft
 #         self.cqt_kernals_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
 #         self.cqt_kernals_imag*=lenghts.unsqueeze(1)/self.kernal_width
-        wsin, wcos = create_fourier_kernals(self.kernal_width, window='ones', freq_scale='no')
+        wsin, wcos, self.bins2freq = create_fourier_kernals(self.kernal_width, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos)        
         
@@ -517,7 +523,7 @@ class STFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos = create_fourier_kernals(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -549,7 +555,7 @@ class MelSpectrogram(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos = create_fourier_kernals(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -577,3 +583,188 @@ class MelSpectrogram(torch.nn.Module):
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec
     
+    
+    ### ----------------CQT 2010------------------------------------------------------- ###
+
+def create_cqt_kernals2010(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
+    # norm arg is not functioning
+    
+    Q = 1/(2**(1/bins_per_octave)-1)
+    fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
+    # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
+    if (fmax != None) and  (n_bins == None):
+        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))    
+    elif (fmax == None) and  (n_bins != None):
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+    else:
+        warnings.warn('If fmax is given, n_bins will be ignored',SyntaxWarning)
+        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+
+    tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
+    specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)    
+    for k in range(0, int(n_bins)):
+        freq = freqs[k]
+        l = np.ceil(Q * fs / freq)
+        lenghts = np.ceil(Q * fs / freqs)
+        # Centering the kernals
+        if l%2==1: # pad more zeros on RHS
+            start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
+        else:
+            start = int(np.ceil(fftLen / 2.0 - l / 2.0))
+        sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
+        if norm: # Normalizing the filter # Trying to normalize like librosa
+            tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
+        else:
+            tempKernel[k, start:start + int(l)] = sig
+        # specKernel[k, :]=fft(conj(tempKernel[k, :]))
+        specKernel[k, :] = fft(tempKernel[k])
+        
+    return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
+
+def cqt_filter_fft(sr, fmin, n_bins, bins_per_octave, tuning,
+                     filter_scale, norm, sparsity, hop_length=None,
+                     window='hann'):
+    '''Generate the frequency domain constant-Q filter basis.'''
+
+    basis, lengths = filters.constant_q(sr,
+                                        fmin=fmin,
+                                        n_bins=n_bins,
+                                        bins_per_octave=bins_per_octave,
+                                        tuning=tuning,
+                                        filter_scale=filter_scale,
+                                        norm=norm,
+                                        pad_fft=True,
+                                        window=window)
+
+    # Filters are padded up to the nearest integral power of 2
+    n_fft = basis.shape[1]
+
+    if (hop_length is not None and
+            n_fft < 2.0**(1 + np.ceil(np.log2(hop_length)))):
+
+        n_fft = int(2.0 ** (1 + np.ceil(np.log2(hop_length))))
+
+    # re-normalize bases with respect to the FFT window length
+    basis *= lengths[:, np.newaxis] / float(n_fft)
+
+    # FFT and retain only the non-negative frequencies
+    fft = get_fftlib()
+    fft_basis = fft.fft(basis, n=n_fft, axis=1)[:, :(n_fft // 2)+1]
+
+    # sparsify the basis
+    fft_basis = util.sparsify_rows(fft_basis, quantile=sparsity)
+
+    return fft_basis, n_fft, lengths
+
+from librosa import filters, get_fftlib, util
+
+class CQT2010(torch.nn.Module):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect'):
+        super(CQT2010, self).__init__()
+        # norm arg is not functioning
+        
+        self.hop_length = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.norm = norm
+        
+        # Downsampling audio with Pooling by a factor of 2
+        self.downsample = nn.AvgPool1d(2,2)
+        
+        # from librosa
+        n_filters = min(bins_per_octave, n_bins)
+        self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
+        
+        # creating kernals for CQT
+#         self.cqt_kernals, self.kernal_width, lenghts = create_cqt_kernals(sr, fmin, fmax, n_bins, bins_per_octave, norm, window)
+#         self.cqt_kernals_real = torch.tensor(self.cqt_kernals.real)
+#         self.cqt_kernals_imag = torch.tensor(self.cqt_kernals.imag)
+        # Getting top octave kernel
+        freqs = cqt_frequencies(n_bins, fmin,
+                        bins_per_octave=bins_per_octave, tuning=0)[-bins_per_octave:]
+        fmin_t = np.min(freqs)
+        
+        fft_basis, self.n_fft, _ = cqt_filter_fft(sr, fmin_t,
+                                            n_filters,
+                                            bins_per_octave,
+                                            tuning=0,
+                                            filter_scale=1,
+                                            norm=None,
+                                            sparsity=0,
+                                            window=window)
+        self.fft_basis = fft_basis
+        self.cqt_kernals_real = torch.tensor(fft_basis.toarray().real.astype(np.float32))
+        self.cqt_kernals_imag = torch.tensor(fft_basis.toarray().imag.astype(np.float32))
+
+        # creating kernals for stft
+#         self.cqt_kernals_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
+#         self.cqt_kernals_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        wsin, wcos, self.bins2freq = create_fourier_kernals(self.n_fft, window='ones', freq_scale='no')
+        self.wsin = torch.tensor(wsin)
+        self.wcos = torch.tensor(wcos) 
+        
+        if self.center:
+            if self.pad_mode == 'constant':
+                self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
+            elif self.pad_mode == 'reflect':
+                self.padding = nn.ReflectionPad1d(self.n_fft//2)
+        
+    def get_cqt(self,x,hop_length, padding):
+        # STFT
+        x = padding(x)
+        fourier_real = conv1d(x, self.wcos, stride=hop_length)
+        fourier_imag = conv1d(x, self.wsin, stride=hop_length)
+        
+        # CQT
+        CQT_real, CQT_imag = complex_mul((self.cqt_kernals_real, self.cqt_kernals_imag), 
+                                         (fourier_real, fourier_imag))
+        
+        # Getting CQT Amplitude
+        CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
+        
+        return CQT
+        
+    def __early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves):
+        '''Compute the number of early downsampling operations'''
+
+        downsample_count1 = max(0, int(np.ceil(np.log2(audio.BW_FASTEST * nyquist /
+                                                       filter_cutoff)) - 1) - 1)
+
+        num_twos = __num_two_factors(hop_length)
+        downsample_count2 = max(0, num_twos - n_octaves + 1)
+
+        return min(downsample_count1, downsample_count2)      
+#     nyquist = sr / 2.0
+#     downsample_count = __early_downsample_count(nyquist, filter_cutoff,
+#                                                 hop_length, n_octaves)    
+    
+    def forward(self,x):
+        if x.dim() == 2:
+            x = x[:, None, :]
+        elif x.dim() == 1:
+            x = x[None, None, :]
+        else:
+            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+
+        hop = self.hop_length
+#         CQT = self.get_cqt(x, hop)
+#         for i in range(self.n_octaves-1):
+#             x = self.downsample(x)
+#             hop = hop//2
+#             CQT_down = self.get_cqt(x, hop)  
+#             if i == 0:             
+#                 CQT_stack = torch.cat((CQT, CQT_down),0)
+#             else:
+#                 CQT_stack = torch.cat((CQT_stack, CQT_down),0)
+
+        CQT = self.get_cqt(x, hop, self.padding) 
+        x_down = self.downsample(x)
+        for i in range(self.n_octaves-1):         
+            hop = hop//2
+            CQT1 = self.get_cqt(x_down, hop, self.padding)
+            print(CQT1.shape)
+            CQT = torch.cat((CQT1,CQT),1)
+            x_down = self.downsample(x_down)
+        return CQT
