@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.nn.functional import conv1d
+from torch.nn.functional import conv1d, conv2d
 
 import numpy as np
 import torch
@@ -41,6 +41,17 @@ def broadcast_dim(x):
         x = x[None, None, :]
     elif x.dim() == 3:
         pass
+    else:
+        raise ValueError("Only support input with shape = (batch, len) or shape = (len)")        
+    return x
+
+def broadcast_dim_conv2d(x):
+    """
+    To auto broadcast input so that it can fits into a Conv1d
+    """
+    if x.dim() == 3:
+        x = x[:, None, :,:]
+
     else:
         raise ValueError("Only support input with shape = (batch, len) or shape = (len)")        
     return x
@@ -561,9 +572,12 @@ class STFT(torch.nn.Module):
            + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
         return torch.sqrt(spec)
     
-class STFT_complex(torch.nn.Module):
+class DFT(torch.nn.Module):
+    """
+    The inverse function only works for 1 single frame. i.e. input shape = (batch, n_fft, 1)
+    """    
     def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
-        super(STFT_complex, self).__init__()
+        super(DFT, self).__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
@@ -593,29 +607,21 @@ class STFT_complex(torch.nn.Module):
         real = conv1d(x, self.wcos, stride=self.stride)
         return (real, -imag)   
     
-class iSTFT_complex(torch.nn.Module):
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
-        super(iSTFT_complex, self).__init__()
-        self.stride = hop_length
-        self.center = center
-        self.pad_mode = pad_mode
-        self.n_fft = n_fft
-
-        # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
-        self.wsin = torch.tensor(wsin, dtype=torch.float)
-        self.wcos = torch.tensor(wcos, dtype=torch.float)
-    
-    def forward(self,x_real,x_imag):
+    def inverse(self,x_real,x_imag):
         x_real = broadcast_dim(x_real)
-        x_imag = broadcast_dim(x_imag) # taking conjuate
-        if self.center:
-            if self.pad_mode == 'constant':
-                padding = nn.ConstantPad1d(self.n_fft//2, 0)
-            elif self.pad_mode == 'reflect':
-                padding = nn.ReflectionPad1d(self.n_fft//2)
+        x_imag = broadcast_dim(x_imag)
+        
+        x_real.transpose_(1,2) # Prepare the right shape to do inverse
+        x_imag.transpose_(1,2) # Prepare the right shape to do inverse
+        
+#         if self.center:
+#             if self.pad_mode == 'constant':
+#                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
+#             elif self.pad_mode == 'reflect':
+#                 padding = nn.ReflectionPad1d(self.n_fft//2)
 
-            x = padding(x)
+#             x_real = padding(x_real)
+#             x_imag = padding(x_imag)
         
         # Watch out for the positive and negative signs
         #ifft = e^(+2\pi*j)*X
@@ -632,8 +638,55 @@ class iSTFT_complex(torch.nn.Module):
                                                    
         imag = a2+b1
         real = a1-b2
-        return (real/self.n_fft, imag/self.n_fft)
+        return (real/self.n_fft, imag/self.n_fft)    
 
+class iSTFT_complex_2d(torch.nn.Module):
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
+        super(iSTFT_complex_2d, self).__init__()
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+
+        # Create filter windows for stft
+        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        self.wsin = torch.tensor(wsin, dtype=torch.float)
+        self.wcos = torch.tensor(wcos, dtype=torch.float)
+        
+        self.wsin = self.wsin[:,:,:,None] #adjust the filter shape to fit into 2d Conv
+        self.wcos = self.wcos[:,:,:,None]
+        
+    def forward(self,x_real,x_imag):
+        x_real = broadcast_dim_conv2d(x_real)
+        x_imag = broadcast_dim_conv2d(x_imag) # taking conjuate
+        
+        
+#         if self.center:
+#             if self.pad_mode == 'constant':
+#                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
+#             elif self.pad_mode == 'reflect':
+#                 padding = nn.ReflectionPad1d(self.n_fft//2)
+
+#             x_real = padding(x_real)
+#             x_imag = padding(x_imag)
+        
+        # Watch out for the positive and negative signs
+        #ifft = e^(+2\pi*j)*X
+        
+        #ifft(X_real) = (a1, a2)
+        
+        #ifft(X_imag)*1j = (b1, b2)*1j
+        #                = (-b2, b1)
+        
+        a1 = conv2d(x_real, self.wcos, stride=(1,1))
+        a2 = conv2d(x_real, self.wsin, stride=(1,1))
+        b1 = conv2d(x_imag, self.wcos, stride=(1,1))
+        b2 = conv2d(x_imag, self.wsin, stride=(1,1))     
+                                                   
+        imag = a2+b1
+        real = a1-b2
+        return (real/self.n_fft, imag/self.n_fft)    
+    
 class MelSpectrogram(torch.nn.Module):
     def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', low=0.0, high=None, norm=1):
         super(MelSpectrogram, self).__init__()
