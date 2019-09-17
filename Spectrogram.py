@@ -123,7 +123,7 @@ def create_cqt_kernals(fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='
         n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
         freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
     if np.max(freqs) > fs/2:
-        warnings.warn('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(np.max(freqs)),SyntaxWarning)
+        raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(np.max(freqs)))
     tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
     specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)    
     for k in range(0, int(n_bins)):
@@ -908,7 +908,10 @@ class CQT2010(torch.nn.Module):
 
         CQT = self.get_cqt(x, hop, self.padding) 
         x_down = self.downsample(x)
-        for i in range(self.n_octaves-1):         
+        x_down_list = []
+        x_down_list.append(x_down)
+        for i in range(self.n_octaves-1):  
+            print(i)
             hop = hop//2
             
 #             self.cqt_kernals_real = torch.sqrt(self.cqt_kernals_real)
@@ -916,11 +919,38 @@ class CQT2010(torch.nn.Module):
             CQT1 = self.get_cqt(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1)
             x_down = self.downsample(x_down)
+            x_down_list.append(x_down)
+        CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
+        CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
+        if (self.n_octaves-1):          
+            warnings.warn('There are too many resampling',Warning)
+        return CQT, x_down_list
+    
+    def debug_forward(self,x):
+        hop = self.hop_length
+#         CQT = self.get_cqt(x, hop)
+#         for i in range(self.n_octaves-1):
+#             x = self.downsample(x)
+#             hop = hop//2
+#             CQT_down = self.get_cqt(x, hop)  
+#             if i == 0:             
+#                 CQT_stack = torch.cat((CQT, CQT_down),0)
+#             else:
+#                 CQT_stack = torch.cat((CQT_stack, CQT_down),0)
+
+        CQT = self.get_cqt(x[0], hop, self.padding) 
+        for i in range(self.n_octaves-1):         
+            hop = hop//2
+            
+#             self.cqt_kernals_real = torch.sqrt(self.cqt_kernals_real)
+#             self.cqt_kernals_imag = torch.sqrt(self.cqt_kernals_imag)
+            CQT1 = self.get_cqt(x[i+1], hop, self.padding)
+            CQT = torch.cat((CQT1, CQT),1)
           
          
         
         CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
-        if (self.n_octaves-1):          
+        if (self.n_octaves-1)>6:          
             warnings.warn('There are too many resampling',Warning)
-        return CQT, x_down
+        return CQT
