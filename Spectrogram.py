@@ -7,6 +7,7 @@ import torch
 from time import time
 import math
 from scipy.signal import get_window
+from scipy import signal
 from scipy import fft
 import warnings
 
@@ -15,6 +16,333 @@ from librosa.core import cqt_frequencies
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
+
+# ---------------------------Filter design -----------------------------------
+filterKernel = [
+  0.002509435152747353,
+  0.007547972481211767,
+  0.009560280427366582,
+  0.005678325160705147,
+  -0.0015395665181704339,
+  -0.003965274585687784,
+  -0.0004787300789340427,
+  0.0027991371042265924,
+  0.000993514906393239,
+  -0.0019936304159304166,
+  -0.0011986760505457506,
+  0.0015374902743830877,
+  0.0012334895777255524,
+  -0.0012134211658915053,
+  -0.0012532191329833234,
+  0.0010103949386506149,
+  0.0012572706762844312,
+  -0.0008525812852194027,
+  -0.0012691519366243526,
+  0.0007418247261252848,
+  0.0012918292045641761,
+  -0.0006444165186196637,
+  -0.0013224338252105134,
+  0.0005626386328330978,
+  0.001361364804114139,
+  -0.0004860199238911441,
+  -0.0014106592767338525,
+  0.0004075633715512571,
+  0.0014624505862821692,
+  -0.00032830643858501135,
+  -0.0015184925957025337,
+  0.0002472703117996068,
+  0.0015806546709879379,
+  -0.0001566613427064749,
+  -0.0016411747567308327,
+  0.00006166261410519799,
+  0.0017026260682672545,
+  0.000040143211986402036,
+  -0.001765356632300814,
+  -0.00015204113770257114,
+  0.0018256818247379184,
+  0.0002737622418083326,
+  -0.001881696493025582,
+  -0.0004035161804016949,
+  0.0019337685928014407,
+  0.000541821697739471,
+  -0.001982199692042297,
+  -0.0006910245142444117,
+  0.002024322160844001,
+  0.0008520824741785767,
+  -0.002055741572830972,
+  -0.001020362238287679,
+  0.002079213705325703,
+  0.0011972552187956916,
+  -0.0020942298043597598,
+  -0.0013845809849366939,
+  0.002097301413388113,
+  0.0015798608080677184,
+  -0.002087994929994642,
+  -0.001782733976532877,
+  0.0020665285478322607,
+  0.0019929259342809165,
+  -0.002032057542797906,
+  -0.002210338920343137,
+  0.001984772306106167,
+  0.002436541789060056,
+  -0.0019215393461052927,
+  -0.0026707189588777323,
+  0.001840102770923457,
+  0.0029115081219445176,
+  -0.0017395842985087446,
+  -0.0031570467525206167,
+  0.001619489413767174,
+  0.0034064616892494327,
+  -0.0014802255854781685,
+  -0.003660775320803398,
+  0.0013181826879756018,
+  0.003918235492888684,
+  -0.0011328155156504587,
+  -0.004176339968933465,
+  0.0009262314488025278,
+  0.004437604524964876,
+  -0.0006951197648890718,
+  -0.0047027337637612675,
+  0.0004355955605919048,
+  0.004969137135767011,
+  -0.00014609476247491634,
+  -0.005235915459434929,
+  -0.0001759514275892595,
+  0.005500082049390828,
+  0.0005319093332938999,
+  -0.005760869909515167,
+  -0.000922819481188368,
+  0.006017263268237365,
+  0.0013491154742875334,
+  -0.006270644068081035,
+  -0.0018146648018742405,
+  0.006524164938970316,
+  0.002328300280242728,
+  -0.006774003626822009,
+  -0.0028963279468078823,
+  0.0070145694890924705,
+  0.0035200170506957534,
+  -0.007246695746638208,
+  -0.004206429986685214,
+  0.007469157064357891,
+  0.00496054163856269,
+  -0.007686407446792828,
+  -0.005796595373113867,
+  0.00789950918677718,
+  0.00673641198570318,
+  -0.008100549258523887,
+  -0.007794827514909987,
+  0.008284657989941095,
+  0.008987966909281029,
+  -0.00845909609239332,
+  -0.010352159411867599,
+  0.008627196900587402,
+  0.011939069654911325,
+  -0.0087860714510989,
+  -0.013821517475090798,
+  0.008920147217940889,
+  0.01607819301506894,
+  -0.009042759740892631,
+  -0.01886078560101917,
+  0.009164220367397535,
+  0.022431465753560042,
+  -0.00926292514514495,
+  -0.027194788165598532,
+  0.009337602501036319,
+  0.03392381052896256,
+  -0.009421060194150404,
+  -0.04435768491531225,
+  0.009463534832490047,
+  0.06285606294099673,
+  -0.009508808491550906,
+  -0.10562245481486887,
+  0.009528668403349719,
+  0.31814834666458525,
+  0.49046226441972546,
+  0.31814834666458525,
+  0.009528668403349719,
+  -0.10562245481486887,
+  -0.009508808491550906,
+  0.06285606294099673,
+  0.009463534832490047,
+  -0.04435768491531225,
+  -0.009421060194150404,
+  0.03392381052896256,
+  0.009337602501036319,
+  -0.027194788165598532,
+  -0.00926292514514495,
+  0.022431465753560042,
+  0.009164220367397535,
+  -0.01886078560101917,
+  -0.009042759740892631,
+  0.01607819301506894,
+  0.008920147217940889,
+  -0.013821517475090798,
+  -0.0087860714510989,
+  0.011939069654911325,
+  0.008627196900587402,
+  -0.010352159411867599,
+  -0.00845909609239332,
+  0.008987966909281029,
+  0.008284657989941095,
+  -0.007794827514909987,
+  -0.008100549258523887,
+  0.00673641198570318,
+  0.00789950918677718,
+  -0.005796595373113867,
+  -0.007686407446792828,
+  0.00496054163856269,
+  0.007469157064357891,
+  -0.004206429986685214,
+  -0.007246695746638208,
+  0.0035200170506957534,
+  0.0070145694890924705,
+  -0.0028963279468078823,
+  -0.006774003626822009,
+  0.002328300280242728,
+  0.006524164938970316,
+  -0.0018146648018742405,
+  -0.006270644068081035,
+  0.0013491154742875334,
+  0.006017263268237365,
+  -0.000922819481188368,
+  -0.005760869909515167,
+  0.0005319093332938999,
+  0.005500082049390828,
+  -0.0001759514275892595,
+  -0.005235915459434929,
+  -0.00014609476247491634,
+  0.004969137135767011,
+  0.0004355955605919048,
+  -0.0047027337637612675,
+  -0.0006951197648890718,
+  0.004437604524964876,
+  0.0009262314488025278,
+  -0.004176339968933465,
+  -0.0011328155156504587,
+  0.003918235492888684,
+  0.0013181826879756018,
+  -0.003660775320803398,
+  -0.0014802255854781685,
+  0.0034064616892494327,
+  0.001619489413767174,
+  -0.0031570467525206167,
+  -0.0017395842985087446,
+  0.0029115081219445176,
+  0.001840102770923457,
+  -0.0026707189588777323,
+  -0.0019215393461052927,
+  0.002436541789060056,
+  0.001984772306106167,
+  -0.002210338920343137,
+  -0.002032057542797906,
+  0.0019929259342809165,
+  0.0020665285478322607,
+  -0.001782733976532877,
+  -0.002087994929994642,
+  0.0015798608080677184,
+  0.002097301413388113,
+  -0.0013845809849366939,
+  -0.0020942298043597598,
+  0.0011972552187956916,
+  0.002079213705325703,
+  -0.001020362238287679,
+  -0.002055741572830972,
+  0.0008520824741785767,
+  0.002024322160844001,
+  -0.0006910245142444117,
+  -0.001982199692042297,
+  0.000541821697739471,
+  0.0019337685928014407,
+  -0.0004035161804016949,
+  -0.001881696493025582,
+  0.0002737622418083326,
+  0.0018256818247379184,
+  -0.00015204113770257114,
+  -0.001765356632300814,
+  0.000040143211986402036,
+  0.0017026260682672545,
+  0.00006166261410519799,
+  -0.0016411747567308327,
+  -0.0001566613427064749,
+  0.0015806546709879379,
+  0.0002472703117996068,
+  -0.0015184925957025337,
+  -0.00032830643858501135,
+  0.0014624505862821692,
+  0.0004075633715512571,
+  -0.0014106592767338525,
+  -0.0004860199238911441,
+  0.001361364804114139,
+  0.0005626386328330978,
+  -0.0013224338252105134,
+  -0.0006444165186196637,
+  0.0012918292045641761,
+  0.0007418247261252848,
+  -0.0012691519366243526,
+  -0.0008525812852194027,
+  0.0012572706762844312,
+  0.0010103949386506149,
+  -0.0012532191329833234,
+  -0.0012134211658915053,
+  0.0012334895777255524,
+  0.0015374902743830877,
+  -0.0011986760505457506,
+  -0.0019936304159304166,
+  0.000993514906393239,
+  0.0027991371042265924,
+  -0.0004787300789340427,
+  -0.003965274585687784,
+  -0.0015395665181704339,
+  0.005678325160705147,
+  0.009560280427366582,
+  0.007547972481211767,
+  0.002509435152747353
+    ]
+
+filterKernel = torch.tensor(filterKernel)
+filterKernel = filterKernel.view(1,1,-1)
+
+def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):
+    # calculate the highest frequency we need to preserve and the
+    # lowest frequency we allow to pass through. Note that frequency
+    # is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist 
+    # frequency of the signal BEFORE downsampling
+    
+#     transitionBandwidth = 0.03 
+    passbandMax = band_center / (1 + transitionBandwidth)
+    stopbandMin = band_center * (1 + transitionBandwidth)
+
+    # Unlike the filter tool we used online yesterday, this tool does
+    # not allow us to specify how closely the filter matches our
+    # specifications. Instead, we specify the length of the kernel.
+    # The longer the kernel is, the more precisely it will match.
+#     kernelLength = 256 
+
+    # We specify a list of key frequencies for which we will require 
+    # that the filter match a specific output gain.
+    # From [0.0 to passbandMax] is the frequency range we want to keep
+    # untouched and [stopbandMin, 1.0] is the range we want to remove
+    keyFrequencies = [0.0, passbandMax, stopbandMin, 1.0]
+
+    # We specify a list of output gains to correspond to the key
+    # frequencies listed above.
+    # The first two gains are 1.0 because they correspond to the first
+    # two key frequencies. the second two are 0.0 because they 
+    # correspond to the stopband frequencies
+    gainAtKeyFrequencies = [1.0, 1.0, 0.0, 0.0]
+
+    # This command produces the filter kernel coefficients
+    filterKernel = signal.firwin2(kernelLength, keyFrequencies, gainAtKeyFrequencies)    
+    
+    return filterKernel.astype(np.float32)
+
+
+
+def downsampling_by_2(x, filterKernel):
+    x = conv1d(x,filterKernel,stride=2, padding=(filterKernel.shape[-1]-1)//2)
+    return x
+
 
 ## Basic tools for computation ##
 def nextpow2(A):
@@ -802,33 +1130,33 @@ def cqt_filter_fft(sr, fmin, n_bins, bins_per_octave, tuning,
 from librosa import filters, get_fftlib, util
 
 class CQT2010(torch.nn.Module):
-    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect'):
+    """
+    This alogrithm is using the resampling method proposed in [1]. Instead of convoluting the STFT results with a gigantic CQT kernel covering the full frequency spectrum, we make a small CQT kernel covering only the top octave. Then we keep downsampling the input audio by a factor of 2 to convoluting it with the small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled input is equavalent to the next lower octave.
+    [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
+    """
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect'):
         super(CQT2010, self).__init__()
-        # norm arg is not functioning
         
         self.hop_length = hop_length
         self.center = center
         self.pad_mode = pad_mode
-        self.norm = norm
-        self.n_bins = n_bins
+        self.n_bins = n_bins   
         
-        # Downsampling audio with Pooling by a factor of 2
-        self.downsample = nn.AvgPool1d(2,2)
+        # Creating lowpass filter and make it a torch tensor
+        self.lowpass_filter = torch.tensor( 
+                                            create_lowpass_filter(
+                                            band_center = 0.5, 
+                                            kernelLength=256,
+                                            transitionBandwidth=0.001))
+        self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
         
-        # from librosa
+        # Caluate num of filter requires for the kernel
+        # n_octaves determines how many resampling requires for the CQT
         n_filters = min(bins_per_octave, n_bins)
         self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
         
-        # creating kernals for CQT
-#         self.cqt_kernals, self.kernal_width, lenghts = create_cqt_kernals(sr, fmin, fmax, n_bins, bins_per_octave, norm, window)
-#         self.cqt_kernals_real = torch.tensor(self.cqt_kernals.real)
-#         self.cqt_kernals_imag = torch.tensor(self.cqt_kernals.imag)
-        # Getting top octave kernel
-#         freqs = cqt_frequencies(n_bins, fmin,
-#                         bins_per_octave=bins_per_octave, tuning=0)[-bins_per_octave:]
-#         fmin_t = np.min(freqs)
-        fmin_t = fmin*2**(self.n_octaves-1)
-        self.fmin_t = fmin_t
+        # Calculate the lowest frequency bin for the top octave kernel
+        self.fmin_t = fmin*2**(self.n_octaves-1)
 #         fft_basis, self.n_fft, _ = cqt_filter_fft(sr, fmin_t,
 #                                             n_filters,
 #                                             bins_per_octave,
@@ -837,7 +1165,7 @@ class CQT2010(torch.nn.Module):
 #                                             norm=None,
 #                                             sparsity=0,
 #                                             window=window)
-        fft_basis, self.n_fft, _ = create_cqt_kernals(sr, fmin_t, n_filters, bins_per_octave)
+        fft_basis, self.n_fft, _ = create_cqt_kernals(sr, self.fmin_t, n_filters, bins_per_octave)
 
         self.fft_basis = fft_basis
         self.cqt_kernals_real = torch.tensor(fft_basis.real.astype(np.float32))
@@ -907,7 +1235,7 @@ class CQT2010(torch.nn.Module):
 #                 CQT_stack = torch.cat((CQT_stack, CQT_down),0)
 
         CQT = self.get_cqt(x, hop, self.padding) 
-        x_down = self.downsample(x)
+        x_down = downsampling_by_2(x, self.lowpass_filter)
         x_down_list = []
         x_down_list.append(x_down)
         for i in range(self.n_octaves-1):  
@@ -918,7 +1246,7 @@ class CQT2010(torch.nn.Module):
 #             self.cqt_kernals_imag = torch.sqrt(self.cqt_kernals_imag)
             CQT1 = self.get_cqt(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1)
-            x_down = self.downsample(x_down)
+            x_down = downsampling_by_2(x_down, self.lowpass_filter)
             x_down_list.append(x_down)
         CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
