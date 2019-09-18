@@ -18,291 +18,6 @@ sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
 
 # ---------------------------Filter design -----------------------------------
-filterKernel = [
-  0.002509435152747353,
-  0.007547972481211767,
-  0.009560280427366582,
-  0.005678325160705147,
-  -0.0015395665181704339,
-  -0.003965274585687784,
-  -0.0004787300789340427,
-  0.0027991371042265924,
-  0.000993514906393239,
-  -0.0019936304159304166,
-  -0.0011986760505457506,
-  0.0015374902743830877,
-  0.0012334895777255524,
-  -0.0012134211658915053,
-  -0.0012532191329833234,
-  0.0010103949386506149,
-  0.0012572706762844312,
-  -0.0008525812852194027,
-  -0.0012691519366243526,
-  0.0007418247261252848,
-  0.0012918292045641761,
-  -0.0006444165186196637,
-  -0.0013224338252105134,
-  0.0005626386328330978,
-  0.001361364804114139,
-  -0.0004860199238911441,
-  -0.0014106592767338525,
-  0.0004075633715512571,
-  0.0014624505862821692,
-  -0.00032830643858501135,
-  -0.0015184925957025337,
-  0.0002472703117996068,
-  0.0015806546709879379,
-  -0.0001566613427064749,
-  -0.0016411747567308327,
-  0.00006166261410519799,
-  0.0017026260682672545,
-  0.000040143211986402036,
-  -0.001765356632300814,
-  -0.00015204113770257114,
-  0.0018256818247379184,
-  0.0002737622418083326,
-  -0.001881696493025582,
-  -0.0004035161804016949,
-  0.0019337685928014407,
-  0.000541821697739471,
-  -0.001982199692042297,
-  -0.0006910245142444117,
-  0.002024322160844001,
-  0.0008520824741785767,
-  -0.002055741572830972,
-  -0.001020362238287679,
-  0.002079213705325703,
-  0.0011972552187956916,
-  -0.0020942298043597598,
-  -0.0013845809849366939,
-  0.002097301413388113,
-  0.0015798608080677184,
-  -0.002087994929994642,
-  -0.001782733976532877,
-  0.0020665285478322607,
-  0.0019929259342809165,
-  -0.002032057542797906,
-  -0.002210338920343137,
-  0.001984772306106167,
-  0.002436541789060056,
-  -0.0019215393461052927,
-  -0.0026707189588777323,
-  0.001840102770923457,
-  0.0029115081219445176,
-  -0.0017395842985087446,
-  -0.0031570467525206167,
-  0.001619489413767174,
-  0.0034064616892494327,
-  -0.0014802255854781685,
-  -0.003660775320803398,
-  0.0013181826879756018,
-  0.003918235492888684,
-  -0.0011328155156504587,
-  -0.004176339968933465,
-  0.0009262314488025278,
-  0.004437604524964876,
-  -0.0006951197648890718,
-  -0.0047027337637612675,
-  0.0004355955605919048,
-  0.004969137135767011,
-  -0.00014609476247491634,
-  -0.005235915459434929,
-  -0.0001759514275892595,
-  0.005500082049390828,
-  0.0005319093332938999,
-  -0.005760869909515167,
-  -0.000922819481188368,
-  0.006017263268237365,
-  0.0013491154742875334,
-  -0.006270644068081035,
-  -0.0018146648018742405,
-  0.006524164938970316,
-  0.002328300280242728,
-  -0.006774003626822009,
-  -0.0028963279468078823,
-  0.0070145694890924705,
-  0.0035200170506957534,
-  -0.007246695746638208,
-  -0.004206429986685214,
-  0.007469157064357891,
-  0.00496054163856269,
-  -0.007686407446792828,
-  -0.005796595373113867,
-  0.00789950918677718,
-  0.00673641198570318,
-  -0.008100549258523887,
-  -0.007794827514909987,
-  0.008284657989941095,
-  0.008987966909281029,
-  -0.00845909609239332,
-  -0.010352159411867599,
-  0.008627196900587402,
-  0.011939069654911325,
-  -0.0087860714510989,
-  -0.013821517475090798,
-  0.008920147217940889,
-  0.01607819301506894,
-  -0.009042759740892631,
-  -0.01886078560101917,
-  0.009164220367397535,
-  0.022431465753560042,
-  -0.00926292514514495,
-  -0.027194788165598532,
-  0.009337602501036319,
-  0.03392381052896256,
-  -0.009421060194150404,
-  -0.04435768491531225,
-  0.009463534832490047,
-  0.06285606294099673,
-  -0.009508808491550906,
-  -0.10562245481486887,
-  0.009528668403349719,
-  0.31814834666458525,
-  0.49046226441972546,
-  0.31814834666458525,
-  0.009528668403349719,
-  -0.10562245481486887,
-  -0.009508808491550906,
-  0.06285606294099673,
-  0.009463534832490047,
-  -0.04435768491531225,
-  -0.009421060194150404,
-  0.03392381052896256,
-  0.009337602501036319,
-  -0.027194788165598532,
-  -0.00926292514514495,
-  0.022431465753560042,
-  0.009164220367397535,
-  -0.01886078560101917,
-  -0.009042759740892631,
-  0.01607819301506894,
-  0.008920147217940889,
-  -0.013821517475090798,
-  -0.0087860714510989,
-  0.011939069654911325,
-  0.008627196900587402,
-  -0.010352159411867599,
-  -0.00845909609239332,
-  0.008987966909281029,
-  0.008284657989941095,
-  -0.007794827514909987,
-  -0.008100549258523887,
-  0.00673641198570318,
-  0.00789950918677718,
-  -0.005796595373113867,
-  -0.007686407446792828,
-  0.00496054163856269,
-  0.007469157064357891,
-  -0.004206429986685214,
-  -0.007246695746638208,
-  0.0035200170506957534,
-  0.0070145694890924705,
-  -0.0028963279468078823,
-  -0.006774003626822009,
-  0.002328300280242728,
-  0.006524164938970316,
-  -0.0018146648018742405,
-  -0.006270644068081035,
-  0.0013491154742875334,
-  0.006017263268237365,
-  -0.000922819481188368,
-  -0.005760869909515167,
-  0.0005319093332938999,
-  0.005500082049390828,
-  -0.0001759514275892595,
-  -0.005235915459434929,
-  -0.00014609476247491634,
-  0.004969137135767011,
-  0.0004355955605919048,
-  -0.0047027337637612675,
-  -0.0006951197648890718,
-  0.004437604524964876,
-  0.0009262314488025278,
-  -0.004176339968933465,
-  -0.0011328155156504587,
-  0.003918235492888684,
-  0.0013181826879756018,
-  -0.003660775320803398,
-  -0.0014802255854781685,
-  0.0034064616892494327,
-  0.001619489413767174,
-  -0.0031570467525206167,
-  -0.0017395842985087446,
-  0.0029115081219445176,
-  0.001840102770923457,
-  -0.0026707189588777323,
-  -0.0019215393461052927,
-  0.002436541789060056,
-  0.001984772306106167,
-  -0.002210338920343137,
-  -0.002032057542797906,
-  0.0019929259342809165,
-  0.0020665285478322607,
-  -0.001782733976532877,
-  -0.002087994929994642,
-  0.0015798608080677184,
-  0.002097301413388113,
-  -0.0013845809849366939,
-  -0.0020942298043597598,
-  0.0011972552187956916,
-  0.002079213705325703,
-  -0.001020362238287679,
-  -0.002055741572830972,
-  0.0008520824741785767,
-  0.002024322160844001,
-  -0.0006910245142444117,
-  -0.001982199692042297,
-  0.000541821697739471,
-  0.0019337685928014407,
-  -0.0004035161804016949,
-  -0.001881696493025582,
-  0.0002737622418083326,
-  0.0018256818247379184,
-  -0.00015204113770257114,
-  -0.001765356632300814,
-  0.000040143211986402036,
-  0.0017026260682672545,
-  0.00006166261410519799,
-  -0.0016411747567308327,
-  -0.0001566613427064749,
-  0.0015806546709879379,
-  0.0002472703117996068,
-  -0.0015184925957025337,
-  -0.00032830643858501135,
-  0.0014624505862821692,
-  0.0004075633715512571,
-  -0.0014106592767338525,
-  -0.0004860199238911441,
-  0.001361364804114139,
-  0.0005626386328330978,
-  -0.0013224338252105134,
-  -0.0006444165186196637,
-  0.0012918292045641761,
-  0.0007418247261252848,
-  -0.0012691519366243526,
-  -0.0008525812852194027,
-  0.0012572706762844312,
-  0.0010103949386506149,
-  -0.0012532191329833234,
-  -0.0012134211658915053,
-  0.0012334895777255524,
-  0.0015374902743830877,
-  -0.0011986760505457506,
-  -0.0019936304159304166,
-  0.000993514906393239,
-  0.0027991371042265924,
-  -0.0004787300789340427,
-  -0.003965274585687784,
-  -0.0015395665181704339,
-  0.005678325160705147,
-  0.009560280427366582,
-  0.007547972481211767,
-  0.002509435152747353
-    ]
-
-filterKernel = torch.tensor(filterKernel)
-filterKernel = filterKernel.view(1,1,-1)
-
 def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):
     # calculate the highest frequency we need to preserve and the
     # lowest frequency we allow to pass through. Note that frequency
@@ -349,6 +64,8 @@ def nextpow2(A):
     return int(np.ceil(np.log2(A)))
 
 def complex_mul(cqt_filter, stft):
+    """Since PyTorch does not support complex numbers and its operation. We need to write our own complex multiplication function. This one is specially designed for CQT usage"""
+    
     cqt_filter_real = cqt_filter[0]
     cqt_filter_imag = cqt_filter[1]
     fourier_real = stft[0]
@@ -386,7 +103,7 @@ def broadcast_dim_conv2d(x):
 
 
 ## Kernal generation functions ##
-def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', window='hann'):
+def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', window='hann'):
     """
     If freq_scale is 'no', then low and high arguments will be ignored
     """
@@ -435,7 +152,10 @@ def create_fourier_kernals(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
         print("Please select the correct frequency scale, 'linear' or 'log'")
     return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq
 
-def create_cqt_kernals(fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
+def create_cqt_kernels(fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
+    """
+    Automatically create CQT kernels and convert it to frequency domain
+    """
     # norm arg is not functioning
     
     Q = 1/(2**(1/bins_per_octave)-1)
@@ -458,7 +178,7 @@ def create_cqt_kernals(fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='
         freq = freqs[k]
         l = np.ceil(Q * fs / freq)
         lenghts = np.ceil(Q * fs / freqs)
-        # Centering the kernals
+        # Centering the kernels
         if l%2==1: # pad more zeros on RHS
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
         else:
@@ -828,15 +548,15 @@ class CQT1992(torch.nn.Module):
         self.pad_mode = pad_mode
         self.norm = norm
         
-        # creating kernals for CQT
-        self.cqt_kernals, self.kernal_width, lenghts = create_cqt_kernals(sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
-        self.cqt_kernals_real = torch.tensor(self.cqt_kernals.real)
-        self.cqt_kernals_imag = torch.tensor(self.cqt_kernals.imag)
+        # creating kernels for CQT
+        self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
+        self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
+        self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
 
-        # creating kernals for stft
-#         self.cqt_kernals_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
-#         self.cqt_kernals_imag*=lenghts.unsqueeze(1)/self.kernal_width
-        wsin, wcos, self.bins2freq = create_fourier_kernals(self.kernal_width, window='ones', freq_scale='no')
+        # creating kernels for stft
+#         self.cqt_kernels_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
+#         self.cqt_kernels_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        wsin, wcos, self.bins2freq = create_fourier_kernels(self.kernal_width, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos)        
         
@@ -860,7 +580,7 @@ class CQT1992(torch.nn.Module):
         fourier_imag = conv1d(x, self.wsin, stride=self.hop_length)
         
         # CQT
-        CQT_real, CQT_imag = complex_mul((self.cqt_kernals_real, self.cqt_kernals_imag), 
+        CQT_real, CQT_imag = complex_mul((self.cqt_kernels_real, self.cqt_kernels_imag), 
                                          (fourier_real, fourier_imag))
         
         # Getting CQT Amplitude
@@ -877,7 +597,7 @@ class STFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -912,7 +632,7 @@ class DFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -977,7 +697,7 @@ class iSTFT_complex_2d(torch.nn.Module):
         self.n_fft = n_fft
 
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
         
@@ -1024,7 +744,7 @@ class MelSpectrogram(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernals(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -1055,7 +775,7 @@ class MelSpectrogram(torch.nn.Module):
     
     ### ----------------CQT 2010------------------------------------------------------- ###
 
-def create_cqt_kernals2010(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
+def create_cqt_kernels2010(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
     # norm arg is not functioning
     
     Q = 1/(2**(1/bins_per_octave)-1)
@@ -1077,7 +797,7 @@ def create_cqt_kernals2010(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, n
         freq = freqs[k]
         l = np.ceil(Q * fs / freq)
         lenghts = np.ceil(Q * fs / freqs)
-        # Centering the kernals
+        # Centering the kernels
         if l%2==1: # pad more zeros on RHS
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
         else:
@@ -1132,7 +852,9 @@ from librosa import filters, get_fftlib, util
 class CQT2010(torch.nn.Module):
     """
     This alogrithm is using the resampling method proposed in [1]. Instead of convoluting the STFT results with a gigantic CQT kernel covering the full frequency spectrum, we make a small CQT kernel covering only the top octave. Then we keep downsampling the input audio by a factor of 2 to convoluting it with the small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled input is equavalent to the next lower octave.
+    The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code from the 1992 alogrithm [2] 
     [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
+    [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992).
     """
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect'):
         super(CQT2010, self).__init__()
@@ -1157,41 +879,38 @@ class CQT2010(torch.nn.Module):
         
         # Calculate the lowest frequency bin for the top octave kernel
         self.fmin_t = fmin*2**(self.n_octaves-1)
-#         fft_basis, self.n_fft, _ = cqt_filter_fft(sr, fmin_t,
-#                                             n_filters,
-#                                             bins_per_octave,
-#                                             tuning=0,
-#                                             filter_scale=1,
-#                                             norm=None,
-#                                             sparsity=0,
-#                                             window=window)
-        fft_basis, self.n_fft, _ = create_cqt_kernals(sr, self.fmin_t, n_filters, bins_per_octave)
-
+        
+        # Preparing CQT kernels
+        fft_basis, self.n_fft, _ = create_cqt_kernels(sr, self.fmin_t, n_filters, bins_per_octave)
         self.fft_basis = fft_basis
-        self.cqt_kernals_real = torch.tensor(fft_basis.real.astype(np.float32))
-        self.cqt_kernals_imag = torch.tensor(fft_basis.imag.astype(np.float32))
+        self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
+        self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
 
-        # creating kernals for stft
-#         self.cqt_kernals_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
-#         self.cqt_kernals_imag*=lenghts.unsqueeze(1)/self.kernal_width
-        wsin, wcos, self.bins2freq = create_fourier_kernals(self.n_fft, window='ones', freq_scale='no')
+        # Preparing kernels for Short-Time Fourier Transform (STFT)
+        # We set the frequency range in the CQT filter instead of here.
+        wsin, wcos, self.bins2freq = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos) 
         
+        # If center==True, the STFT window will be put in the middle, and paddings at the beginning and ending are required.
         if self.center:
             if self.pad_mode == 'constant':
                 self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
             elif self.pad_mode == 'reflect':
                 self.padding = nn.ReflectionPad1d(self.n_fft//2)
-        
+    
+    
     def get_cqt(self,x,hop_length, padding):
-        # STFT
+        """Multiplying the STFT result with the cqt_kernal, check out the 1992 CQT paper [1] for how to multiple the STFT result with the CQT kernel
+        [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992)."""
+        
+        # STFT, converting the audio input from time domain to frequency domain
         x = padding(x)
         fourier_real = conv1d(x, self.wcos, stride=hop_length)
         fourier_imag = conv1d(x, self.wsin, stride=hop_length)
         
-        # CQT
-        CQT_real, CQT_imag = complex_mul((self.cqt_kernals_real, self.cqt_kernals_imag), 
+        # Converting the time domain CQT kernel to the frequency domain kernel
+        CQT_real, CQT_imag = complex_mul((self.cqt_kernels_real, self.cqt_kernels_imag), 
                                          (fourier_real, fourier_imag))
         
         # Getting CQT Amplitude
@@ -1242,8 +961,8 @@ class CQT2010(torch.nn.Module):
             print(i)
             hop = hop//2
             
-#             self.cqt_kernals_real = torch.sqrt(self.cqt_kernals_real)
-#             self.cqt_kernals_imag = torch.sqrt(self.cqt_kernals_imag)
+#             self.cqt_kernels_real = torch.sqrt(self.cqt_kernels_real)
+#             self.cqt_kernels_imag = torch.sqrt(self.cqt_kernels_imag)
             CQT1 = self.get_cqt(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1)
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
@@ -1270,8 +989,8 @@ class CQT2010(torch.nn.Module):
         for i in range(self.n_octaves-1):         
             hop = hop//2
             
-#             self.cqt_kernals_real = torch.sqrt(self.cqt_kernals_real)
-#             self.cqt_kernals_imag = torch.sqrt(self.cqt_kernals_imag)
+#             self.cqt_kernels_real = torch.sqrt(self.cqt_kernels_real)
+#             self.cqt_kernels_imag = torch.sqrt(self.cqt_kernels_imag)
             CQT1 = self.get_cqt(x[i+1], hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1)
           
