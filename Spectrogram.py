@@ -52,7 +52,10 @@ def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth
     
     return filterKernel.astype(np.float32)
 
-
+def downsampling_by_n(x, filterKernel, n):
+    """downsampling by n"""
+    x = conv1d(x,filterKernel,stride=n, padding=(filterKernel.shape[-1]-1)//2)
+    return x
 
 def downsampling_by_2(x, filterKernel):
     x = conv1d(x,filterKernel,stride=2, padding=(filterKernel.shape[-1]-1)//2)
@@ -78,7 +81,7 @@ def complex_mul(cqt_filter, stft):
 
 def broadcast_dim(x):
     """
-    To auto broadcast input so that it can fits into a Conv1d
+    Auto broadcast input so that it can fits into a Conv1d
     """
     if x.dim() == 2:
         x = x[:, None, :]
@@ -107,6 +110,7 @@ def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
     """
     If freq_scale is 'no', then low and high arguments will be ignored
     """
+    
     if freq_bins==None:
         freq_bins = n_fft//2+1
 
@@ -116,7 +120,8 @@ def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
     start_freq = low
     end_freq = high
     bins2freq = []
-
+    binslist = []
+    
     # num_cycles = start_freq*d/44000.
     # scaling_ind = np.log(end_freq/start_freq)/k
 
@@ -126,39 +131,43 @@ def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
 
 
     if freq_scale == 'linear':
+        print("sampling rate = {}. Please make sure the sampling rate is correct in order to get a valid freq range".format(sr))
         start_bin = start_freq*n_fft/sr
         scaling_ind = (end_freq-start_freq)*(n_fft/sr)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
 #             print("linear freq = {}".format((k*scaling_ind+start_bin)*sr/n_fft))
             bins2freq.append((k*scaling_ind+start_bin)*sr/n_fft)
+            binslist.append((k*scaling_ind+start_bin))
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
             
     elif freq_scale == 'log':
+        print("sampling rate = {}. Please make sure the sampling rate is correct in order to get a valid freq range".format(sr))
         start_bin = start_freq*n_fft/sr
         scaling_ind = np.log(end_freq/start_freq)/freq_bins
         for k in range(freq_bins): # Only half of the bins contain useful info
 #             print("log freq = {}".format(np.exp(k*scaling_ind)*start_bin*sr/n_fft))
             bins2freq.append(np.exp(k*scaling_ind)*start_bin*sr/n_fft)
+            binslist.append((np.exp(k*scaling_ind)*start_bin))
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
             
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
             bins2freq.append(k*sr/n_fft)
+            binslist.append(k)
             wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq
+    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist
 
-def create_cqt_kernels(fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
+def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
     """
     Automatically create CQT kernels and convert it to frequency domain
     """
     # norm arg is not functioning
     
-    Q = 1/(2**(1/bins_per_octave)-1)
     fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
     # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
     if (fmax != None) and  (n_bins == None):
@@ -549,16 +558,21 @@ class CQT1992(torch.nn.Module):
         self.norm = norm
         
         # creating kernels for CQT
-        self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
+        Q = 1/(2**(1/bins_per_octave)-1)
+        start = time()
+        self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
-
+        print("Time used to initialize CQT kernels = ", time()-start)
+        
         # creating kernels for stft
 #         self.cqt_kernels_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
 #         self.cqt_kernels_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        start = time()
         wsin, wcos, self.bins2freq = create_fourier_kernels(self.kernal_width, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
-        self.wcos = torch.tensor(wcos)        
+        self.wcos = torch.tensor(wcos)      
+        print("Time used to initialize FFT kernels = {}, n_fft = {}".format(time()-start, self.kernal_width))
         
     def forward(self,x):
         if x.dim() == 2:
@@ -589,6 +603,8 @@ class CQT1992(torch.nn.Module):
         return CQT
     
 class STFT(torch.nn.Module):
+    """When using freq_scale, please set the correct sampling rate. The sampling rate is used to calucate the correct frequency"""
+    
     def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
         super(STFT, self).__init__()
         self.stride = hop_length
@@ -597,17 +613,12 @@ class STFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        x = broadcast_dim(x)
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
@@ -637,12 +648,7 @@ class DFT(torch.nn.Module):
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        x = broadcast_dim(x)
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
@@ -744,7 +750,7 @@ class MelSpectrogram(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
+        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -752,12 +758,7 @@ class MelSpectrogram(torch.nn.Module):
         mel_basis = mel(sr, n_fft, n_mels, low, high, htk=False, norm=norm)
         self.mel_basis = torch.tensor(mel_basis)
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        x = broadcast_dim(x)
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.n_fft//2, 0)
@@ -774,43 +775,6 @@ class MelSpectrogram(torch.nn.Module):
     
     
     ### ----------------CQT 2010------------------------------------------------------- ###
-
-def create_cqt_kernels2010(fs, fmin, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann'):
-    # norm arg is not functioning
-    
-    Q = 1/(2**(1/bins_per_octave)-1)
-    fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
-    # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
-    if (fmax != None) and  (n_bins == None):
-        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))    
-    elif (fmax == None) and  (n_bins != None):
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
-    else:
-        warnings.warn('If fmax is given, n_bins will be ignored',SyntaxWarning)
-        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
-
-    tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
-    specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)    
-    for k in range(0, int(n_bins)):
-        freq = freqs[k]
-        l = np.ceil(Q * fs / freq)
-        lenghts = np.ceil(Q * fs / freqs)
-        # Centering the kernels
-        if l%2==1: # pad more zeros on RHS
-            start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
-        else:
-            start = int(np.ceil(fftLen / 2.0 - l / 2.0))
-        sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
-        if norm: # Normalizing the filter # Trying to normalize like librosa
-            tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
-        else:
-            tempKernel[k, start:start + int(l)] = sig
-        # specKernel[k, :]=fft(conj(tempKernel[k, :]))
-        specKernel[k, :] = fft(tempKernel[k])
-        
-    return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
 
 def cqt_filter_fft(sr, fmin, n_bins, bins_per_octave, tuning,
                      filter_scale, norm, sparsity, hop_length=None,
@@ -855,14 +819,20 @@ class CQT2010(torch.nn.Module):
     The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code from the 1992 alogrithm [2] 
     [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
     [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992).
+    
+    early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
     """
-    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect'):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect', earlydownsample=True):
         super(CQT2010, self).__init__()
         
         self.hop_length = hop_length
         self.center = center
         self.pad_mode = pad_mode
         self.n_bins = n_bins   
+        self.earlydownsample = False # We will activate eraly downsampling later if possible
+        
+        Q = 1/(2**(1/bins_per_octave)-1) # It will be used to calculate filter_cutoff and creating CQT kernels
+        
         
         # Creating lowpass filter and make it a torch tensor
         self.lowpass_filter = torch.tensor( 
@@ -872,6 +842,7 @@ class CQT2010(torch.nn.Module):
                                             transitionBandwidth=0.001))
         self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
         
+
         # Caluate num of filter requires for the kernel
         # n_octaves determines how many resampling requires for the CQT
         n_filters = min(bins_per_octave, n_bins)
@@ -879,18 +850,31 @@ class CQT2010(torch.nn.Module):
         
         # Calculate the lowest frequency bin for the top octave kernel
         self.fmin_t = fmin*2**(self.n_octaves-1)
+        fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave)
+        
+
+        if earlydownsample == True: # Do early downsampling if this argument is True
+            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves)
+        else:
+            self.downsample_factor=1.
         
         # Preparing CQT kernels
-        fft_basis, self.n_fft, _ = create_cqt_kernels(sr, self.fmin_t, n_filters, bins_per_octave)
+        fft_basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave)
         self.fft_basis = fft_basis
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
+        
+#         print("Getting cqt kernel done, n_fft = ",self.n_fft)
 
         # Preparing kernels for Short-Time Fourier Transform (STFT)
         # We set the frequency range in the CQT filter instead of here.
-        wsin, wcos, self.bins2freq = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')
+        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')
+#         print("Getting FFT kernel done")
+        
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos) 
+        
+        
         
         # If center==True, the STFT window will be put in the middle, and paddings at the beginning and ending are required.
         if self.center:
@@ -898,7 +882,7 @@ class CQT2010(torch.nn.Module):
                 self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
             elif self.pad_mode == 'reflect':
                 self.padding = nn.ReflectionPad1d(self.n_fft//2)
-    
+                
     
     def get_cqt(self,x,hop_length, padding):
         """Multiplying the STFT result with the cqt_kernal, check out the 1992 CQT paper [1] for how to multiple the STFT result with the CQT kernel
@@ -917,87 +901,69 @@ class CQT2010(torch.nn.Module):
         CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
         
         return CQT
-        
-    def __early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves):
+
+    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves):
+        window_bandwidth = 1.5 # for hann window
+        filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)   
+        sr, hop_length, downsample_factor=self.early_downsample(sr, hop_length, n_octaves, sr//2, filter_cutoff)
+        if downsample_factor != 1:
+#             print("Can do early downsample, factor = ", downsample_factor)
+            earlydownsample=True
+#             print("new sr = ", sr)
+#             print("new hop_length = ", hop_length)
+            early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor, kernelLength=256, transitionBandwidth=0.03)
+            early_downsample_filter = torch.tensor(early_downsample_filter)[None, None, :]
+        else:
+            early_downsample_filter = None
+            earlydownsample=False
+        return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample    
+    
+    # The following two downsampling count functions are obtained from librosa CQT 
+    # They are used to determine the number of pre resamplings if the starting and ending frequency are both in low frequency regions.
+    def early_downsample_count(self, nyquist, filter_cutoff, hop_length, n_octaves):
         '''Compute the number of early downsampling operations'''
 
-        downsample_count1 = max(0, int(np.ceil(np.log2(audio.BW_FASTEST * nyquist /
+        downsample_count1 = max(0, int(np.ceil(np.log2(0.85 * nyquist /
                                                        filter_cutoff)) - 1) - 1)
-
-        num_twos = __num_two_factors(hop_length)
+#         print("downsample_count1 = ", downsample_count1)
+        num_twos = nextpow2(hop_length)
         downsample_count2 = max(0, num_twos - n_octaves + 1)
+#         print("downsample_count2 = ",downsample_count2)
 
-        return min(downsample_count1, downsample_count2)      
-#     nyquist = sr / 2.0
-#     downsample_count = __early_downsample_count(nyquist, filter_cutoff,
-#                                                 hop_length, n_octaves)    
+        return min(downsample_count1, downsample_count2)
+
+    def early_downsample(self, sr, hop_length, n_octaves,
+                           nyquist, filter_cutoff):
+        '''Return new sampling rate and hop length after early dowansampling'''
+        downsample_count = self.early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves)
+#         print("downsample_count = ", downsample_count)
+        downsample_factor = 2**(downsample_count)
+
+        hop_length //= downsample_factor # Getting new hop_length
+        new_sr = sr / float(downsample_factor) # Getting new sampling rate
+
+        sr = new_sr
+
+        return sr, hop_length, downsample_factor
+    
     
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        elif x.dim() == 3:
-            pass
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
-
+        x = broadcast_dim(x)
+#         print("downsample True or not?" , self.earlydownsample)
+        if self.earlydownsample==True:
+            x = downsampling_by_n(x, self.early_downsample_filter, self.downsample_factor)
+            print(x.shape)
         hop = self.hop_length
-#         CQT = self.get_cqt(x, hop)
-#         for i in range(self.n_octaves-1):
-#             x = self.downsample(x)
-#             hop = hop//2
-#             CQT_down = self.get_cqt(x, hop)  
-#             if i == 0:             
-#                 CQT_stack = torch.cat((CQT, CQT_down),0)
-#             else:
-#                 CQT_stack = torch.cat((CQT_stack, CQT_down),0)
-
-        CQT = self.get_cqt(x, hop, self.padding) 
-        x_down = downsampling_by_2(x, self.lowpass_filter)
-        x_down_list = []
-        x_down_list.append(x_down)
-        for i in range(self.n_octaves-1):  
-            print(i)
-            hop = hop//2
-            
-#             self.cqt_kernels_real = torch.sqrt(self.cqt_kernels_real)
-#             self.cqt_kernels_imag = torch.sqrt(self.cqt_kernels_imag)
-            CQT1 = self.get_cqt(x_down, hop, self.padding)
-            CQT = torch.cat((CQT1, CQT),1)
-            x_down = downsampling_by_2(x_down, self.lowpass_filter)
-            x_down_list.append(x_down)
-        CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
-        CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
-        if (self.n_octaves-1):          
-            warnings.warn('There are too many resampling',Warning)
-        return CQT, x_down_list
-    
-    def debug_forward(self,x):
-        hop = self.hop_length
-#         CQT = self.get_cqt(x, hop)
-#         for i in range(self.n_octaves-1):
-#             x = self.downsample(x)
-#             hop = hop//2
-#             CQT_down = self.get_cqt(x, hop)  
-#             if i == 0:             
-#                 CQT_stack = torch.cat((CQT, CQT_down),0)
-#             else:
-#                 CQT_stack = torch.cat((CQT_stack, CQT_down),0)
-
-        CQT = self.get_cqt(x[0], hop, self.padding) 
-        for i in range(self.n_octaves-1):         
-            hop = hop//2
-            
-#             self.cqt_kernels_real = torch.sqrt(self.cqt_kernels_real)
-#             self.cqt_kernels_imag = torch.sqrt(self.cqt_kernels_imag)
-            CQT1 = self.get_cqt(x[i+1], hop, self.padding)
-            CQT = torch.cat((CQT1, CQT),1)
-          
-         
+        CQT = self.get_cqt(x, hop, self.padding) #Getting the top octave CQT
         
+        x_down = x # Preparing a new variable for downsampling
+        for i in range(self.n_octaves-1):  
+            hop = hop//2   
+            x_down = downsampling_by_2(x_down, self.lowpass_filter)
+            CQT1 = self.get_cqt(x_down, hop, self.padding)
+            CQT = torch.cat((CQT1, CQT),1) #
         CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
-        if (self.n_octaves-1)>6:          
-            warnings.warn('There are too many resampling',Warning)
-        return CQT
+
+        return CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
+    
