@@ -559,20 +559,23 @@ class CQT1992(torch.nn.Module):
         
         # creating kernels for CQT
         Q = 1/(2**(1/bins_per_octave)-1)
+        
+        print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
-        print("Time used to initialize CQT kernels = ", time()-start)
+        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
         
         # creating kernels for stft
 #         self.cqt_kernels_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
 #         self.cqt_kernels_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        print("Creating STFT kernels ...", end='\r')
         start = time()
-        wsin, wcos, self.bins2freq = create_fourier_kernels(self.kernal_width, window='ones', freq_scale='no')
+        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.kernal_width, window='ones', freq_scale='no')
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos)      
-        print("Time used to initialize FFT kernels = {}, n_fft = {}".format(time()-start, self.kernal_width))
+        print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
         
     def forward(self,x):
         if x.dim() == 2:
@@ -821,6 +824,7 @@ class CQT2010(torch.nn.Module):
     [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992).
     
     early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
+    
     """
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect', earlydownsample=True):
         super(CQT2010, self).__init__()
@@ -859,20 +863,23 @@ class CQT2010(torch.nn.Module):
             self.downsample_factor=1.
         
         # Preparing CQT kernels
+        print("Creating CQT kernels ...", end='\r')
+        start = time()
         fft_basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave)
         self.fft_basis = fft_basis
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
-        
+        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 #         print("Getting cqt kernel done, n_fft = ",self.n_fft)
 
         # Preparing kernels for Short-Time Fourier Transform (STFT)
         # We set the frequency range in the CQT filter instead of here.
-        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')
-#         print("Getting FFT kernel done")
-        
+        print("Creating STFT kernels ...", end='\r')
+        start = time()
+        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')  
         self.wsin = torch.tensor(wsin)
         self.wcos = torch.tensor(wcos) 
+        print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
         
         
         
