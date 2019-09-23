@@ -837,15 +837,16 @@ class CQT2010(torch.nn.Module):
         
         Q = 1/(2**(1/bins_per_octave)-1) # It will be used to calculate filter_cutoff and creating CQT kernels
         
-        
         # Creating lowpass filter and make it a torch tensor
+        print("Creating low pass filter ...", end='\r')
+        start = time()
         self.lowpass_filter = torch.tensor( 
                                             create_lowpass_filter(
                                             band_center = 0.5, 
                                             kernelLength=256,
                                             transitionBandwidth=0.001))
         self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
-        
+        print("Low pass filter created, time used = {:.4f} seconds".format(time()-start))
 
         # Caluate num of filter requires for the kernel
         # n_octaves determines how many resampling requires for the CQT
@@ -858,7 +859,10 @@ class CQT2010(torch.nn.Module):
         
 
         if earlydownsample == True: # Do early downsampling if this argument is True
+            print("Creating early downsampling filter ...", end='\r')
+            start = time()            
             sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves)
+            print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
         else:
             self.downsample_factor=1.
         
