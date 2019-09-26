@@ -745,7 +745,7 @@ class iSTFT_complex_2d(torch.nn.Module):
         return (real/self.n_fft, imag/self.n_fft)    
     
 class MelSpectrogram(torch.nn.Module):
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', low=0.0, high=None, norm=1):
+    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, low=0.0, high=None, norm=1):
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -758,7 +758,7 @@ class MelSpectrogram(torch.nn.Module):
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
         # Creating kenral for mel spectrogram
-        mel_basis = mel(sr, n_fft, n_mels, low, high, htk=False, norm=norm)
+        mel_basis = mel(sr, n_fft, n_mels, low, high, htk=htk, norm=norm)
         self.mel_basis = torch.tensor(mel_basis)
     def forward(self,x):
         x = broadcast_dim(x)
