@@ -893,6 +893,9 @@ class CQT2010(torch.nn.Module):
                 self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
             elif self.pad_mode == 'reflect':
                 self.padding = nn.ReflectionPad1d(self.n_fft//2)
+        else:
+            self.padding = nn.Identity() # No padding to the input
+            
                 
     
     def get_cqt(self,x,hop_length, padding):
