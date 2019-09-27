@@ -826,14 +826,13 @@ class CQT2010(torch.nn.Module):
     early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
     
     """
-    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', center=True, pad_mode='reflect', earlydownsample=True):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', pad_mode='reflect', earlydownsample=True):
         super(CQT2010, self).__init__()
         
         self.hop_length = hop_length
-        self.center = center
         self.pad_mode = pad_mode
         self.n_bins = n_bins   
-        self.earlydownsample = False # We will activate eraly downsampling later if possible
+        self.earlydownsample = earlydownsample # We will activate eraly downsampling later if possible
         
         Q = 1/(2**(1/bins_per_octave)-1) # It will be used to calculate filter_cutoff and creating CQT kernels
         
@@ -857,8 +856,7 @@ class CQT2010(torch.nn.Module):
         self.fmin_t = fmin*2**(self.n_octaves-1)
         fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave)
         
-
-        if earlydownsample == True: # Do early downsampling if this argument is True
+        if self.earlydownsample == True: # Do early downsampling if this argument is True
             print("Creating early downsampling filter ...", end='\r')
             start = time()            
             sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves)
@@ -888,14 +886,10 @@ class CQT2010(torch.nn.Module):
         
         
         # If center==True, the STFT window will be put in the middle, and paddings at the beginning and ending are required.
-        if self.center:
-            if self.pad_mode == 'constant':
-                self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
-            elif self.pad_mode == 'reflect':
-                self.padding = nn.ReflectionPad1d(self.n_fft//2)
-        else:
-            self.padding = nn.Identity() # No padding to the input
-            
+        if self.pad_mode == 'constant':
+            self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
+        elif self.pad_mode == 'reflect':
+            self.padding = nn.ReflectionPad1d(self.n_fft//2)
                 
     
     def get_cqt(self,x,hop_length, padding):
@@ -903,7 +897,10 @@ class CQT2010(torch.nn.Module):
         [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992)."""
         
         # STFT, converting the audio input from time domain to frequency domain
-        x = padding(x)
+        try:
+            x = padding(x) # When center == True, we need padding at the beginning and ending
+        except:
+            print("padding with reflection mode might not be the best choice, try using constant padding")
         fourier_real = conv1d(x, self.wcos, stride=hop_length)
         fourier_imag = conv1d(x, self.wsin, stride=hop_length)
         
@@ -921,13 +918,14 @@ class CQT2010(torch.nn.Module):
         filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)   
         sr, hop_length, downsample_factor=self.early_downsample(sr, hop_length, n_octaves, sr//2, filter_cutoff)
         if downsample_factor != 1:
-#             print("Can do early downsample, factor = ", downsample_factor)
+            print("Can do early downsample, factor = ", downsample_factor)
             earlydownsample=True
 #             print("new sr = ", sr)
 #             print("new hop_length = ", hop_length)
             early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor, kernelLength=256, transitionBandwidth=0.03)
             early_downsample_filter = torch.tensor(early_downsample_filter)[None, None, :]
-        else:
+        else:            
+            print("No early downsampling is required, downsample_factor = ", downsample_factor)
             early_downsample_filter = None
             earlydownsample=False
         return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample    
@@ -963,10 +961,8 @@ class CQT2010(torch.nn.Module):
     
     def forward(self,x):
         x = broadcast_dim(x)
-#         print("downsample True or not?" , self.earlydownsample)
         if self.earlydownsample==True:
             x = downsampling_by_n(x, self.early_downsample_filter, self.downsample_factor)
-            print(x.shape)
         hop = self.hop_length
         CQT = self.get_cqt(x, hop, self.padding) #Getting the top octave CQT
         
