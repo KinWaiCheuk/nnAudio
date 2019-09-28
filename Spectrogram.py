@@ -106,7 +106,7 @@ def broadcast_dim_conv2d(x):
 
 
 ## Kernal generation functions ##
-def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, freq_scale='linear', window='hann'):
+def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100, freq_scale='linear', window='hann'):
     """
     If freq_scale is 'no', then low and high arguments will be ignored
     """
@@ -117,8 +117,8 @@ def create_fourier_kernels(n_fft, freq_bins=None, low=50,high=6000, sr=44100, fr
     s = np.arange(0, n_fft, 1.)
     wsin = np.empty((freq_bins,1,n_fft))
     wcos = np.empty((freq_bins,1,n_fft))
-    start_freq = low
-    end_freq = high
+    start_freq = fmin
+    end_freq = fmax
     bins2freq = []
     binslist = []
     
@@ -608,7 +608,7 @@ class CQT1992(torch.nn.Module):
 class STFT(torch.nn.Module):
     """When using freq_scale, please set the correct sampling rate. The sampling rate is used to calucate the correct frequency"""
     
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050):
         super(STFT, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -616,7 +616,7 @@ class STFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, fmin=fmin,fmax=fmax, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -638,7 +638,7 @@ class DFT(torch.nn.Module):
     """
     The inverse function only works for 1 single frame. i.e. input shape = (batch, n_fft, 1)
     """    
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050):
         super(DFT, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -646,7 +646,7 @@ class DFT(torch.nn.Module):
         self.n_fft = n_fft
         
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, fmin=fmin,fmax=fmax, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
@@ -698,7 +698,7 @@ class DFT(torch.nn.Module):
         return (real/self.n_fft, imag/self.n_fft)    
 
 class iSTFT_complex_2d(torch.nn.Module):
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', low=50,high=6000, sr=22050):
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050):
         super(iSTFT_complex_2d, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -706,7 +706,7 @@ class iSTFT_complex_2d(torch.nn.Module):
         self.n_fft = n_fft
 
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, low=low,high=high, sr=sr)
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft, freq_bins=n_fft, window=window, freq_scale=freq_scale, fmin=fmin,fmax=fmax, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float)
         self.wcos = torch.tensor(wcos, dtype=torch.float)
         
@@ -745,7 +745,7 @@ class iSTFT_complex_2d(torch.nn.Module):
         return (real/self.n_fft, imag/self.n_fft)    
     
 class MelSpectrogram(torch.nn.Module):
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, low=0.0, high=None, norm=1):
+    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1):
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -758,7 +758,7 @@ class MelSpectrogram(torch.nn.Module):
         self.wcos = torch.tensor(wcos, dtype=torch.float)
 
         # Creating kenral for mel spectrogram
-        mel_basis = mel(sr, n_fft, n_mels, low, high, htk=htk, norm=norm)
+        mel_basis = mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
         self.mel_basis = torch.tensor(mel_basis)
     def forward(self,x):
         x = broadcast_dim(x)
@@ -826,9 +826,11 @@ class CQT2010(torch.nn.Module):
     early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
     
     """
-    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, window='hann', pad_mode='reflect', earlydownsample=True):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True):
         super(CQT2010, self).__init__()
         
+        self.norm = norm # Now norm is used to normalize the final CQT result by dividing n_fft
+        #basis_norm is for normlaizing basis
         self.hop_length = hop_length
         self.pad_mode = pad_mode
         self.n_bins = n_bins   
@@ -867,7 +869,7 @@ class CQT2010(torch.nn.Module):
         # Preparing CQT kernels
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        fft_basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave)
+        fft_basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
         self.fft_basis = fft_basis
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
@@ -975,5 +977,9 @@ class CQT2010(torch.nn.Module):
         CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
-        return CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
-    
+        CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
+        
+        if self.norm:
+            return CQT/self.n_fft
+        else:
+            return CQT
