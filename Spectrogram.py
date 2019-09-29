@@ -197,10 +197,10 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, windo
             tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
         else:
             tempKernel[k, start:start + int(l)] = sig
-        # specKernel[k, :]=fft(conj(tempKernel[k, :]))
-        specKernel[k, :] = fft(tempKernel[k])
+#         specKernel[k, :] = fft(tempKernel[k])
         
-    return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
+#     return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
+    return tempKernel, fftLen, torch.tensor(lenghts).float()
 
 def create_cqt_kernels_t(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
     """
@@ -907,13 +907,13 @@ class CQT2010(torch.nn.Module):
         # Preparing CQT kernels
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        fft_basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
-        self.fft_basis = fft_basis
+        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
+        fft_basis = fft(basis)[:,:self.n_fft//2+1]
+
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 #         print("Getting cqt kernel done, n_fft = ",self.n_fft)
-
         # Preparing kernels for Short-Time Fourier Transform (STFT)
         # We set the frequency range in the CQT filter instead of here.
         print("Creating STFT kernels ...", end='\r')
@@ -953,22 +953,6 @@ class CQT2010(torch.nn.Module):
         
         return CQT
 
-    def get_cqt2(self,x,hop_length, padding):
-        """Multiplying the STFT result with the cqt_kernal, check out the 1992 CQT paper [1] for how to multiple the STFT result with the CQT kernel
-        [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992)."""
-        
-        # STFT, converting the audio input from time domain to frequency domain
-        try:
-            x = padding(x) # When center == True, we need padding at the beginning and ending
-        except:
-            print("padding with reflection mode might not be the best choice, try using constant padding")
-        fourier_real = conv1d(x, self.wcos, stride=hop_length)
-        fourier_imag = conv1d(x, self.wsin, stride=hop_length)
-        
-        self.a = torch.sqrt(fourier_real.pow(2) + fourier_imag.pow(2))
-        self.b = torch.sqrt(self.cqt_kernels_real.pow(2) + self.cqt_kernels_imag.pow(2))
-        
-        return torch.matmul(self.b, self.a)   
     
     def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves):
         window_bandwidth = 1.5 # for hann window
@@ -1115,24 +1099,13 @@ class CQT2019(torch.nn.Module):
         # Preparing CQT kernels
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        basis, self.n_fft, _ = create_cqt_kernels_t(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
+        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
         self.n_fft = self.n_fft
         self.basis = basis
         self.cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
-#         print("Getting cqt kernel done, n_fft = ",self.n_fft)
-
-        # Preparing kernels for Short-Time Fourier Transform (STFT)
-        # We set the frequency range in the CQT filter instead of here.
-        print("Creating STFT kernels ...", end='\r')
-        start = time()
-        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')  
-        self.wsin = torch.tensor(wsin)
-        self.wcos = torch.tensor(wcos) 
-        print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
-        
-        
+#         print("Getting cqt kernel done, n_fft = ",self.n_fft)      
         
         # If center==True, the STFT window will be put in the middle, and paddings at the beginning and ending are required.
         if self.pad_mode == 'constant':
