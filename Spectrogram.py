@@ -601,6 +601,7 @@ class CQT1992(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
+        self.cqt_kernels = fft(self.cqt_kernels)[:,:self.kernal_width]
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -642,7 +643,56 @@ class CQT1992(torch.nn.Module):
         CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
         
         return CQT
-    
+
+class CQT1992v2(torch.nn.Module):
+    def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect'):
+        super(CQT1992v2, self).__init__()
+        # norm arg is not functioning
+        
+        self.hop_length = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.norm = norm
+        
+        # creating kernels for CQT
+        Q = 1/(2**(1/bins_per_octave)-1)
+        
+        print("Creating CQT kernels ...", end='\r')
+        start = time()
+        self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
+        self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real).unsqueeze(1)
+        self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag).unsqueeze(1)
+        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
+        
+        # creating kernels for stft
+#         self.cqt_kernels_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
+#         self.cqt_kernels_imag*=lenghts.unsqueeze(1)/self.kernal_width
+        
+    def forward(self,x):
+        if x.dim() == 2:
+            x = x[:, None, :]
+        elif x.dim() == 1:
+            x = x[None, None, :]
+        else:
+            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        if self.center:
+            if self.pad_mode == 'constant':
+                padding = nn.ConstantPad1d(self.kernal_width//2, 0)
+            elif self.pad_mode == 'reflect':
+                padding = nn.ReflectionPad1d(self.kernal_width//2)
+
+            x = padding(x)
+
+        # CQT
+        CQT_real = conv1d(x, self.cqt_kernels_real, stride=self.hop_length)
+        CQT_imag = conv1d(x, self.cqt_kernels_imag, stride=self.hop_length)
+        
+        
+        # Getting CQT Amplitude
+        CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
+        
+        return CQT
+
 class STFT(torch.nn.Module):
     """When using freq_scale, please set the correct sampling rate. The sampling rate is used to calucate the correct frequency"""
     
