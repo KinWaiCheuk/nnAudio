@@ -617,12 +617,7 @@ class CQT1992(torch.nn.Module):
         print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
         
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        x = broadcast_dim(x)
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.kernal_width//2, 0)
@@ -669,12 +664,7 @@ class CQT1992v2(torch.nn.Module):
 #         self.cqt_kernels_imag*=lenghts.unsqueeze(1)/self.kernal_width
         
     def forward(self,x):
-        if x.dim() == 2:
-            x = x[:, None, :]
-        elif x.dim() == 1:
-            x = x[None, None, :]
-        else:
-            raise ValueError("Only support input with shape = (batch, len) or shape = (len)")
+        x = broadcast_dim(x)
         if self.center:
             if self.pad_mode == 'constant':
                 padding = nn.ConstantPad1d(self.kernal_width//2, 0)
@@ -721,6 +711,20 @@ class STFT(torch.nn.Module):
         spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
            + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
         return torch.sqrt(spec)
+    
+    def manual_forward(self,x):
+        x = broadcast_dim(x)
+        if self.center:
+            if self.pad_mode == 'constant':
+                padding = nn.ConstantPad1d(self.n_fft//2, 0)
+            elif self.pad_mode == 'reflect':
+                padding = nn.ReflectionPad1d(self.n_fft//2)
+
+            x = padding(x)
+            
+        imag = conv1d(x, self.wsin, stride=self.stride).pow(2)
+        real = conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
+        return real, imag
     
 class DFT(torch.nn.Module):
     """
