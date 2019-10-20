@@ -1101,7 +1101,7 @@ class CQT2010(torch.nn.Module):
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
             CQT1 = self.get_cqt2(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1) #
-        CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
+        CQT = CQT[:,:self.n_bins,:] #Removing unwanted bottom bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
         CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
@@ -1150,9 +1150,17 @@ class CQT2019(torch.nn.Module):
         self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
         print("num_octave = ", self.n_octaves)
         
-        # Calculate the lowest frequency bin for the top octave kernel
+        # Calculate the lowest frequency bin for the top octave kernel      
         self.fmin_t = fmin*2**(self.n_octaves-1)
-        fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave)
+        remainder = n_bins % bins_per_octave
+#         print("remainder = ", remainder)
+        if remainder==0:
+            fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave) # Calculate the top bin frequency
+        else:
+            fmax_t = self.fmin_t*2**((remainder-1)/bins_per_octave) # Calculate the top bin frequency
+        self.fmin_t = fmax_t/2**(1-1/bins_per_octave) # Adjusting the top minium bins
+        if fmax_t > sr/2:
+            raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(fmax_t))        
         
         if self.earlydownsample == True: # Do early downsampling if this argument is True
             print("Creating early downsampling filter ...", end='\r')
@@ -1257,7 +1265,7 @@ class CQT2019(torch.nn.Module):
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
             CQT1 = self.get_cqt(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1) #
-        CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
+        CQT = CQT[:,-self.n_bins:,:] #Removing unwanted bottom bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
         CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
