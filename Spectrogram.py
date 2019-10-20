@@ -162,7 +162,7 @@ def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100, f
         print("Please select the correct frequency scale, 'linear' or 'log'")
     return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist
 
-def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None):
+def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, window='hann', fmax=None, topbin_check=True):
     """
     Automatically create CQT kernels and convert it to frequency domain
     """
@@ -179,7 +179,7 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, windo
         warnings.warn('If fmax is given, n_bins will be ignored',SyntaxWarning)
         n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
         freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
-    if np.max(freqs) > fs/2:
+    if np.max(freqs) > fs/2 and topbin_check==True:
         raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(np.max(freqs)))
     tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
     specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)    
@@ -945,10 +945,19 @@ class CQT2010(torch.nn.Module):
         # n_octaves determines how many resampling requires for the CQT
         n_filters = min(bins_per_octave, n_bins)
         self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
-        
+#         print("n_octaves = ", self.n_octaves)
         # Calculate the lowest frequency bin for the top octave kernel
         self.fmin_t = fmin*2**(self.n_octaves-1)
-        fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave)
+        remainder = n_bins % bins_per_octave
+#         print("remainder = ", remainder)
+        if remainder==0:
+            fmax_t = self.fmin_t*2**((bins_per_octave-1)/bins_per_octave) # Calculate the top bin frequency
+        else:
+            fmax_t = self.fmin_t*2**((remainder-1)/bins_per_octave) # Calculate the top bin frequency
+        self.fmin_t = fmax_t/2**(1-1/bins_per_octave) # Adjusting the top minium bins
+        if fmax_t > sr/2:
+            raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(fmax_t))
+            
         
         if self.earlydownsample == True: # Do early downsampling if this argument is True
             print("Creating early downsampling filter ...", end='\r')
@@ -961,7 +970,9 @@ class CQT2010(torch.nn.Module):
         # Preparing CQT kernels
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
+#         print("Q = {}, fmin_t = {}, n_filters = {}".format(Q, self.fmin_t, n_filters))
+        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
+        self.basis=basis
         fft_basis = fft(basis)[:,:self.n_fft//2+1]
 
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
@@ -1067,7 +1078,7 @@ class CQT2010(torch.nn.Module):
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
             CQT1 = self.get_cqt(x_down, hop, self.padding)
             CQT = torch.cat((CQT1, CQT),1) #
-        CQT = CQT[:,:self.n_bins,:] #Removing unwanted top bins
+        CQT = CQT[:,-self.n_bins:,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
         CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
@@ -1127,7 +1138,7 @@ class CQT2019(torch.nn.Module):
         start = time()
         self.lowpass_filter = torch.tensor( 
                                             create_lowpass_filter(
-                                            band_center = 0.5, 
+                                            band_center = 0.50, 
                                             kernelLength=256,
                                             transitionBandwidth=0.001))
         self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
@@ -1137,6 +1148,7 @@ class CQT2019(torch.nn.Module):
         # n_octaves determines how many resampling requires for the CQT
         n_filters = min(bins_per_octave, n_bins)
         self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
+        print("num_octave = ", self.n_octaves)
         
         # Calculate the lowest frequency bin for the top octave kernel
         self.fmin_t = fmin*2**(self.n_octaves-1)
@@ -1153,7 +1165,7 @@ class CQT2019(torch.nn.Module):
         # Preparing CQT kernels
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm)
+        basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
         self.n_fft = self.n_fft
         self.basis = basis
         self.cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1) # These cqt_kernal is already in the frequency domain
