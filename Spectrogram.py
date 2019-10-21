@@ -637,7 +637,10 @@ class CQT1992(torch.nn.Module):
         # Getting CQT Amplitude
         CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
         
-        return CQT
+        if self.norm:
+            return CQT/self.kernal_width
+        else:
+            return CQT
 
 class CQT1992v2(torch.nn.Module):
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect'):
@@ -654,7 +657,6 @@ class CQT1992v2(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
-        self.n_fft = self.kernal_width
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real).unsqueeze(1)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag).unsqueeze(1)
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -1080,30 +1082,7 @@ class CQT2010(torch.nn.Module):
         CQT = CQT[:,-self.n_bins:,:] #Removing unwanted top bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
-        CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
-        
-        if self.norm:
-            return CQT/self.n_fft
-        else:
-            return CQT
-        
-    def debug(self,x):
-        x = broadcast_dim(x)
-        if self.earlydownsample==True:
-            x = downsampling_by_n(x, self.early_downsample_filter, self.downsample_factor)
-        hop = self.hop_length
-        CQT = self.get_cqt2(x, hop, self.padding) #Getting the top octave CQT
-        
-        x_down = x # Preparing a new variable for downsampling
-        for i in range(self.n_octaves-1):  
-            hop = hop//2   
-            x_down = downsampling_by_2(x_down, self.lowpass_filter)
-            CQT1 = self.get_cqt2(x_down, hop, self.padding)
-            CQT = torch.cat((CQT1, CQT),1) #
-        CQT = CQT[:,:self.n_bins,:] #Removing unwanted bottom bins
-        CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
-
-        CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
+        CQT = CQT*self.downsample_factor/2**(self.n_octaves-1) # Normalizing the output with the downsampling factor, 2**(self.n_octaves-1) is make it same mag as 1992
         
         if self.norm:
             return CQT/self.n_fft
@@ -1265,8 +1244,8 @@ class CQT2019(torch.nn.Module):
             CQT = torch.cat((CQT1, CQT),1) #
         CQT = CQT[:,-self.n_bins:,:] #Removing unwanted bottom bins
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
-
-        CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
+        print("downsample_factor = ",self.downsample_factor)
+        CQT = CQT*self.downsample_factor/2**(self.n_octaves-1) # Normalizing the output with the downsampling factor, 2**(self.n_octaves-1) is make it same mag as 1992
 
         return CQT
         
