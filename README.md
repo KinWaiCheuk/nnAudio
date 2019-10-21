@@ -44,4 +44,29 @@ class Model(torch.nn.Module):
 
 ## Demostration
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
+
+To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
+
+```
+import Spectrogram 
+CQT_layer = Spectrogram.CQT2019(sr=44100, n_bins=84*2, bins_per_octave=24, fmin=55) # Defining the neural network
+spec = CQT_layer(x) # x is the audio clips with shape=(batch, len_audio)
+```
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_chrom.png)
+
+## Speed
+The speed test is conducted using DGX Station with the following specs
+
+CPU: Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz 
+
+GPU: Tesla v100 32gb
+
+RAM: 256 GB RDIMM DDR4
+
+During the test, only 1 single GPU is used, and the same test is conducted when 
+
+(a) the DGX is idel
+
+(b) the DGX has ongoing jobs
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speed.png)
+
