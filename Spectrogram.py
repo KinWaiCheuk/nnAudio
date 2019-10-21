@@ -601,7 +601,7 @@ class CQT1992(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
-        self.cqt_kernels = fft(self.cqt_kernels)[:,:self.kernal_width]
+        self.cqt_kernels = fft(self.cqt_kernels)[:,:self.kernal_width//2+1].astype(np.float32)
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -647,7 +647,6 @@ class CQT1992v2(torch.nn.Module):
         self.hop_length = hop_length
         self.center = center
         self.pad_mode = pad_mode
-        self.norm = norm
         
         # creating kernels for CQT
         Q = 1/(2**(1/bins_per_octave)-1)
@@ -655,6 +654,7 @@ class CQT1992v2(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
+        self.n_fft = self.kernal_width
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real).unsqueeze(1)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag).unsqueeze(1)
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -680,7 +680,6 @@ class CQT1992v2(torch.nn.Module):
         
         # Getting CQT Amplitude
         CQT = torch.sqrt(CQT_real.pow(2)+CQT_imag.pow(2))
-        
         return CQT
 
 class STFT(torch.nn.Module):
@@ -973,7 +972,7 @@ class CQT2010(torch.nn.Module):
 #         print("Q = {}, fmin_t = {}, n_filters = {}".format(Q, self.fmin_t, n_filters))
         basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
         self.basis=basis
-        fft_basis = fft(basis)[:,:self.n_fft//2+1]
+        fft_basis = fft(basis)[:,:self.n_fft//2+1] # Convert CQT kenral from time domain to freq domain
 
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32)) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
@@ -1174,7 +1173,6 @@ class CQT2019(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
-        self.n_fft = self.n_fft
         self.basis = basis
         self.cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
@@ -1269,6 +1267,6 @@ class CQT2019(torch.nn.Module):
         CQT = CQT*2**(self.n_octaves-1) #Normalizing signals with respect to n_fft
 
         CQT = CQT*self.downsample_factor/2 # Normalizing the output with the downsampling factor, 2 is make it same mag as 1992
-        
+
         return CQT
         
