@@ -601,9 +601,9 @@ class CQT1992(torch.nn.Module):
         print("Creating CQT kernels ...", end='\r')
         start = time()
         self.cqt_kernels, self.kernal_width, lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
-        self.cqt_kernels = fft(self.cqt_kernels)[:,:self.kernal_width//2+1].astype(np.float32)
-        self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real)
-        self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag)
+        self.cqt_kernels = fft(self.cqt_kernels)[:,:self.kernal_width//2+1]
+        self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real.astype(np.float32))
+        self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag.astype(np.float32))
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
         
         # creating kernels for stft
