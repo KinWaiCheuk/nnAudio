@@ -8,7 +8,7 @@ Scipy 1.2.0
 
 PyTorch 1.1.0
 
-# Instruction
+# Instructions
 All the required codes are contained inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below.
 
 
@@ -41,3 +41,7 @@ class Model(torch.nn.Module):
         y = self.linear(torch.relu(torch.flatten(z3,1)))
         return torch.sigmoid(y)
 ```
+
+## Demostration
+The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_chrom.png)
