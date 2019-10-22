@@ -42,6 +42,15 @@ class Model(torch.nn.Module):
         return torch.sigmoid(y)
 ```
 
+If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch runs in CPU, so as nnAudio.
+```
+if torch.cuda.is_available():
+    device = "cuda:0"
+    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+else:
+    device = "cpu"
+```
+
 ## Demostration
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
 
