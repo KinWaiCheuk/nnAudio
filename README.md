@@ -1,6 +1,8 @@
 # nnAudio
 Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. 
 
+The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
+
 # Dependencies
 Numpy 1.14.5
 
@@ -41,7 +43,7 @@ class Model(torch.nn.Module):
         y = self.linear(torch.relu(torch.flatten(z3,1)))
         return torch.sigmoid(y)
 ```
-
+## Using GPU
 If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch runs in CPU, so as nnAudio.
 ```
 if torch.cuda.is_available():
