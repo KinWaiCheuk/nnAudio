@@ -24,6 +24,8 @@ To use nnAudio, you need to import the Spectrogram method first
 
 Then do the following
 ```
+from scipy.io import wavfile
+import torch
 sr, song = wavfile.read('./Bach.wav') # Loading your audio
 x = song.mean(1) # Converting Stereo  to Mono
 x = torch.tensor(x, dtype=torch.float) # casting the array into a PyTorch Tensor
