@@ -18,12 +18,9 @@ All the required codes and examples are inside the jupyter-notebook. The audio p
 ## Installation
 `pip install nnAudio`
 
-## Usage
-To use nnAudio, you need to import the Spectrogram method first
-`from nnAudio import Spectrogram`
-
-Then do the following
+## Standalone Usage
 ```
+from nnAudio import Spectrogram
 from scipy.io import wavfile
 import torch
 sr, song = wavfile.read('./Bach.wav') # Loading your audio
@@ -37,6 +34,7 @@ spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512,
 spec = spec_layer(x) # Feed-forward your waveform to get the spectrogram                                                        
 ```
 
+## On-the-fly audio processing
 One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network
 ```diff
 class Model(torch.nn.Module):
