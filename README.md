@@ -10,10 +10,32 @@ Scipy 1.2.0
 
 PyTorch 1.1.0
 
+Python >= 3.6
+
 # Instructions
-All the required codes are contained inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below.
+All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below.
 
+## Installation
+`pip install nnAudio`
 
+## Usage
+To use nnAudio, you need to import the Spectrogram method first
+`from nnAudio import Spectrogram`
+
+Then do the following
+```
+sr, song = wavfile.read('./Bach.wav') # Loading your audio
+x = song.mean(1) # Converting Stereo  to Mono
+x = torch.tensor(x, dtype=torch.float) # casting the array into a PyTorch Tensor
+
+spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, 
+                              window='hann', freq_scale='linear', center=True, pad_mode='reflect', 
+                              fmin=50,fmax=11025, sr=sr) # Initializing the model
+                              
+spec = spec_layer(x) # Feed-forward your waveform to get the spectrogram                                                        
+```
+
+One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network
 ```diff
 class Model(torch.nn.Module):
     def __init__(self, avg=.9998):
