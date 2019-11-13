@@ -715,7 +715,7 @@ class STFT(torch.nn.Module):
            + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
         if self.trainable==True:
             return torch.sqrt(spec+1e-8) # prevent Nan gradient when sqrt(0)
-        else
+        else:
             return torch.sqrt(spec)
     
     def manual_forward(self,x):
