@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: nnAudio
+Version: 0.0.2
+Summary: A fast GPU audio processing toolbox with 1D convolutional neural network
+Home-page: https://github.com/KinWaiCheuk/nnAudio
+Author: KinWaiCheuk
+Author-email: u3500684@connect.hku.hk
+License: UNKNOWN
+Description: Please refer to the nnAudio homepage 
+        [Github-flavored Markdown](https://github.com/KinWaiCheuk/nnAudio)
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

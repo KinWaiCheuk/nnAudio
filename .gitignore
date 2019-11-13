@@ -2,6 +2,7 @@ y_list.npy
 __pycache__
 .ipynb_checkpoints
 busy
-Installation
+Installation/build
+Installation/dist
 Bach.wav
 Chopin.wav
