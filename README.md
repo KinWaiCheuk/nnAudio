@@ -13,13 +13,13 @@ PyTorch 1.1.0
 Python >= 3.6
 
 # Instructions
-All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below.
+All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
 
 ## Installation
 `pip install nnAudio`
 
 ## Standalone Usage
-```
+```python
 from nnAudio import Spectrogram
 from scipy.io import wavfile
 import torch
@@ -67,7 +67,7 @@ class Model(torch.nn.Module):
 ```
 ## Using GPU
 If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch runs in CPU, so as nnAudio.
-```
+```python
 if torch.cuda.is_available():
     device = "cuda:0"
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -75,16 +75,38 @@ else:
     device = "cpu"
 ```
 
-## Demostration
+## Functionalities
+Currently there are 4 models to generate various types of spectrograms.
+### 1. STFT
+```python
+Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False)
+```
+
+```
+freq_scale: 'no', 'linear', or 'log'. This options controls the spacing of frequency among Fourier basis. When chosing 'no', the STFT output is same as the librosa output. fmin and fmax will have no effect under this option. When chosing 'linear' or 'log', the frequency scale will be in linear scale or logarithmic scale with the
+```
+
+### 2. Mel Spectrogram
+```python
+MelSpectrogram(sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False)
+```
+
+### 3. CQT Naive Approach
+```python
+CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+```
+
+### 4. CQT Down-sampling approach
+
+```python
+CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True)
+```
+
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
 
 To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
 
-```
-import Spectrogram 
-CQT_layer = Spectrogram.CQT2019(sr=44100, n_bins=84*2, bins_per_octave=24, fmin=55) # Defining the neural network
-spec = CQT_layer(x) # x is the audio clips with shape=(batch, len_audio)
-```
+
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_chrom.png)
 
 ## Speed
