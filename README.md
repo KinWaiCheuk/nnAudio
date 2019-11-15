@@ -1,7 +1,10 @@
 # nnAudio
-Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. 
+Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. [Kapre](https://github.com/keunwoochoi/kapre) has a similar concept in which they also use 1D convolution from keras to do the waveforms to spectrogram conversions.
+
+Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained.
 
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
+ 
 
 # Dependencies
 Numpy 1.14.5
@@ -10,10 +13,9 @@ Scipy 1.2.0
 
 PyTorch 1.1.0
 
-librosa 0.7.0
-
 Python >= 3.6
 
+librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunks of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
 
 # Instructions
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
