@@ -10,7 +10,10 @@ Scipy 1.2.0
 
 PyTorch 1.1.0
 
+librosa 0.7.0
+
 Python >= 3.6
+
 
 # Instructions
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
