@@ -11,7 +11,7 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-from librosa.filters import mel # This function is required for calculating Melspectrogram
+from librosa_filters import mel # This is equalvant to from librosa.filters import mel
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -501,7 +501,6 @@ class iSTFT_complex_2d(torch.nn.Module):
         imag = a2+b1
         real = a1-b2
         return (real/self.n_fft, imag/self.n_fft)    
-    
 class MelSpectrogram(torch.nn.Module):
     def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False):
         super(MelSpectrogram, self).__init__()
@@ -541,6 +540,57 @@ class MelSpectrogram(torch.nn.Module):
         
         spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
            + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
+        
+        melspec = torch.matmul(self.mel_basis, spec)
+        return melspec    
+    
+    
+class MelSpectrogramv2(torch.nn.Module):
+    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False):
+        super(MelSpectrogramv2, self).__init__()
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+        self.trainable_STFT=trainable_STFT
+        
+        # Create filter windows for stft
+        if self.trainable_STFT==True:
+            start = time()
+            wsin, wcos, self.bins2freq, _ = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
+            self.wsin = torch.tensor(wsin, dtype=torch.float)
+            self.wcos = torch.tensor(wcos, dtype=torch.float)
+            self.wsin = torch.nn.Parameter(self.wsin)
+            self.wcos = torch.nn.Parameter(self.wcos)  
+            print("STFT filter created, time used = {:.4f} seconds".format(time()-start))
+        else:
+            window = get_window(window,int(n_fft), fftbins=True).astype(np.float32)
+            self.window = torch.tensor(window)
+        # Creating kenral for mel spectrogram
+        start = time()
+        mel_basis = mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
+        self.mel_basis = torch.tensor(mel_basis)
+        print("Mel filter created, time used = {:.4f} seconds".format(time()-start))
+        
+        if trainable_mel==True:
+            self.mel_basis = torch.nn.Parameter(self.mel_basis)
+        
+          
+        
+    def forward(self,x):
+        x = broadcast_dim(x)
+        if self.center:
+            if self.pad_mode == 'constant':
+                padding = nn.ConstantPad1d(self.n_fft//2, 0)
+            elif self.pad_mode == 'reflect':
+                padding = nn.ReflectionPad1d(self.n_fft//2)
+
+            x = padding(x)
+        if self.trainable_STFT==False:
+            spec = torch.stft(x, self.n_fft, self.stride, window=self.window) 
+        else:
+            spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
+               + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
         
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec
@@ -906,3 +956,7 @@ class CQT2010v2(torch.nn.Module):
 
         return CQT*torch.sqrt(self.lenghts.view(-1,1))
         
+        
+class CQT(CQT1992v2):
+    """Using CQT1992v2 as the default CQT algorithm"""
+    pass
