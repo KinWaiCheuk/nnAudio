@@ -4,6 +4,14 @@ Audio processing by using pytorch 1D convolution network. By doing so, spectrogr
 Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained.
 
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
+
+## Reference
+[Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
+
+[nnAudio Abstract for Late-Breaking Demo](http://archives.ismir.net/ismir2019/latebreaking/000011.pdf)
+
+[nnAudio Poster L-11](https://github.com/keunwoochoi/ismir-2019-posters/blob/master/README.md)
+
  
 
 # Dependencies
@@ -98,14 +106,9 @@ MelSpectrogram(sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', 
 
 ### 3. CQT Naive Approach
 ```python
-CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
 ```
 
-### 4. CQT Down-sampling approach
-
-```python
-CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True)
-```
 
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
 
@@ -130,3 +133,22 @@ During the test, only 1 single GPU is used, and the same test is conducted when
 (b) the DGX has ongoing jobs
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speed.png)
 
+# How to cite nnAudio
+Currently there is no paper avaliable for nnAudio, and we are trying to write one.
+But our work is submitted to ISMIR2019 as a late-breaking demo
+
+### APA
+Cheuk, K.W., Agres, K., & Herremans, D. (2019). nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks. ISMIR-LBD.
+
+### Chicago
+Kin Wai Cheuk, Kat Agres, Dorien Herremans. “nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks.” ISMIR-LBD (2019).
+
+### BibTex
+`@inproceedings{kinwai2019LBD,
+  title={nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks},
+  author={Kin Wai Cheuk, Kat Agres, Dorien Herremans},
+  booktitle={ISMIR-LBD},
+  year={2019}`
+  
+
+}
