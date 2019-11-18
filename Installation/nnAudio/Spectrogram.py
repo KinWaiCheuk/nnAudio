@@ -11,7 +11,7 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-from librosa_filters import mel # This is equalvant to from librosa.filters import mel
+from .librosa_filters import mel # This is equalvant to from librosa.filters import mel
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
