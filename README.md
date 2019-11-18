@@ -51,7 +51,7 @@ spec = spec_layer(x) # Feed-forward your waveform to get the spectrogram
 One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network
 ```diff
 class Model(torch.nn.Module):
-    def __init__(self, avg=.9998):
+    def __init__(self):
         super(Model, self).__init__()
         # Getting Mel Spectrogram on the fly
 +       self.spec_layer = Spectrogram.STFT(sr=44100, n_fft=n_fft, freq_bins=freq_bins, fmin=50, fmax=6000, freq_scale='log', pad_mode='constant', center=True)
@@ -78,6 +78,15 @@ class Model(torch.nn.Module):
         y = self.linear(torch.relu(torch.flatten(z3,1)))
         return torch.sigmoid(y)
 ```
+## Trainable Fourier basis
+Fourier basis in `STFT()` can be set trainable by using `trainable=True` argument. Fourier basis in `MelSpectrogram()` can be set trainable by using `trainable_STFT=True`, and Mel filter banks can be set trainable using `trainable_mel=False` argument.
+
+A [demo](https://colab.research.google.com/drive/12VwjKSuXFkXCQd1hr3KUZ2bqzFEe-O6L) is avaliable on Google colab.
+
+The figure below shows the STFT basis before and after training. The difference is subtle in this simple example.
+
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/Trained_basis.PNG)
+
 ## Using GPU
 If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch runs in CPU, so as nnAudio.
 ```python
