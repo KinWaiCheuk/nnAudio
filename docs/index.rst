@@ -6,6 +6,7 @@
 Welcome to nnAudio's documentation!
 ===================================
 nnAudio is an GPU neural network based audio processing tool building on top of PyTorch.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
