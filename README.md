@@ -32,6 +32,8 @@ All the required codes and examples are inside the jupyter-notebook. The audio p
 `pip install nnAudio`
 
 ## Standalone Usage
+To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
+
 ```python
 from nnAudio import Spectrogram
 from scipy.io import wavfile
@@ -54,7 +56,7 @@ class Model(torch.nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         # Getting Mel Spectrogram on the fly
-+       self.spec_layer = Spectrogram.STFT(sr=44100, n_fft=n_fft, freq_bins=freq_bins, fmin=50, fmax=6000, freq_scale='log', pad_mode='constant', center=True)
++       self.spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False, output_format='Magnitude', device='cuda:0')
         self.n_bins = freq_bins         
         
         # Creating CNN Layers
@@ -81,26 +83,40 @@ class Model(torch.nn.Module):
 ## Trainable Fourier basis
 Fourier basis in `STFT()` can be set trainable by using `trainable=True` argument. Fourier basis in `MelSpectrogram()` can be set trainable by using `trainable_STFT=True`, and Mel filter banks can be set trainable using `trainable_mel=False` argument.
 
-A [demo](https://colab.research.google.com/drive/12VwjKSuXFkXCQd1hr3KUZ2bqzFEe-O6L) is avaliable on Google colab.
+The follow demonstrations are avaliable on Google colab.
 
-The figure below shows the STFT basis before and after training. The difference is subtle in this simple example.
+1. [Trainable STFT Kernel](https://colab.research.google.com/drive/12VwjKSuXFkXCQd1hr3KUZ2bqzFEe-O6L)
+1. [Trainable Mel Kernel](https://colab.research.google.com/drive/1UtswBYWhVxDNBRDajWzyplZfMiqENCEF)
+1. [Trainable CQT Kernel](https://colab.research.google.com/drive/1coH54dfjAOxEyOjJrqscQRyC0_lmF04s)
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/Trained_basis.PNG)
+The figure below shows the STFT basis before and after training.
+
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/Trainable_STFT/Trained_basis.png)
+
+The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.
+
+<img src="https://github.com/KinWaiCheuk/nnAudio/blob/dev/Trainable_STFT/STFT_training.png" :height="83%" width="83%">
 
 ## Using GPU
-If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch runs in CPU, so as nnAudio.
+If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch tensors are created in CPU, if you want to use nnAudio in GPU, make sure to transfer all your PyTorch tensors to GPU
 ```python
 if torch.cuda.is_available():
     device = "cuda:0"
-    torch.set_default_tensor_type('torch.cuda.FloatTensor')
 else:
     device = "cpu"
+```
+
+Then you can initialize nnAudio by choosing either CPU or GPU with the `device` argument. The default setting for nnAudio is `device='cuda:0'`
+
+```python
+spec_layer = Spectrogram.STFT(device=device)
 ```
 
 ## Functionalities
 Currently there are 4 models to generate various types of spectrograms.
 ### 1. STFT
 ```python
+from nnAudio import Spectrogram
 Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False)
 ```
 
@@ -110,21 +126,38 @@ freq_scale: 'no', 'linear', or 'log'. This options controls the spacing of frequ
 
 ### 2. Mel Spectrogram
 ```python
-MelSpectrogram(sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False)
+Spectrogram.MelSpectrogram(sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False)
 ```
 
-### 3. CQT Naive Approach
+### 3. CQT
 ```python
-CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+Spectrogram.CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
 ```
 
 
-The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. The only difference is CQT, where we normalized the CQT kernel with L1 norm and then CQT output is normalized with the CQT kernel length. I am unable to explain the normalization used by librosa. 
+The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
 
-To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/performance_1.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/performance_2.png)
 
+### Differences between CQT1992 and CQT2010
+The result for CQT1992 is smoother than CQT2010 and librosa. Since librosa and CQT2010 are using the same algorithm (downsampling approach as mentioned in this [paper](https://www.semanticscholar.org/paper/CONSTANT-Q-TRANSFORM-TOOLBOX-FOR-MUSIC-PROCESSING-Sch%C3%B6rkhuber/4cef10ea66e40ad03f434c70d745a4959cea96dd)), you can see similar artifacts as a result of downsampling. The default `CQT` in nnAudio is the 1992 version, with slighltly modifications to make it faster than the original CQT proposed in [1992](https://www.semanticscholar.org/paper/An-efficient-algorithm-for-the-calculation-of-a-Q-Brown-Puckette/628a0981e2ed1c33b1b9a88018a01e2f0be0c956).
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_chrom.png)
+However, all both versions of CQT are avaliable for users to choose. To explicitly choose which CQT to use, you can call nnAudio with the following code.
+
+#### CQT1992
+It is the default algorithm used in `Spectrogram.CQT`.
+```python
+Spectrogram.CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+```
+
+#### CQT2010
+```python
+Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+```
+
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/CQT_compare.png)
+
 
 ## Speed
 The speed test is conducted using DGX Station with the following specs
