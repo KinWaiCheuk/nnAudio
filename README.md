@@ -141,7 +141,20 @@ The spectrogram outputs from nnAudio are nearly identical to the implmentation o
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/performance_2.png)
 
 ### Differences between CQT1992 and CQT2010
-The result for CQT1992 is smoother than CQT2010 and librosa. Since librosa and CQT2010 are using the same algorithm (downsampling approach as mentioned in this [paper](https://www.semanticscholar.org/paper/CONSTANT-Q-TRANSFORM-TOOLBOX-FOR-MUSIC-PROCESSING-Sch%C3%B6rkhuber/4cef10ea66e40ad03f434c70d745a4959cea96dd)), you can see similar artifacts as a result of downsampling.
+The result for CQT1992 is smoother than CQT2010 and librosa. Since librosa and CQT2010 are using the same algorithm (downsampling approach as mentioned in this [paper](https://www.semanticscholar.org/paper/CONSTANT-Q-TRANSFORM-TOOLBOX-FOR-MUSIC-PROCESSING-Sch%C3%B6rkhuber/4cef10ea66e40ad03f434c70d745a4959cea96dd)), you can see similar artifacts as a result of downsampling. The default `CQT` in nnAudio is the 1992 version, with slighltly modifications to make it faster than the original CQT proposed in [1992](https://www.semanticscholar.org/paper/An-efficient-algorithm-for-the-calculation-of-a-Q-Brown-Puckette/628a0981e2ed1c33b1b9a88018a01e2f0be0c956).
+
+However, all both versions of CQT are avaliable for users to choose. To explicitly choose which CQT to use, you can call nnAudio with the following code.
+
+#### CQT1992
+It is the default algorithm used in `Spectrogram.CQT`.
+```python
+Spectrogram.CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+```
+
+#### CQT2010
+```python
+Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
+```
 
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/CQT_compare.png)
 
