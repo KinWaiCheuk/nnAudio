@@ -9,8 +9,8 @@ Chopin.wav
 statistic.ipynb
 nnAudio_doc.rst
 _templates
-_static
 _build
+Sphinx/build/html/_static/ 
 make.bat
 conf.py
 Makefile
