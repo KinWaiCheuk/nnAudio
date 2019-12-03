@@ -18,10 +18,9 @@ epsilon = 10e-8 # fudge factor for normalization
 
 # ---------------------------Filter design -----------------------------------
 def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):
-    # calculate the highest frequency we need to preserve and the
-    # lowest frequency we allow to pass through. Note that frequency
-    # is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist 
-    # frequency of the signal BEFORE downsampling
+    """
+    calculate the highest frequency we need to preserve and the lowest frequency we allow to pass through. Note that frequency is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist frequency of the signal BEFORE downsampling
+    """ 
     
 #     transitionBandwidth = 0.03 
     passbandMax = band_center / (1 + transitionBandwidth)
@@ -52,21 +51,90 @@ def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth
     return filterKernel.astype(np.float32)
 
 def downsampling_by_n(x, filterKernel, n):
-    """downsampling by n"""
+    """A helper function that downsamples the audio by a arbitary factor n. It is used in CQT2010 and CQT2010v2
+
+    Parameters
+    ----------
+    x : torch.Tensor
+        The input waveform in ``torch.Tensor`` type with shape ``(batch, 1, len_audio)`` 
+
+    filterKernel : str
+        Filter kernel in ``torch.Tensor`` type with shape ``(1, 1, len_kernel)``
+
+    n : int
+        The downsampling factor
+
+    Returns
+    -------
+    torch.Tensor
+        The downsampled waveform
+
+    Examples
+    --------
+    >>> x_down = downsampling_by_n(x, filterKernel)
+    """
     x = conv1d(x,filterKernel,stride=n, padding=(filterKernel.shape[-1]-1)//2)
     return x
 
 def downsampling_by_2(x, filterKernel):
+    """A helper function that downsamples the audio by half. It is used in CQT2010 and CQT2010v2
+
+    Parameters
+    ----------
+    x : torch.Tensor
+        The input waveform in ``torch.Tensor`` type with shape ``(batch, 1, len_audio)``
+
+    filterKernel : str
+        Filter kernel in ``torch.Tensor`` type with shape ``(1, 1, len_kernel)``
+
+    Returns
+    -------
+    torch.Tensor
+        The downsampled waveform
+
+    Examples
+    --------
+    >>> x_down = downsampling_by_2(x, filterKernel)
+    """
     x = conv1d(x,filterKernel,stride=2, padding=(filterKernel.shape[-1]-1)//2)
     return x
 
 
 ## Basic tools for computation ##
 def nextpow2(A):
+    """A helper function to calculate the next nearest number to the power of 2. 
+
+    Parameters
+    ----------
+    A : float
+        A float number that is going to be rounded up to the nearest power of 2
+
+    Returns
+    -------
+    int
+        The nearest power of 2 to the input number ``A``
+
+    Examples
+    --------
+
+    >>> nextpow2(6)
+    8
+    """
     return int(np.ceil(np.log2(A)))
 
 def complex_mul(cqt_filter, stft):
-    """Since PyTorch does not support complex numbers and its operation. We need to write our own complex multiplication function. This one is specially designed for CQT usage"""
+    """Since PyTorch does not support complex numbers and its operation. We need to write our own complex multiplication function. This one is specially designed for CQT usage
+
+    Parameters
+    ----------
+    cqt_filter : tuple of torch.Tensor
+        The tuple is in the format of ``(real_torch_tensor, imag_torch_tensor)``
+
+    Returns
+    -------
+    tuple of torch.Tensor
+        The output is in the format of ``(real_torch_tensor, imag_torch_tensor)``
+    """    
     
     cqt_filter_real = cqt_filter[0]
     cqt_filter_imag = cqt_filter[1]
@@ -81,7 +149,8 @@ def complex_mul(cqt_filter, stft):
 def broadcast_dim(x):
     """
     Auto broadcast input so that it can fits into a Conv1d
-    """
+    """    
+
     if x.dim() == 2:
         x = x[:, None, :]
     elif x.dim() == 1:
@@ -94,8 +163,8 @@ def broadcast_dim(x):
 
 def broadcast_dim_conv2d(x):
     """
-    To auto broadcast input so that it can fits into a Conv1d
-    """
+    Auto broadcast input so that it can fits into a Conv2d
+    """    
     if x.dim() == 3:
         x = x[:, None, :,:]
 
@@ -106,10 +175,43 @@ def broadcast_dim_conv2d(x):
 
 ## Kernal generation functions ##
 def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100, freq_scale='linear', window='hann'):
-    """
-    If freq_scale is 'no', then low and high arguments will be ignored
-    """
+    """ This function creates the Fourier Kernel for STFT, Melspectrogram and CQT. Most of the parameters follow librosa conventions. Part of the code comes from pytorch_musicnet. https://github.com/jthickstun/pytorch_musicnet
+
+    Parameters
+    ----------
+    n_fft : int
+        The window size  
+
+    freq_bins : int
+        Number of frequency bins. Default is ``None``, which means ``n_fft//2+1`` bins
+
+    fmin : int
+        The starting frequency for the lowest frequency bin. If freq_scale is ``no``, this argument does nothing.
+
+    fmax : int
+        The ending frequency for the highest frequency bin. If freq_scale is ``no``, this argument does nothing.
+
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
     
+    freq_scale: 'linear', 'log', or 'no'
+        Determine the spacing between each frequency bin. When 'linear' or 'log' is used, the bin spacing can be controlled by ``fmin`` and ``fmax``. If 'no' is used, the bin will start at 0Hz and end at Nyquist frequency with linear spacing.
+
+    Returns
+    -------
+    wsin : numpy.array
+        Imaginary Fourier Kernel with the shape ``(freq_bins, 1, n_fft)``
+        
+    wcos : numpy.array
+        Real Fourier Kernel with the shape ``(freq_bins, 1, n_fft)``
+    
+    bins2freq : list
+        Mapping each frequency bin to frequency in Hz.
+
+    binslist : list
+        The normalized frequency ``k`` in digital domain. This ``k`` is in the Discrete Fourier Transform equation $$ 
+
+    """    
     if freq_bins==None:
         freq_bins = n_fft//2+1
 
@@ -244,8 +346,59 @@ def create_cqt_kernels_t(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, win
 ### ------------------Spectrogram Classes---------------------------###
 
 class STFT(torch.nn.Module):
-    """When using freq_scale, please set the correct sampling rate. The sampling rate is used to calucate the correct frequency"""
+    """This function is to calculate the short-time Fourier transform (STFT) of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. Most of the arguments follow the convention from librosa. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+
+    Parameters
+    ----------
+    n_fft : int
+        The window size  
+
+    freq_bins : int
+        Number of frequency bins. Default is ``None``, which means ``n_fft//2+1`` bins
     
+    hop_length : int
+        The hop (or stride) size. Default value is 512.
+
+    window : str
+        The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to scipy documentation for possible windowing functions. The default value is 'hann'
+
+    freq_scale : 'linear', 'log', or 'no'
+        Determine the spacing between each frequency bin. When 'linear' or 'log' is used, the bin spacing can be controlled by ``fmin`` and ``fmax``. If 'no' is used, the bin will start at 0Hz and end at Nyquist frequency with linear spacing.
+
+    center : bool
+        Putting the STFT keneral at the center of the time-step or not. If ``False``, the time index is the beginning of the STFT kernel, if ``True``, the time index is the center of the STFT kernel. Default value if ``True``.
+
+    pad_mode : str
+        The padding method. Default value is 'reflect'.
+    
+    fmin : int
+        The starting frequency for the lowest frequency bin. If freq_scale is ``no``, this argument does nothing.
+
+    fmax : int
+        The ending frequency for the highest frequency bin. If freq_scale is ``no``, this argument does nothing.
+
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
+
+    trainable : bool
+        Determine if the STFT kenrels are trainable or not. If ``True``, the gradients for STFT kernels will also be caluclated and the STFT kernels will be updated during model training. Default value is ``False``
+
+    output_format : str
+        Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+    
+    device : str
+        Choose which device to initialize this layer. Default value is 'cuda:0'
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)`` if 'Magnitude' is used as the ``output_format``; Shape = ``(num_samples, freq_bins,time_steps, 2)`` if 'Complex' or 'Phase' are used as the ``output_format``
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.STFT()
+    >>> specs = spec_layer(x)
+    """
     def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False, output_format='Magnitude', device='cuda:0'):
         self.trainable = trainable
         super(STFT, self).__init__()
