@@ -351,7 +351,7 @@ class STFT(torch.nn.Module):
     Parameters
     ----------
     n_fft : int
-        The window size  
+        The window size. Default value is 2048. 
 
     freq_bins : int
         Number of frequency bins. Default is ``None``, which means ``n_fft//2+1`` bins
@@ -570,6 +570,60 @@ class iSTFT_complex_2d(torch.nn.Module):
         real = a1-b2
         return (real/self.n_fft, imag/self.n_fft)    
 class MelSpectrogram(torch.nn.Module):
+    """This function is to calculate the Melspectrogram of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. Most of the arguments follow the convention from librosa. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+
+    Parameters
+    ----------
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
+
+    n_fft : int
+        The window size for the STFT. Default value is 2048
+
+    n_mels : int
+        The number of Mel filter banks. The filter banks maps the n_fft to mel bins. Default value is 128
+    
+    hop_length : int
+        The hop (or stride) size. Default value is 512.
+
+    window : str
+        The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to scipy documentation for possible windowing functions. The default value is 'hann'
+
+    center : bool
+        Putting the STFT keneral at the center of the time-step or not. If ``False``, the time index is the beginning of the STFT kernel, if ``True``, the time index is the center of the STFT kernel. Default value if ``True``.
+
+    pad_mode : str
+        The padding method. Default value is 'reflect'.
+
+    htk : bool
+        When ``False`` is used, the Mel scale is quasi-logarithmic. When ``True`` is used, the Mel scale is logarithmic. The default value is ``False`` 
+    
+    fmin : int
+        The starting frequency for the lowest Mel filter bank
+
+    fmax : int
+        The ending frequency for the highest Mel filter bank
+
+    trainable_mel : bool
+        Determine if the Mel filter banks are trainable or not. If ``True``, the gradients for Mel filter banks will also be caluclated and the Mel filter banks will be updated during model training. Default value is ``False``
+
+    trainable_STFT : bool
+        Determine if the STFT kenrels are trainable or not. If ``True``, the gradients for STFT kernels will also be caluclated and the STFT kernels will be updated during model training. Default value is ``False``
+    
+    device : str
+        Choose which device to initialize this layer. Default value is 'cuda:0'
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)``.
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.MelSpectrogram()
+    >>> specs = spec_layer(x)
+    """
+
     def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, device='cuda:0'):
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
@@ -918,6 +972,63 @@ class CQT2010(torch.nn.Module):
             return CQT*torch.sqrt(self.lenghts.view(-1,1))
 
 class CQT1992v2(torch.nn.Module):
+    """This function is to calculate the CQT of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. Most of the arguments follow the convention from librosa. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+
+    This alogrithm uses the method proposed in [1]. I slightly modify it so that it runs faster than the original 1992 algorithm, that is why I call it version 2. 
+    [1] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992).
+
+    Parameters
+    ----------
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
+    
+    hop_length : int
+        The hop (or stride) size. Default value is 512.
+
+    fmin : float
+        The frequency for the lowest CQT bin. Default is 32.70Hz, which coresponds to the note C0.
+
+    fmax : float
+        The frequency for the highest CQT bin. Default is ``None``, therefore the higest CQT bin is inferred from the ``n_bins`` and ``bins_per_octave``.  If ``fmax`` is not ``None``, then the argument ``n_bins`` will be ignored and ``n_bins`` will be calculated automatically. Default is ``None``
+
+    n_bins : int
+        The total numbers of CQT bins. Default is 84. Will be ignored if ``fmax`` is not ``None``.
+
+    bins_per_octave : int
+        Number of bins per octave. Default is 12.
+    
+    norm : int
+        Normalization for the CQT kernels. ``1`` means L1 normalization, and ``2`` means L2 normalization. Default is ``1``, which is same as the normalization used in librosa. 
+
+    window : str
+        The windowing function for CQT. It uses ``scipy.signal.get_window``, please refer to scipy documentation for possible windowing functions. The default value is 'hann'
+
+    center : bool
+        Putting the CQT keneral at the center of the time-step or not. If ``False``, the time index is the beginning of the CQT kernel, if ``True``, the time index is the center of the CQT kernel. Default value if ``True``.
+
+    pad_mode : str
+        The padding method. Default value is 'reflect'.
+
+    trainable : bool
+        Determine if the CQT kernels are trainable or not. If ``True``, the gradients for CQT kernels will also be caluclated and the CQT kernels will be updated during model training. Default value is ``False``
+
+     output_format : str
+        Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+
+    device : str
+        Choose which device to initialize this layer. Default value is 'cuda:0'
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)`` if 'Magnitude' is used as the ``output_format``; Shape = ``(num_samples, freq_bins,time_steps, 2)`` if 'Complex' or 'Phase' are used as the ``output_format``
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.CQT1992v2()
+    >>> specs = spec_layer(x)
+    """
+
     def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect', trainable=False, output_format='Magnitude', device='cuda:0'):
         super(CQT1992v2, self).__init__()
         # norm arg is not functioning
@@ -999,15 +1110,68 @@ class CQT1992v2(torch.nn.Module):
         
 
 class CQT2010v2(torch.nn.Module):
-    """
-    This alogrithm is using the resampling method proposed in [1]. Instead of convoluting the STFT results with a gigantic CQT kernel covering the full frequency spectrum, we make a small CQT kernel covering only the top octave. Then we keep downsampling the input audio by a factor of 2 to convoluting it with the small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled input is equavalent to the next lower octave.
+    """This function is to calculate the CQT of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. Most of the arguments follow the convention from librosa. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+
+    This alogrithm uses the resampling method proposed in [1]. Instead of convoluting the STFT results with a gigantic CQT kernel covering the full frequency spectrum, we make a small CQT kernel covering only the top octave. Then we keep downsampling the input audio by a factor of 2 to convoluting it with the small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled input is equavalent to the next lower octave.
     The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code from the 1992 alogrithm [2] 
     [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
     [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a constant Q transform.” (1992).
     
-    early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
+    early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz    
+
+    Parameters
+    ----------
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
     
+    hop_length : int
+        The hop (or stride) size. Default value is 512.
+
+    fmin : float
+        The frequency for the lowest CQT bin. Default is 32.70Hz, which coresponds to the note C0.
+
+    fmax : float
+        The frequency for the highest CQT bin. Default is ``None``, therefore the higest CQT bin is inferred from the ``n_bins`` and ``bins_per_octave``.  If ``fmax`` is not ``None``, then the argument ``n_bins`` will be ignored and ``n_bins`` will be calculated automatically. Default is ``None``
+
+    n_bins : int
+        The total numbers of CQT bins. Default is 84. Will be ignored if ``fmax`` is not ``None``.
+
+    bins_per_octave : int
+        Number of bins per octave. Default is 12.
+    
+    norm : bool
+        Normalization for the CQT result.
+
+    basis_norm : int
+        Normalization for the CQT kernels. ``1`` means L1 normalization, and ``2`` means L2 normalization. Default is ``1``, which is same as the normalization used in librosa. 
+
+    window : str
+        The windowing function for CQT. It uses ``scipy.signal.get_window``, please refer to scipy documentation for possible windowing functions. The default value is 'hann'
+
+    pad_mode : str
+        The padding method. Default value is 'reflect'.
+
+    trainable : bool
+        Determine if the CQT kernels are trainable or not. If ``True``, the gradients for CQT kernels will also be caluclated and the CQT kernels will be updated during model training. Default value is ``False``
+
+     output_format : str
+        Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+
+    device : str
+        Choose which device to initialize this layer. Default value is 'cuda:0'
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)`` if 'Magnitude' is used as the ``output_format``; Shape = ``(num_samples, freq_bins,time_steps, 2)`` if 'Complex' or 'Phase' are used as the ``output_format``
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.CQT2010v2()
+    >>> specs = spec_layer(x)
     """
+
+
     def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True, trainable=False, output_format='Magnitude', device='cuda:0'):
         super(CQT2010v2, self).__init__()
         
@@ -1226,5 +1390,5 @@ class CQT2010v2(torch.nn.Module):
         return CQT*torch.sqrt(self.lenghts.view(-1,1))    
         
 class CQT(CQT1992v2):
-    """Using CQT1992v2 as the default CQT algorithm"""
+    """An abbreviation for CQT1992v2. Please refer to the CQT1992v2 documentation"""
     pass
