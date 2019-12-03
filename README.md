@@ -91,11 +91,11 @@ The follow demonstrations are avaliable on Google colab.
 
 The figure below shows the STFT basis before and after training.
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/Trainable_STFT/Trained_basis.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/Trained_basis.png)
 
 The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.
 
-<img src="https://github.com/KinWaiCheuk/nnAudio/blob/dev/Trainable_STFT/STFT_training.png" :height="83%" width="83%">
+<img src="https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/STFT_training.png" :height="83%" width="83%">
 
 ## Using GPU
 If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch tensors are created in CPU, if you want to use nnAudio in GPU, make sure to transfer all your PyTorch tensors to GPU
@@ -137,8 +137,8 @@ Spectrogram.CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_p
 
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/performance_1.png)
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/performance_2.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_1.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_2.png)
 
 ### Differences between CQT1992 and CQT2010
 The result for CQT1992 is smoother than CQT2010 and librosa. Since librosa and CQT2010 are using the same algorithm (downsampling approach as mentioned in this [paper](https://www.semanticscholar.org/paper/CONSTANT-Q-TRANSFORM-TOOLBOX-FOR-MUSIC-PROCESSING-Sch%C3%B6rkhuber/4cef10ea66e40ad03f434c70d745a4959cea96dd)), you can see similar artifacts as a result of downsampling. The default `CQT` in nnAudio is the 1992 version, with slighltly modifications to make it faster than the original CQT proposed in [1992](https://www.semanticscholar.org/paper/An-efficient-algorithm-for-the-calculation-of-a-Q-Brown-Puckette/628a0981e2ed1c33b1b9a88018a01e2f0be0c956).
