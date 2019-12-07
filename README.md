@@ -1,5 +1,5 @@
 # nnAudio
-Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. [Kapre](https://github.com/keunwoochoi/kapre) and [torch-stft](https://github.com/pseeth/torch-stft) have a similar concept in which they also use 1D convolution from keras to do the waveforms to spectrogram conversions.
+Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. [Kapre](https://github.com/keunwoochoi/kapre) and [torch-stft](https://github.com/pseeth/torch-stft) have a similar concept in which they also use 1D convolution from keras adn PyTorch to do the waveforms to spectrogram conversions.
 
 Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained.
 
