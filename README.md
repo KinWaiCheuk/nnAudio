@@ -10,7 +10,7 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 ## Reference
 [Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
 
-[nnAudio Abstract for Late-Breaking Demo](http://archives.ismir.net/ismir2019/latebreaking/000011.pdf)
+[nnAudio Paper on arXiv](https://arxiv.org/abs/1912.12055)
 
 [nnAudio Poster L-11](https://github.com/keunwoochoi/ismir-2019-posters/blob/master/README.md)
 
@@ -182,17 +182,17 @@ Currently there is no paper avaliable for nnAudio, and we are trying to write on
 But our work is submitted to ISMIR2019 as a late-breaking demo
 
 ### APA
-Cheuk, K.W., Agres, K., & Herremans, D. (2019). nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks. ISMIR-LBD.
+Cheuk, K.W., Agres, K., & Herremans, D. (2019). nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks. arXiv:1912.12055.
 
 ### Chicago
-Kin Wai Cheuk, Kat Agres, Dorien Herremans. “nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks.” ISMIR-LBD (2019).
+Kin Wai Cheuk, Kat Agres, Dorien Herremans. “nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks.” arXiv:1912.12055 (2019).
 
 ### BibTex
-`@inproceedings{kinwai2019LBD,
-  title={nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks},
-  author={Kin Wai Cheuk, Kat Agres, Dorien Herremans},
-  booktitle={ISMIR-LBD},
-  year={2019}`
+`@inproceedings{Cheuk2019nnAUDIOAP,
+  title={nnAUDIO: A PYTORCH AUDIO PROCESSING TOOL USING 1D CONVOLUTION NEURAL NETWORKS},
+  author={Kin Wai Cheuk and Kat Agres and Dorien Herremans},
+  year={2019}
+}`
   
 
 }
