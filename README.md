@@ -6,7 +6,7 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
 ## Comparison with other libraries
-| Feature | [nnAudio](https://github.com/KinWaiCheuk/nnAudio) | [torch.stft](https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/SpectralOps.cpp) | [kapre](https://github.com/keunwoochoi/kapre) | [torchaudio](https://github.com/pytorch/audio) | [tf.signal](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/python/ops/signal)(or else tf. stuff) | [torch-stft](https://github.com/pseeth/torch-stft) | [librosa](https://github.com/librosa/librosa) |
+| Feature | [nnAudio](https://github.com/KinWaiCheuk/nnAudio) | [torch.stft](https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/SpectralOps.cpp) | [kapre](https://github.com/keunwoochoi/kapre) | [torchaudio](https://github.com/pytorch/audio) | [tf.signal](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/python/ops/signal) | [torch-stft](https://github.com/pseeth/torch-stft) | [librosa](https://github.com/librosa/librosa) |
 | ------- | ------- | ---------- | ----- | ---------- | ---------------------------- | ---------- | ------- |
 | Trainable | ✅ | ❌| ✅ | ❌ | ❌ | ✅ | ❌ |
 | Differentiable | ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
