@@ -4,16 +4,40 @@ Audio processing by using pytorch 1D convolution network. By doing so, spectrogr
 Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained.
 
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
+
+## Comparison with other libraries
+| Feature | [nnAudio](https://github.com/KinWaiCheuk/nnAudio) | [torch.stft](https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/SpectralOps.cpp) | [kapre](https://github.com/keunwoochoi/kapre) | [torchaudio](https://github.com/pytorch/audio) | [tf.signal](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/python/ops/signal)(or else tf. stuff) | [torch-stft](https://github.com/pseeth/torch-stft) | [librosa](https://github.com/librosa/librosa) |
+| ------- | ------- | ---------- | ----- | ---------- | ---------------------------- | ---------- | ------- |
+| Trainable | ✅ | ❌| ✅ | ❌ | ❌ | ✅ | ❌ |
+| Differentiable | ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Linear frequency STFT| ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Logarithmic frequency STFT| ✅  | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| MFCC | ❌  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
+| CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
 
-## Reference
-[Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
+## How to cite nnAudio
+The paper for nnAudio is avaliable on [arXiv](https://arxiv.org/abs/1912.12055)
+But our work is submitted to ISMIR2019 as a late-breaking demo [nnAudio Poster L-11](https://github.com/keunwoochoi/ismir-2019-posters/blob/master/README.md)
 
-[nnAudio Paper on arXiv](https://arxiv.org/abs/1912.12055)
+### APA
+Cheuk, K. W., Anderson, H., Agres, K., & Herremans, D. (2019). nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks. arXiv preprint arXiv:1912.12055.
 
-[nnAudio Poster L-11](https://github.com/keunwoochoi/ismir-2019-posters/blob/master/README.md)
+### Chicago
+Cheuk, Kin Wai, Hans Anderson, Kat Agres, and Dorien Herremans. "nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks." arXiv preprint arXiv:1912.12055 (2019).
 
+### BibTex
+`@article{Cheuk2019nnAudioAO,
+  title={nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks},
+  author={Kin Wai Cheuk and Hans Henrik Anderson and Kat Agres and Dorien Herremans},
+  journal={ArXiv},
+  year={2019},
+  volume={abs/1912.12055}
+}`
  
 
 # Dependencies
@@ -158,7 +182,7 @@ Spectrogram.CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, 
 Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
 ```
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/dev/performance_test/CQT_compare.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/CQT_compare.png)
 
 
 ## Speed
@@ -177,22 +201,11 @@ During the test, only 1 single GPU is used, and the same test is conducted when
 (b) the DGX has ongoing jobs
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speed.png)
 
-# How to cite nnAudio
-Currently there is no paper avaliable for nnAudio, and we are trying to write one.
-But our work is submitted to ISMIR2019 as a late-breaking demo
-
-### APA
-Cheuk, K.W., Agres, K., & Herremans, D. (2019). nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks. arXiv:1912.12055.
-
-### Chicago
-Kin Wai Cheuk, Kat Agres, Dorien Herremans. “nnAudio: A Pytorch Audio Processing Tool Using 1D Convolution Neural Networks.” arXiv:1912.12055 (2019).
-
-### BibTex
-`@inproceedings{Cheuk2019nnAUDIOAP,
-  title={nnAUDIO: A PYTORCH AUDIO PROCESSING TOOL USING 1D CONVOLUTION NEURAL NETWORKS},
-  author={Kin Wai Cheuk and Kat Agres and Dorien Herremans},
-  year={2019}
-}`
   
 
 }
+
+# Other similar libraries
+[Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
+
+[torch-stft](https://github.com/pseeth/torch-stft)
