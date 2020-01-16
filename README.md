@@ -22,7 +22,7 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 
 ## How to cite nnAudio
 The paper for nnAudio is avaliable on [arXiv](https://arxiv.org/abs/1912.12055)
-But our work is submitted to ISMIR2019 as a late-breaking demo [nnAudio Poster L-11](https://github.com/keunwoochoi/ismir-2019-posters/blob/master/README.md)
+
 
 ### APA
 Cheuk, K. W., Anderson, H., Agres, K., & Herremans, D. (2019). nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks. arXiv preprint arXiv:1912.12055.
