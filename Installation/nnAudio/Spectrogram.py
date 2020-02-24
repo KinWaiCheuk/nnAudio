@@ -11,7 +11,8 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-from .librosa_filters import mel # This is equalvant to from librosa.filters import mel
+from .librosa_filters import mel # Use it for PyPip
+# from librosa_filters import mel # Use it for debug
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -363,7 +364,7 @@ class STFT(torch.nn.Module):
         The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to scipy documentation for possible windowing functions. The default value is 'hann'
 
     freq_scale : 'linear', 'log', or 'no'
-        Determine the spacing between each frequency bin. When 'linear' or 'log' is used, the bin spacing can be controlled by ``fmin`` and ``fmax``. If 'no' is used, the bin will start at 0Hz and end at Nyquist frequency with linear spacing.
+        Determine the spacing between each frequency bin. When `linear` or `log` is used, the bin spacing can be controlled by ``fmin`` and ``fmax``. If 'no' is used, the bin will start at 0Hz and end at Nyquist frequency with linear spacing.
 
     center : bool
         Putting the STFT keneral at the center of the time-step or not. If ``False``, the time index is the beginning of the STFT kernel, if ``True``, the time index is the center of the STFT kernel. Default value if ``True``.
@@ -384,8 +385,11 @@ class STFT(torch.nn.Module):
         Determine if the STFT kenrels are trainable or not. If ``True``, the gradients for STFT kernels will also be caluclated and the STFT kernels will be updated during model training. Default value is ``False``
 
     output_format : str
-        Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
-    
+        Determine the return type. ``Magnitude`` will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; ``Complex`` will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; ``Phase`` will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+
+    verbose : bool
+        If ``True``, it shows layer information. If ``False``, it suppresses all prints
+
     device : str
         Choose which device to initialize this layer. Default value is 'cuda:0'
 
@@ -399,7 +403,7 @@ class STFT(torch.nn.Module):
     >>> spec_layer = Spectrogram.STFT()
     >>> specs = spec_layer(x)
     """
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False, output_format='Magnitude', device='cuda:0'):
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False, output_format='Magnitude', verbose=True, device='cuda:0'):
         self.trainable = trainable
         super(STFT, self).__init__()
         self.stride = hop_length
@@ -417,7 +421,11 @@ class STFT(torch.nn.Module):
         if self.trainable==True:
             self.wsin = torch.nn.Parameter(self.wsin)
             self.wcos = torch.nn.Parameter(self.wcos)
-        print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
+
+        if verbose==True:
+            print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
+        else:
+            pass
 
     def forward(self,x):
         x = broadcast_dim(x)
@@ -610,6 +618,9 @@ class MelSpectrogram(torch.nn.Module):
     trainable_STFT : bool
         Determine if the STFT kenrels are trainable or not. If ``True``, the gradients for STFT kernels will also be caluclated and the STFT kernels will be updated during model training. Default value is ``False``
     
+    verbose : bool
+        If ``True``, it shows layer information. If ``False``, it suppresses all prints
+
     device : str
         Choose which device to initialize this layer. Default value is 'cuda:0'
 
@@ -624,26 +635,32 @@ class MelSpectrogram(torch.nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, device='cuda:0'):
+    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', power=2.0, htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, verbose=True, device='cuda:0'):
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
         self.n_fft = n_fft
         self.device = device
+        self.power = power
         
         # Create filter windows for stft
         start = time()
         wsin, wcos, self.bins2freq, _ = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
         self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
-        print("STFT filter created, time used = {:.4f} seconds".format(time()-start))
+        
 
         # Creating kenral for mel spectrogram
         start = time()
         mel_basis = mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
         self.mel_basis = torch.tensor(mel_basis, device=self.device)
-        print("Mel filter created, time used = {:.4f} seconds".format(time()-start))
+
+        if verbose==True:
+            print("STFT filter created, time used = {:.4f} seconds".format(time()-start))
+            print("Mel filter created, time used = {:.4f} seconds".format(time()-start))
+        else:
+            pass
         
         if trainable_mel==True:
             self.mel_basis = torch.nn.Parameter(self.mel_basis)
@@ -661,8 +678,8 @@ class MelSpectrogram(torch.nn.Module):
 
             x = padding(x)
         
-        spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
-           + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
+        spec = torch.sqrt(conv1d(x, self.wsin, stride=self.stride).pow(2) \
+           + conv1d(x, self.wcos, stride=self.stride).pow(2))**self.power # Doing STFT by using conv1d
         
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec    
@@ -838,7 +855,7 @@ class CQT2010(torch.nn.Module):
         if self.earlydownsample == True: # Do early downsampling if this argument is True
             print("Creating early downsampling filter ...", end='\r')
             start = time()            
-            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves)
+            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves, verbose)
             print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
         else:
             self.downsample_factor=1.
@@ -902,7 +919,7 @@ class CQT2010(torch.nn.Module):
         return CQT
 
     
-    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves):
+    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves, verbose):
         window_bandwidth = 1.5 # for hann window
         filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)   
         sr, hop_length, downsample_factor=self.early_downsample(sr, hop_length, n_octaves, sr//2, filter_cutoff)
@@ -1013,7 +1030,10 @@ class CQT1992v2(torch.nn.Module):
         Determine if the CQT kernels are trainable or not. If ``True``, the gradients for CQT kernels will also be caluclated and the CQT kernels will be updated during model training. Default value is ``False``
 
      output_format : str
-        Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+        Determine the return type. ``Magnitude`` will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; ``Complex`` will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; ``Phase`` will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
+
+    verbose : bool
+        If ``True``, it shows layer information. If ``False``, it suppresses all prints
 
     device : str
         Choose which device to initialize this layer. Default value is 'cuda:0'
@@ -1029,7 +1049,7 @@ class CQT1992v2(torch.nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect', trainable=False, output_format='Magnitude', device='cuda:0'):
+    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect', trainable=False, output_format='Magnitude', verbose=True, device='cuda:0'):
         super(CQT1992v2, self).__init__()
         # norm arg is not functioning
         self.trainable = trainable
@@ -1039,10 +1059,13 @@ class CQT1992v2(torch.nn.Module):
         self.output_format = output_format
         self.device = device
         
+        
         # creating kernels for CQT
         Q = 1/(2**(1/bins_per_octave)-1)
         
-        print("Creating CQT kernels ...", end='\r')
+        if verbose==True:
+            print("Creating CQT kernels ...", end='\r')
+
         start = time()
         self.cqt_kernels, self.kernal_width, self.lenghts = create_cqt_kernels(Q, sr, fmin, n_bins, bins_per_octave, norm, window, fmax)
         self.lenghts = self.lenghts.to(device)
@@ -1052,8 +1075,8 @@ class CQT1992v2(torch.nn.Module):
             self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
             self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)  
         
-        
-        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
         
         # creating kernels for stft
 #         self.cqt_kernels_real*=lenghts.unsqueeze(1)/self.kernal_width # Trying to normalize as librosa
@@ -1157,6 +1180,9 @@ class CQT2010v2(torch.nn.Module):
      output_format : str
         Determine the return type. 'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``; 'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``; 'Phase' will return the phase of the STFT reuslt, shape = ``(num_samples, freq_bins,time_steps, 2)``. The complex number is stored as ``(real, imag)`` in the last axis. Default value is 'Magnitude'. 
 
+    verbose : bool
+        If ``True``, it shows layer information. If ``False``, it suppresses all prints
+
     device : str
         Choose which device to initialize this layer. Default value is 'cuda:0'
 
@@ -1172,7 +1198,7 @@ class CQT2010v2(torch.nn.Module):
     """
 
 
-    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True, trainable=False, output_format='Magnitude', device='cuda:0'):
+    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True, trainable=False, output_format='Magnitude', verbose=True, device='cuda:0'):
         super(CQT2010v2, self).__init__()
         
         self.norm = norm # Now norm is used to normalize the final CQT result by dividing n_fft
@@ -1188,7 +1214,8 @@ class CQT2010v2(torch.nn.Module):
         Q = 1/(2**(1/bins_per_octave)-1) # It will be used to calculate filter_cutoff and creating CQT kernels
         
         # Creating lowpass filter and make it a torch tensor
-        print("Creating low pass filter ...", end='\r')
+        if verbose==True:
+            print("Creating low pass filter ...", end='\r')
         start = time()
 #         self.lowpass_filter = torch.tensor( 
 #                                             create_lowpass_filter(
@@ -1201,13 +1228,15 @@ class CQT2010v2(torch.nn.Module):
                                             kernelLength=256,
                                             transitionBandwidth=0.001), device=self.device)
         self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
-        print("Low pass filter created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("Low pass filter created, time used = {:.4f} seconds".format(time()-start))
 
         # Caluate num of filter requires for the kernel
         # n_octaves determines how many resampling requires for the CQT
         n_filters = min(bins_per_octave, n_bins)
         self.n_octaves = int(np.ceil(float(n_bins) / bins_per_octave))
-        print("num_octave = ", self.n_octaves)
+        if verbose==True:
+            print("num_octave = ", self.n_octaves)
         
         # Calculate the lowest frequency bin for the top octave kernel      
         self.fmin_t = fmin*2**(self.n_octaves-1)
@@ -1222,15 +1251,18 @@ class CQT2010v2(torch.nn.Module):
             raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, please reduce the n_bins'.format(fmax_t))        
         
         if self.earlydownsample == True: # Do early downsampling if this argument is True
-            print("Creating early downsampling filter ...", end='\r')
+            if verbose==True:
+                print("Creating early downsampling filter ...", end='\r')
             start = time()            
-            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves)
-            print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
+            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves, verbose)
+            if verbose==True:
+                print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
         else:
             self.downsample_factor=1.
         
         # Preparing CQT kernels
-        print("Creating CQT kernels ...", end='\r')
+        if verbose==True:
+            print("Creating CQT kernels ...", end='\r')
         start = time()
         basis, self.n_fft, self.lenghts = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
         
@@ -1245,8 +1277,8 @@ class CQT2010v2(torch.nn.Module):
         if trainable==True:
             self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
             self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)          
-        
-        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 #         print("Getting cqt kernel done, n_fft = ",self.n_fft)      
         
         # If center==True, the STFT window will be put in the middle, and paddings at the beginning and ending are required.
@@ -1287,19 +1319,21 @@ class CQT2010v2(torch.nn.Module):
   
         return torch.stack((CQT_real, CQT_imag),-1)    
     
-    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves):
+    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves, verbose):
         window_bandwidth = 1.5 # for hann window
         filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)   
         sr, hop_length, downsample_factor=self.early_downsample(sr, hop_length, n_octaves, sr//2, filter_cutoff)
         if downsample_factor != 1:
-            print("Can do early downsample, factor = ", downsample_factor)
+            if verbose==True:
+                print("Can do early downsample, factor = ", downsample_factor)
             earlydownsample=True
 #             print("new sr = ", sr)
 #             print("new hop_length = ", hop_length)
             early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor, kernelLength=256, transitionBandwidth=0.03)
             early_downsample_filter = torch.tensor(early_downsample_filter, device=self.device)[None, None, :]
-        else:            
-            print("No early downsampling is required, downsample_factor = ", downsample_factor)
+        else:           
+            if verbose==True: 
+                print("No early downsampling is required, downsample_factor = ", downsample_factor)
             early_downsample_filter = None
             earlydownsample=False
         return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample    
