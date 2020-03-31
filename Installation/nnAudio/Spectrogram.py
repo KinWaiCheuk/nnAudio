@@ -155,6 +155,7 @@ def broadcast_dim(x):
     if x.dim() == 2:
         x = x[:, None, :]
     elif x.dim() == 1:
+        # If nn.DataParallel is used, this broadcast doesn't work
         x = x[None, None, :]
     elif x.dim() == 3:
         pass
@@ -418,9 +419,14 @@ class STFT(torch.nn.Module):
         wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, freq_bins=freq_bins, window=window, freq_scale=freq_scale, fmin=fmin,fmax=fmax, sr=sr)
         self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
         self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
-        if self.trainable==True:
-            self.wsin = torch.nn.Parameter(self.wsin)
-            self.wcos = torch.nn.Parameter(self.wcos)
+
+        # Making all these variables nn.Parameter, so that the model can be used with nn.Parallel
+        self.wsin = torch.nn.Parameter(self.wsin, requires_grad=self.trainable)
+        self.wcos = torch.nn.Parameter(self.wcos, requires_grad=self.trainable)
+
+        # if self.trainable==True:
+        #     self.wsin = torch.nn.Parameter(self.wsin)
+        #     self.wcos = torch.nn.Parameter(self.wcos)
 
         if verbose==True:
             print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -437,7 +443,7 @@ class STFT(torch.nn.Module):
 
             x = padding(x)
             
-        spec_imag = conv1d(x, self.wsin, stride=self.stride)
+        spec_imag = conv1d(x, self.wsin, stride=self.stride) 
         spec_real = conv1d(x, self.wcos, stride=self.stride) # Doing STFT by using conv1d
         
         if self.output_format=='Magnitude':
@@ -447,12 +453,16 @@ class STFT(torch.nn.Module):
             else:
                 return torch.sqrt(spec)
         elif self.output_format=='Complex':
-            return torch.stack((spec_real,spec_imag), -1)
+            return torch.stack((spec_real,-spec_imag), -1) # Remember the minus sign for imaginary part
             
         elif self.output_format=='Phase':
-            phase_real = torch.cos(torch.atan2(spec_imag,spec_real))
-            phase_imag = torch.sin(torch.atan2(spec_imag,spec_real))
-            return torch.stack((phase_real,phase_imag), -1)
+            return torch.atan2(-spec_imag+0.0,spec_real) # +0.0 helps remove -0.0 elements, which leads to error in calcuating pahse
+
+            # This part is for implementing the librosa.core.magphase
+            # But it seems it is not useful
+            # phase_real = torch.cos(torch.atan2(spec_imag,spec_real))
+            # phase_imag = torch.sin(torch.atan2(spec_imag,spec_real))
+            # return torch.stack((phase_real,phase_imag), -1)
     
     def manual_forward(self,x):
         x = broadcast_dim(x)
@@ -661,12 +671,16 @@ class MelSpectrogram(torch.nn.Module):
             print("Mel filter created, time used = {:.4f} seconds".format(time()-start))
         else:
             pass
-        
-        if trainable_mel==True:
-            self.mel_basis = torch.nn.Parameter(self.mel_basis)
-        if trainable_STFT==True:
-            self.wsin = torch.nn.Parameter(self.wsin)
-            self.wcos = torch.nn.Parameter(self.wcos)            
+        # Making everything nn.Prarmeter, so that this model can support nn.DataParallel
+        self.mel_basis = torch.nn.Parameter(self.mel_basis, requires_grad=trainable_mel)
+        self.wsin = torch.nn.Parameter(self.wsin, requires_grad=trainable_STFT)
+        self.wcos = torch.nn.Parameter(self.wcos, requires_grad=trainable_STFT)          
+
+        # if trainable_mel==True:
+        #     self.mel_basis = torch.nn.Parameter(self.mel_basis)
+        # if trainable_STFT==True:
+        #     self.wsin = torch.nn.Parameter(self.wsin)
+        #     self.wcos = torch.nn.Parameter(self.wcos)            
         
     def forward(self,x):
         x = broadcast_dim(x)
@@ -1071,9 +1085,14 @@ class CQT1992v2(torch.nn.Module):
         self.lenghts = self.lenghts.to(device)
         self.cqt_kernels_real = torch.tensor(self.cqt_kernels.real, device=self.device).unsqueeze(1)
         self.cqt_kernels_imag = torch.tensor(self.cqt_kernels.imag, device=self.device).unsqueeze(1)
-        if trainable==True:
-            self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
-            self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)  
+        
+        # Making everything a Parameter to support nn.DataParallel    
+        self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real, requires_grad=trainable)
+        self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag, requires_grad=trainable) 
+        self.lenghts = torch.nn.Parameter(self.lenghts, requires_grad=False)
+        # if trainable==True:
+        #     self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
+        #     self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)  
         
         if verbose==True:
             print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -1274,9 +1293,15 @@ class CQT2010v2(torch.nn.Module):
         self.basis = basis
         self.cqt_kernels_real = torch.tensor(basis.real.astype(np.float32),device=self.device).unsqueeze(1) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32),device=self.device).unsqueeze(1)
-        if trainable==True:
-            self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
-            self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)          
+
+        # Making them nn.Parameter so that the model can support nn.DataParallel
+        self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real,  requires_grad=self.trainable)
+        self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag,  requires_grad=self.trainable) 
+        self.lenghts = torch.nn.Parameter(self.lenghts, requires_grad=False)
+        self.lowpass_filter = torch.nn.Parameter(self.lowpass_filter, requires_grad=False)
+        # if trainable==True:
+        #     self.cqt_kernels_real = torch.nn.Parameter(self.cqt_kernels_real)
+        #     self.cqt_kernels_imag = torch.nn.Parameter(self.cqt_kernels_imag)          
         if verbose==True:
             print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 #         print("Getting cqt kernel done, n_fft = ",self.n_fft)      
