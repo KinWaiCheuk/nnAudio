@@ -119,7 +119,7 @@ def nextpow2(A):
     --------
 
     >>> nextpow2(6)
-    8
+    3
     """
     return int(np.ceil(np.log2(A)))
 
@@ -699,60 +699,88 @@ class MelSpectrogram(torch.nn.Module):
         return melspec    
     
     
-class MelSpectrogramv2(torch.nn.Module):
-    """This is an experimental feature using torch.stft when trainable is not needed. Somehow it is slower?"""
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, window='hann', center=True, pad_mode='reflect', htk=False, fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, device='cuda:0'):
-        super(MelSpectrogramv2, self).__init__()
-        self.stride = hop_length
-        self.center = center
-        self.pad_mode = pad_mode
-        self.n_fft = n_fft
-        self.trainable_STFT=trainable_STFT
-        self.device = device
-        
-        # Create filter windows for stft
-        if self.trainable_STFT==True:
-            start = time()
-            wsin, wcos, self.bins2freq, _ = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no', sr=sr)
-            self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
-            self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
-            self.wsin = torch.nn.Parameter(self.wsin)
-            self.wcos = torch.nn.Parameter(self.wcos)  
-            print("STFT filter created, time used = {:.4f} seconds".format(time()-start))
-        else:
-            window = get_window(window,int(n_fft), fftbins=True).astype(np.float32)
-            self.window = torch.tensor(window, device=self.device)
-        # Creating kenral for mel spectrogram
-        start = time()
-        mel_basis = mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
-        self.mel_basis = torch.tensor(mel_basis, device=self.device)
-        print("Mel filter created, time used = {:.4f} seconds".format(time()-start))
-        
-        if trainable_mel==True:
-            self.mel_basis = torch.nn.Parameter(self.mel_basis)
-        
-          
-        
-    def forward(self,x):
-        if self.center:
-            if self.pad_mode == 'constant':
-                padding = nn.ConstantPad1d(self.n_fft//2, 0)
-            elif self.pad_mode == 'reflect':
-                padding = nn.ReflectionPad1d(self.n_fft//2)
+class MFCC(torch.nn.Module):
+    """This function is to calculate the Mel-frequency cepstral coefficients (MFCCs) of the input signal. It only support type-II DCT at the moment. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. Most of the arguments follow the convention from librosa. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
 
-            
-        if self.trainable_STFT==False:
-            x = padding(x)
-            spec_complex = torch.stft(x, self.n_fft, self.stride, window=self.window) 
-            spec = spec_complex[:,:,:,0].pow(2) + spec_complex[:,:,:,1].pow(2) 
-        else:
-            x = broadcast_dim(x)
-            x = padding(x)
-            spec = conv1d(x, self.wsin, stride=self.stride).pow(2) \
-               + conv1d(x, self.wcos, stride=self.stride).pow(2) # Doing STFT by using conv1d
+    Parameters
+    ----------
+    sr : int
+        The sampling rate for the input audio. It is used to calucate the correct ``fmin`` and ``fmax``. Setting the correct sampling rate is very important for calculating the correct frequency.
+
+    n_mfcc : int
+        The number of Mel-frequency cepstral coefficients
         
-        melspec = torch.matmul(self.mel_basis, spec)
-        return melspec
+    norm : string
+        The default value is 'ortho'. Normalization for DCT basis
+    
+    **kwargs
+        Other arguments for Melspectrogram such as n_fft, n_mels, hop_length, and window
+
+    Returns
+    -------
+    MFCCs : torch.tensor
+        It returns a tensor of MFCCs.  shape = ``(num_samples, n_mfcc, time_steps)``.
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.MFCC()
+    >>> mfcc = spec_layer(x)
+    """    
+    
+    
+    def __init__(self, sr=22050, n_mfcc=20, norm='ortho', device='cuda:0', verbose=True, **kwargs):
+        super(MFCC, self).__init__()
+        self.melspec_layer = MelSpectrogram(sr=sr, verbose=verbose, device=device, **kwargs)
+        self.p2d = self.power_to_db()
+        self.m_mfcc = n_mfcc
+        
+    def forward(self, x):
+        x = self.melspec_layer(x)
+        x = self.p2d.forward(x)
+        x = self.dct(x, norm='ortho')[:,:self.m_mfcc,:]
+        return x
+        
+    class power_to_db():
+        # refer to https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db for the original implmentation
+        def __init__(self, ref=1.0, amin=1e-10, top_db=80.0, device='cuda:0'):
+            if amin <= 0:
+                raise ParameterError('amin must be strictly positive')
+            self.amin = torch.tensor([amin], device=device)
+            self.ref = torch.abs(torch.tensor([ref], device=device))
+            self.top_db = top_db
+
+        def forward(self, S):
+            log_spec = 10.0 * torch.log10(torch.max(S, self.amin))
+            log_spec -= 10.0 * torch.log10(torch.max(self.amin, self.ref))
+            if self.top_db is not None:
+                if self.top_db < 0:
+                    raise ParameterError('top_db must be non-negative')
+                batch_wise_max = log_spec.flatten(1).max(1)[0].unsqueeze(1).unsqueeze(1) # make the dim same as log_spec so that it can be boardcaseted
+                log_spec = torch.max(log_spec, batch_wise_max - self.top_db)       
+            return log_spec
+    
+    def dct(self, x, norm=None):    
+        # refer to https://github.com/zh217/torch-dct for the original implmentation
+        x = x.permute(0,2,1) # make freq the last axis, since dct applies to the frequency axis
+        x_shape = x.shape
+        N = x_shape[-1]
+
+        v = torch.cat([x[:, :, ::2], x[:, :, 1::2].flip([2])], dim=2)
+        Vc = torch.rfft(v, 1, onesided=False)
+
+        k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
+        W_r = torch.cos(k)
+        W_i = torch.sin(k)
+
+        V = Vc[:, :, :, 0] * W_r - Vc[:, :, :, 1] * W_i
+
+        if norm == 'ortho':
+            V[:, :, 0] /= np.sqrt(N) * 2
+            V[:, :, 1:] /= np.sqrt(N / 2) * 2
+
+        V = 2 * V
+
+        return V.permute(0,2,1) # swaping back the time axis and freq axis
 
 class CQT1992(torch.nn.Module):
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect', device="cuda:0"):
@@ -824,7 +852,7 @@ class CQT2010(torch.nn.Module):
     early downsampling factor is to downsample the input audio to reduce the CQT kernel size. The result with and without early downsampling are more or less the same except in the very low frequency region where freq < 40Hz
     
     """
-    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True, device='cuda:0'):
+    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect', earlydownsample=True, verbose=True, device='cuda:0'):
         super(CQT2010, self).__init__()
         
         self.norm = norm # Now norm is used to normalize the final CQT result by dividing n_fft
@@ -838,7 +866,8 @@ class CQT2010(torch.nn.Module):
         Q = 1/(2**(1/bins_per_octave)-1) # It will be used to calculate filter_cutoff and creating CQT kernels
         
         # Creating lowpass filter and make it a torch tensor
-        print("Creating low pass filter ...", end='\r')
+        if verbose==True:
+            print("Creating low pass filter ...", end='\r')
         start = time()
         self.lowpass_filter = torch.tensor( 
                                             create_lowpass_filter(
@@ -846,7 +875,8 @@ class CQT2010(torch.nn.Module):
                                             kernelLength=256,
                                             transitionBandwidth=0.001), device=self.device)
         self.lowpass_filter = self.lowpass_filter[None,None,:] # Broadcast the tensor to the shape that fits conv1d
-        print("Low pass filter created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("Low pass filter created, time used = {:.4f} seconds".format(time()-start))
 
         # Caluate num of filter requires for the kernel
         # n_octaves determines how many resampling requires for the CQT
@@ -867,15 +897,18 @@ class CQT2010(torch.nn.Module):
             
         
         if self.earlydownsample == True: # Do early downsampling if this argument is True
-            print("Creating early downsampling filter ...", end='\r')
+            if verbose==True:
+                print("Creating early downsampling filter ...", end='\r')
             start = time()            
             sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, self.earlydownsample = self.get_early_downsample_params(sr, hop_length, fmax_t, Q, self.n_octaves, verbose)
-            print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
+            if verbose==True:
+                print("Early downsampling filter created, time used = {:.4f} seconds".format(time()-start))
         else:
             self.downsample_factor=1.
         
         # Preparing CQT kernels
-        print("Creating CQT kernels ...", end='\r')
+        if verbose==True:
+            print("Creating CQT kernels ...", end='\r')
         start = time()
 #         print("Q = {}, fmin_t = {}, n_filters = {}".format(Q, self.fmin_t, n_filters))
         basis, self.n_fft, _ = create_cqt_kernels(Q, sr, self.fmin_t, n_filters, bins_per_octave, norm=basis_norm, topbin_check=False)
@@ -891,16 +924,19 @@ class CQT2010(torch.nn.Module):
 
         self.cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32), device=self.device) # These cqt_kernal is already in the frequency domain
         self.cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32), device=self.device)
-        print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 #         print("Getting cqt kernel done, n_fft = ",self.n_fft)
         # Preparing kernels for Short-Time Fourier Transform (STFT)
         # We set the frequency range in the CQT filter instead of here.
-        print("Creating STFT kernels ...", end='\r')
+        if verbose==True:
+            print("Creating STFT kernels ...", end='\r')
         start = time()
         wsin, wcos, self.bins2freq, _ = create_fourier_kernels(self.n_fft, window='ones', freq_scale='no')  
         self.wsin = torch.tensor(wsin, device=self.device)
         self.wcos = torch.tensor(wcos, device=self.device) 
-        print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
+        if verbose==True:
+            print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
         
         
         
@@ -938,14 +974,16 @@ class CQT2010(torch.nn.Module):
         filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)   
         sr, hop_length, downsample_factor=self.early_downsample(sr, hop_length, n_octaves, sr//2, filter_cutoff)
         if downsample_factor != 1:
-            print("Can do early downsample, factor = ", downsample_factor)
+            if verbose==True:
+                print("Can do early downsample, factor = ", downsample_factor)
             earlydownsample=True
 #             print("new sr = ", sr)
 #             print("new hop_length = ", hop_length)
             early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor, kernelLength=256, transitionBandwidth=0.03)
             early_downsample_filter = torch.tensor(early_downsample_filter, device=self.device)[None, None, :]
-        else:            
-            print("No early downsampling is required, downsample_factor = ", downsample_factor)
+        else:       
+            if verbose==True:     
+                print("No early downsampling is required, downsample_factor = ", downsample_factor)
             early_downsample_filter = None
             earlydownsample=False
         return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample    
