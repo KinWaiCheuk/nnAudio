@@ -13,7 +13,7 @@ The name of nnAudio comes from `torch.nn`, since most of the codes are built fro
 | Linear frequency STFT| ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Logarithmic frequency STFT| ✅  | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| MFCC | ❌  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
+| MFCC | ✅  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
@@ -45,11 +45,11 @@ Numpy 1.14.5
 
 Scipy 1.2.0
 
-PyTorch 1.1.0
+PyTorch >= 1.1.0
 
 Python >= 3.6
 
-librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunks of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
+librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunk of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
 
 # Instructions
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
@@ -159,6 +159,9 @@ Spectrogram.MelSpectrogram(sr=22050, n_fft=2048, n_mels=128, hop_length=512, win
 ```python
 Spectrogram.CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
 ```
+### 4. MFCC
+```python
+Spectrogram.MFCC(sr=22050, n_mfcc=20, norm='ortho', device='cuda:0', verbose=True, **kwargs)
 
 
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
@@ -186,20 +189,15 @@ Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, 
 
 
 ## Speed
-The speed test is conducted using DGX Station with the following specs
+The speed test is conducted using three different machines
 
-CPU: Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz 
+Machine A: Windows Desktop with CPU: Intel Core i7-8700 @ 3.20GHz and GeForce GTX 1070 Ti 8Gb GPU
 
-GPU: Tesla v100 32gb
+Machine B: Linux Desktop with CPU: AMD Ryzen 7 PRO 3700 and 1 GeForce RTX 2080 Ti 11Gb GPU
 
-RAM: 256 GB RDIMM DDR4
+Machine C: DGX station with CPU: Intel Xeon E5-2698 v4 @ 2.20GHz and Tesla v100 32Gb GPU
 
-During the test, only 1 single GPU is used, and the same test is conducted when 
-
-(a) the DGX is idel
-
-(b) the DGX has ongoing jobs
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speed.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speedv3.png)
 
   
 
