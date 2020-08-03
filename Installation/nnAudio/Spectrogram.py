@@ -11,8 +11,8 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-from .librosa_filters import mel # Use it for PyPip
-# from librosa_filters import mel # Use it for debug
+# from .librosa_filters import mel # Use it for PyPip
+from librosa_filters import mel # Use it for debug
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -193,7 +193,7 @@ def broadcast_dim_conv2d(x):
 
 ## Kernal generation functions ##
 def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100, 
-                           freq_scale='linear', window='hann'):
+                           freq_scale='linear', window='hann', verbose=True):
     """ This function creates the Fourier Kernel for STFT, Melspectrogram and CQT. 
     Most of the parameters follow librosa conventions. Part of the code comes from 
     pytorch_musicnet. https://github.com/jthickstun/pytorch_musicnet
@@ -259,8 +259,9 @@ def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100,
     window_mask = get_window(window,int(n_fft), fftbins=True)
 
     if freq_scale == 'linear':
-        print("sampling rate = {}. Please make sure the sampling rate is correct in order to \
-               get a valid freq range".format(sr))
+        if verbose==True:
+            print(f"sampling rate = {sr}. Please make sure the sampling rate is correct in order to"
+                  f"get a valid freq range")
         start_bin = start_freq*n_fft/sr
         scaling_ind = (end_freq-start_freq)*(n_fft/sr)/freq_bins
         
@@ -272,8 +273,9 @@ def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100,
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
             
     elif freq_scale == 'log':
-        print("sampling rate = {}. Please make sure the sampling rate is correct in order to \
-               get a valid freq range".format(sr))
+        if verbose==True:
+            print(f"sampling rate = {sr}. Please make sure the sampling rate is correct in order to"
+                  f"get a valid freq range")
         start_bin = start_freq*n_fft/sr
         scaling_ind = np.log(end_freq/start_freq)/freq_bins
         
@@ -501,7 +503,8 @@ class STFT(torch.nn.Module):
                                                                            freq_scale=freq_scale, 
                                                                            fmin=fmin,
                                                                            fmax=fmax, 
-                                                                           sr=sr)
+                                                                           sr=sr, 
+                                                                           verbose=verbose)
         # Create filter windows for inverse
         wsin_inv, wcos_inv, _, _ = create_fourier_kernels(n_fft, 
                                                           freq_bins=n_fft, 
@@ -509,7 +512,8 @@ class STFT(torch.nn.Module):
                                                           freq_scale=freq_scale, 
                                                           fmin=fmin,
                                                           fmax=fmax, 
-                                                          sr=sr)
+                                                          sr=sr,
+                                                          verbose=False)
         
         self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
         self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
