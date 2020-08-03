@@ -20,5 +20,11 @@ Installation/nnAudio/Orthogonal.ipynb
 Debug
 performance_test/
 speed_test/v1/
-speed_test/v2/
+speed_test/v2/*/*
+!speed_test/v2/*/*.ipynb
+!speed_test/v2/*/*.py
+speed_test/Overhead/*
+!speed_test/Overhead/*.ipynb
+!speed_test/Overhead/*.py
+!speed_test/Overhead/weight/README.txt
 Paper/
