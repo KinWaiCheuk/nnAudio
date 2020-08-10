@@ -6,10 +6,10 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
 ## Changelog
-version 0.1.2.dev1: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.
-                    To use this version, do `pip install nnAudio --pre -U`.
+**version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.\
+To use this version, do `pip install nnAudio --pre -U`.
                     
-version 0.1.1: Add MFCC (1 June 2020)
+**version 0.1.1**: Add MFCC (1 June 2020)
 
 ## Comparison with other libraries
 | Feature | [nnAudio](https://github.com/KinWaiCheuk/nnAudio) | [torch.stft](https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/SpectralOps.cpp) | [kapre](https://github.com/keunwoochoi/kapre) | [torchaudio](https://github.com/pytorch/audio) | [tf.signal](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/python/ops/signal) | [torch-stft](https://github.com/pseeth/torch-stft) | [librosa](https://github.com/librosa/librosa) |
@@ -25,7 +25,7 @@ version 0.1.1: Add MFCC (1 June 2020)
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
-✅: Fully support    ☑️: Developing    ❌: Not support
+✅: Fully support    ☑️: Developing (only available in dev version)    ❌: Not support
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
 
@@ -64,7 +64,10 @@ librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to us
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
 
 ## Installation
-`pip install nnAudio`
+To install stable version: `pip install nnAudio`
+
+To install dev version: `pip install nnAudio --pre -U`.\
+It allows the users to use the latest features, but the new features might not be stable. Please use with care and report any problems that you found.
 
 ## Standalone Usage
 To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
