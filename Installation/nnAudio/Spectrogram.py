@@ -11,8 +11,8 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-# from .librosa_filters import mel # Use it for PyPip
-from librosa_filters import mel # Use it for debug
+from .librosa_filters import mel # Use it for PyPip
+# from librosa_filters import mel # Use it for debug
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -654,137 +654,6 @@ class STFT(torch.nn.Module):
         X_cur = torch.stack([X_real, X_imag], dim=-1)
         return self.inverse(X_cur, is_window_normalized=False)
     
-
-class DFT(torch.nn.Module):
-    """
-    The inverse function only works for 1 single frame. i.e. input shape = (batch, n_fft, 1)
-    """    
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, 
-                window='hann', freq_scale='no', center=True, pad_mode='reflect', 
-                fmin=50, fmax=6000, sr=22050):
-        
-        super(DFT, self).__init__()
-
-        self.stride = hop_length
-        self.center = center
-        self.pad_mode = pad_mode
-        self.n_fft = n_fft
-        
-        # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft=n_fft, 
-                                                            freq_bins=n_fft, 
-                                                            window=window, 
-                                                            freq_scale=freq_scale, 
-                                                            fmin=fmin,
-                                                            fmax=fmax, 
-                                                            sr=sr)
-        self.wsin = torch.tensor(wsin, dtype=torch.float)
-        self.wcos = torch.tensor(wcos, dtype=torch.float)        
-
-    def forward(self,x):
-        x = broadcast_dim(x)
-        if self.center:
-            if self.pad_mode == 'constant':
-                padding = nn.ConstantPad1d(self.n_fft//2, 0)
-            elif self.pad_mode == 'reflect':
-                padding = nn.ReflectionPad1d(self.n_fft//2)
-
-            x = padding(x)
-            
-        imag = conv1d(x, self.wsin, stride=self.stride)
-        real = conv1d(x, self.wcos, stride=self.stride)
-        return (real, -imag)   
-    
-    def inverse(self,x_real,x_imag):
-        x_real = broadcast_dim(x_real)
-        x_imag = broadcast_dim(x_imag)
-        
-        x_real.transpose_(1,2) # Prepare the right shape to do inverse
-        x_imag.transpose_(1,2) # Prepare the right shape to do inverse
-        
-        # if self.center:
-        #     if self.pad_mode == 'constant':
-        #         padding = nn.ConstantPad1d(self.n_fft//2, 0)
-        #     elif self.pad_mode == 'reflect':
-        #         padding = nn.ReflectionPad1d(self.n_fft//2)
-
-        #     x_real = padding(x_real)
-        #     x_imag = padding(x_imag)
-        
-        # Watch out for the positive and negative signs
-        # ifft = e^(+2\pi*j)*X
-        
-        # ifft(X_real) = (a1, a2)
-        
-        # ifft(X_imag)*1j = (b1, b2)*1j
-        #                = (-b2, b1)
-        
-        a1 = conv1d(x_real, self.wcos, stride=self.stride)
-        a2 = conv1d(x_real, self.wsin, stride=self.stride)
-        b1 = conv1d(x_imag, self.wcos, stride=self.stride)
-        b2 = conv1d(x_imag, self.wsin, stride=self.stride)     
-                                                   
-        imag = a2+b1
-        real = a1-b2
-        return (real/self.n_fft, imag/self.n_fft)    
-
-
-class iSTFT_complex_2d(torch.nn.Module):
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, 
-                window='hann', freq_scale='no', center=True, pad_mode='reflect', 
-                fmin=50, fmax=6000, sr=22050):
-
-        super(iSTFT_complex_2d, self).__init__()
-
-        self.stride = hop_length
-        self.center = center
-        self.pad_mode = pad_mode
-        self.n_fft = n_fft
-
-        # Create filter windows for stft
-        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft=n_fft, 
-                                                            freq_bins=n_fft, 
-                                                            window=window, 
-                                                            freq_scale=freq_scale, 
-                                                            fmin=fmin,
-                                                            fmax=fmax, 
-                                                            sr=sr)
-        self.wsin = torch.tensor(wsin, dtype=torch.float)
-        self.wcos = torch.tensor(wcos, dtype=torch.float)
-        
-        self.wsin = self.wsin[:,:,:,None]  # adjust the filter shape to fit into 2D conv
-        self.wcos = self.wcos[:,:,:,None]
-        
-    def forward(self,x_real,x_imag):
-        x_real = broadcast_dim_conv2d(x_real)
-        x_imag = broadcast_dim_conv2d(x_imag) # taking conjugate
-    
-        # if self.center:
-        #     if self.pad_mode == 'constant':
-        #         padding = nn.ConstantPad1d(self.n_fft//2, 0)
-        #     elif self.pad_mode == 'reflect':
-        #         padding = nn.ReflectionPad1d(self.n_fft//2)
-
-        #     x_real = padding(x_real)
-        #     x_imag = padding(x_imag)
-        
-        # Watch out for the positive and negative signs
-        #ifft = e^(+2\pi*j)*X
-        
-        #ifft(X_real) = (a1, a2)
-        
-        #ifft(X_imag)*1j = (b1, b2)*1j
-        #                = (-b2, b1)
-        
-        a1 = conv2d(x_real, self.wcos, stride=(1,1))
-        a2 = conv2d(x_real, self.wsin, stride=(1,1))
-        b1 = conv2d(x_imag, self.wcos, stride=(1,1))
-        b2 = conv2d(x_imag, self.wsin, stride=(1,1))     
-                                                   
-        imag = a2+b1
-        real = a1-b2
-        return (real/self.n_fft, imag/self.n_fft)  
-
 
 class MelSpectrogram(torch.nn.Module):
     """This function is to calculate the Melspectrogram of the input signal. 
@@ -1917,3 +1786,144 @@ class CQT2010v2(torch.nn.Module):
 class CQT(CQT1992v2):
     """An abbreviation for CQT1992v2. Please refer to the CQT1992v2 documentation"""
     pass
+
+
+
+# The section below is for developing purpose
+# Please don't use the following classes
+#
+
+class DFT(torch.nn.Module):
+    """
+    Developing feature, don't use
+    The inverse function only works for 1 single frame. i.e. input shape = (batch, n_fft, 1)
+    """    
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, 
+                window='hann', freq_scale='no', center=True, pad_mode='reflect', 
+                fmin=50, fmax=6000, sr=22050):
+        
+        super(DFT, self).__init__()
+
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+        
+        # Create filter windows for stft
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft=n_fft, 
+                                                            freq_bins=n_fft, 
+                                                            window=window, 
+                                                            freq_scale=freq_scale, 
+                                                            fmin=fmin,
+                                                            fmax=fmax, 
+                                                            sr=sr)
+        self.wsin = torch.tensor(wsin, dtype=torch.float)
+        self.wcos = torch.tensor(wcos, dtype=torch.float)        
+
+    def forward(self,x):
+        x = broadcast_dim(x)
+        if self.center:
+            if self.pad_mode == 'constant':
+                padding = nn.ConstantPad1d(self.n_fft//2, 0)
+            elif self.pad_mode == 'reflect':
+                padding = nn.ReflectionPad1d(self.n_fft//2)
+
+            x = padding(x)
+            
+        imag = conv1d(x, self.wsin, stride=self.stride)
+        real = conv1d(x, self.wcos, stride=self.stride)
+        return (real, -imag)   
+    
+    def inverse(self,x_real,x_imag):
+        x_real = broadcast_dim(x_real)
+        x_imag = broadcast_dim(x_imag)
+        
+        x_real.transpose_(1,2) # Prepare the right shape to do inverse
+        x_imag.transpose_(1,2) # Prepare the right shape to do inverse
+        
+        # if self.center:
+        #     if self.pad_mode == 'constant':
+        #         padding = nn.ConstantPad1d(self.n_fft//2, 0)
+        #     elif self.pad_mode == 'reflect':
+        #         padding = nn.ReflectionPad1d(self.n_fft//2)
+
+        #     x_real = padding(x_real)
+        #     x_imag = padding(x_imag)
+        
+        # Watch out for the positive and negative signs
+        # ifft = e^(+2\pi*j)*X
+        
+        # ifft(X_real) = (a1, a2)
+        
+        # ifft(X_imag)*1j = (b1, b2)*1j
+        #                = (-b2, b1)
+        
+        a1 = conv1d(x_real, self.wcos, stride=self.stride)
+        a2 = conv1d(x_real, self.wsin, stride=self.stride)
+        b1 = conv1d(x_imag, self.wcos, stride=self.stride)
+        b2 = conv1d(x_imag, self.wsin, stride=self.stride)     
+                                                   
+        imag = a2+b1
+        real = a1-b2
+        return (real/self.n_fft, imag/self.n_fft)    
+
+
+class iSTFT_complex_2d(torch.nn.Module):
+    """
+    Developing feature, don't use
+    """
+    
+    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, 
+                window='hann', freq_scale='no', center=True, pad_mode='reflect', 
+                fmin=50, fmax=6000, sr=22050):
+
+        super(iSTFT_complex_2d, self).__init__()
+
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+
+        # Create filter windows for stft
+        wsin, wcos, self.bins2freq = create_fourier_kernels(n_fft=n_fft, 
+                                                            freq_bins=n_fft, 
+                                                            window=window, 
+                                                            freq_scale=freq_scale, 
+                                                            fmin=fmin,
+                                                            fmax=fmax, 
+                                                            sr=sr)
+        self.wsin = torch.tensor(wsin, dtype=torch.float)
+        self.wcos = torch.tensor(wcos, dtype=torch.float)
+        
+        self.wsin = self.wsin[:,:,:,None]  # adjust the filter shape to fit into 2D conv
+        self.wcos = self.wcos[:,:,:,None]
+        
+    def forward(self,x_real,x_imag):
+        x_real = broadcast_dim_conv2d(x_real)
+        x_imag = broadcast_dim_conv2d(x_imag) # taking conjugate
+    
+        # if self.center:
+        #     if self.pad_mode == 'constant':
+        #         padding = nn.ConstantPad1d(self.n_fft//2, 0)
+        #     elif self.pad_mode == 'reflect':
+        #         padding = nn.ReflectionPad1d(self.n_fft//2)
+
+        #     x_real = padding(x_real)
+        #     x_imag = padding(x_imag)
+        
+        # Watch out for the positive and negative signs
+        #ifft = e^(+2\pi*j)*X
+        
+        #ifft(X_real) = (a1, a2)
+        
+        #ifft(X_imag)*1j = (b1, b2)*1j
+        #                = (-b2, b1)
+        
+        a1 = conv2d(x_real, self.wcos, stride=(1,1))
+        a2 = conv2d(x_real, self.wsin, stride=(1,1))
+        b1 = conv2d(x_imag, self.wcos, stride=(1,1))
+        b2 = conv2d(x_imag, self.wsin, stride=(1,1))     
+                                                   
+        imag = a2+b1
+        real = a1-b2
+        return (real/self.n_fft, imag/self.n_fft)  
