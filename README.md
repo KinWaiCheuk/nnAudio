@@ -6,6 +6,9 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
 ## Changelog
+version 0.1.2.dev1: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.
+                    To use this version, do `pip install nnAudio --pre -U`.
+                    
 version 0.1.1: Add MFCC (1 June 2020)
 
 ## Comparison with other libraries
@@ -15,11 +18,14 @@ version 0.1.1: Add MFCC (1 June 2020)
 | Differentiable | ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Linear frequency STFT| ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Logarithmic frequency STFT| ✅  | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Inverse STFT| ☑️  | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Griffin-Lim| ☑️  | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
 | MFCC | ✅  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
+✅: Fully support    ☑️: Developing    ❌: Not support
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
 
@@ -165,12 +171,7 @@ Spectrogram.CQT(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_p
 ### 4. MFCC
 ```python
 Spectrogram.MFCC(sr=22050, n_mfcc=20, norm='ortho', device='cuda:0', verbose=True, **kwargs)
-
-
-The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
-
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_1.png)
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_2.png)
+```
 
 ### Differences between CQT1992 and CQT2010
 The result for CQT1992 is smoother than CQT2010 and librosa. Since librosa and CQT2010 are using the same algorithm (downsampling approach as mentioned in this [paper](https://www.semanticscholar.org/paper/CONSTANT-Q-TRANSFORM-TOOLBOX-FOR-MUSIC-PROCESSING-Sch%C3%B6rkhuber/4cef10ea66e40ad03f434c70d745a4959cea96dd)), you can see similar artifacts as a result of downsampling. The default `CQT` in nnAudio is the 1992 version, with slighltly modifications to make it faster than the original CQT proposed in [1992](https://www.semanticscholar.org/paper/An-efficient-algorithm-for-the-calculation-of-a-Q-Brown-Puckette/628a0981e2ed1c33b1b9a88018a01e2f0be0c956).
@@ -189,6 +190,13 @@ Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, 
 ```
 
 ![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/CQT_compare.png)
+
+
+## Output Spectrogram
+The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
+
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_1.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_2.png)
 
 
 ## Speed
