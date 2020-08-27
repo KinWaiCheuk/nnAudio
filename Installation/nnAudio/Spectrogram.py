@@ -11,8 +11,8 @@ from scipy import signal
 from scipy import fft
 import warnings
 
-from .librosa_filters import mel # Use it for PyPip, and PyTest
-# from librosa_filters import mel # Use it for debug
+from .librosa_filters import * # Use it for PyPip, and PyTest
+# from librosa_filters import * # Use it for debug
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -192,7 +192,7 @@ def broadcast_dim_conv2d(x):
 
 
 ## Kernal generation functions ##
-def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100, 
+def create_fourier_kernels(n_fft, win_length=None, freq_bins=None, fmin=50,fmax=6000, sr=44100, 
                            freq_scale='linear', window='hann', verbose=True):
     """ This function creates the Fourier Kernel for STFT, Melspectrogram and CQT. 
     Most of the parameters follow librosa conventions. Part of the code comes from 
@@ -240,8 +240,8 @@ def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100,
 
     """ 
 
-    if freq_bins==None:
-        freq_bins = n_fft//2+1
+    if freq_bins==None: freq_bins = n_fft//2+1
+    if win_length==None: win_length = n_fft
 
     s = np.arange(0, n_fft, 1.)
     wsin = np.empty((freq_bins,1,n_fft))
@@ -256,7 +256,8 @@ def create_fourier_kernels(n_fft, freq_bins=None, fmin=50,fmax=6000, sr=44100,
 
     # Choosing window shape
 
-    window_mask = get_window(window,int(n_fft), fftbins=True)
+    window_mask = get_window(window,int(win_length), fftbins=True)
+    window_mask = pad_center(window_mask, n_fft)
 
     if freq_scale == 'linear':
         if verbose==True:
@@ -477,12 +478,15 @@ class STFT(torch.nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', 
+    def __init__(self, n_fft=2048, win_length=None, freq_bins=None, hop_length=None, window='hann', 
                 freq_scale='no', center=True, pad_mode='reflect', 
                 fmin=50, fmax=6000, sr=22050, trainable=False, 
                 verbose=True, device='cuda:0'):
         
         super(STFT, self).__init__()
+
+        # Trying to make the default setting same as librosa
+        if hop_length==None: hop_length = int(win_length // 4)
         
         self.trainable = trainable
         self.stride = hop_length
@@ -498,6 +502,7 @@ class STFT(torch.nn.Module):
         
         # Create filter windows for stft
         wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, 
+                                                                           win_length=win_length,
                                                                            freq_bins=freq_bins, 
                                                                            window=window, 
                                                                            freq_scale=freq_scale, 
@@ -507,6 +512,7 @@ class STFT(torch.nn.Module):
                                                                            verbose=verbose)
         # Create filter windows for inverse
         wsin_inv, wcos_inv, _, _ = create_fourier_kernels(n_fft, 
+                                                          win_length=win_length,
                                                           freq_bins=n_fft, 
                                                           window='ones', 
                                                           freq_scale=freq_scale, 
