@@ -6,6 +6,11 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
 ## Changelog
+**version 0.1.2.dev3**: Add `win_length` to STFT so that it has the same funcationality as librosa.\
+To use this version, do `pip install nnAudio --pre -U`.
+
+**version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a seperated `iSTFT` layer class
+
 **version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.\
 To use this version, do `pip install nnAudio --pre -U`.
                     
@@ -30,24 +35,20 @@ To use this version, do `pip install nnAudio --pre -U`.
 https://kinwaicheuk.github.io/nnAudio/index.html
 
 ## How to cite nnAudio
-The paper for nnAudio is avaliable on [arXiv](https://arxiv.org/abs/1912.12055)
+The paper for nnAudio is avaliable on [IEEE Access](https://ieeexplore.ieee.org/document/9174990)
 
-
-### APA
-Cheuk, K. W., Anderson, H., Agres, K., & Herremans, D. (2019). nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks. arXiv preprint arXiv:1912.12055.
-
-### Chicago
-Cheuk, Kin Wai, Hans Anderson, Kat Agres, and Dorien Herremans. "nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks." arXiv preprint arXiv:1912.12055 (2019).
+K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks," in IEEE Access, doi: 10.1109/ACCESS.2020.3019084.
 
 ### BibTex
-`@article{Cheuk2019nnAudioAO,
-  title={nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolution Neural Networks},
-  author={Kin Wai Cheuk and Hans Henrik Anderson and Kat Agres and Dorien Herremans},
-  journal={ArXiv},
-  year={2019},
-  volume={abs/1912.12055}
-}`
- 
+@ARTICLE{9174990,
+  author={K. W. {Cheuk} and H. {Anderson} and K. {Agres} and D. {Herremans}},
+  journal={IEEE Access}, 
+  title={nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks}, 
+  year={2020},
+  volume={In press},
+  number={},
+  pages={},}
+
 
 # Dependencies
 Numpy 1.14.5
