@@ -295,3 +295,79 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
 
     return weights
 ### ------------------End of Functions for generating kenral for Mel Spectrogram ----------------###
+
+
+### ------------------Functions for making STFT same as librosa ---------------------------------###
+def pad_center(data, size, axis=-1, **kwargs):
+    '''Wrapper for np.pad to automatically center an array prior to padding.
+    This is analogous to `str.center()`
+
+    Examples
+    --------
+    >>> # Generate a vector
+    >>> data = np.ones(5)
+    >>> librosa.util.pad_center(data, 10, mode='constant')
+    array([ 0.,  0.,  1.,  1.,  1.,  1.,  1.,  0.,  0.,  0.])
+
+    >>> # Pad a matrix along its first dimension
+    >>> data = np.ones((3, 5))
+    >>> librosa.util.pad_center(data, 7, axis=0)
+    array([[ 0.,  0.,  0.,  0.,  0.],
+           [ 0.,  0.,  0.,  0.,  0.],
+           [ 1.,  1.,  1.,  1.,  1.],
+           [ 1.,  1.,  1.,  1.,  1.],
+           [ 1.,  1.,  1.,  1.,  1.],
+           [ 0.,  0.,  0.,  0.,  0.],
+           [ 0.,  0.,  0.,  0.,  0.]])
+    >>> # Or its second dimension
+    >>> librosa.util.pad_center(data, 7, axis=1)
+    array([[ 0.,  1.,  1.,  1.,  1.,  1.,  0.],
+           [ 0.,  1.,  1.,  1.,  1.,  1.,  0.],
+           [ 0.,  1.,  1.,  1.,  1.,  1.,  0.]])
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Vector to be padded and centered
+
+    size : int >= len(data) [scalar]
+        Length to pad `data`
+
+    axis : int
+        Axis along which to pad and center the data
+
+    kwargs : additional keyword arguments
+      arguments passed to `np.pad()`
+
+    Returns
+    -------
+    data_padded : np.ndarray
+        `data` centered and padded to length `size` along the
+        specified axis
+
+    Raises
+    ------
+    ParameterError
+        If `size < data.shape[axis]`
+
+    See Also
+    --------
+    numpy.pad
+    '''
+
+    kwargs.setdefault('mode', 'constant')
+
+    n = data.shape[axis]
+
+    lpad = int((size - n) // 2)
+
+    lengths = [(0, 0)] * data.ndim
+    lengths[axis] = (lpad, int(size - n - lpad))
+
+    if lpad < 0:
+        raise ParameterError(('Target size ({:d}) must be '
+                              'at least input size ({:d})').format(size, n))
+
+    return np.pad(data, lengths, **kwargs)
+
+### ------------------End of functions for making STFT same as librosa ---------------------------###
