@@ -6,13 +6,15 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
 ## Changelog
+**version 0.1.4a0**: Finalized iSTFT and Griffin-Lim. They are now more accurate and stable.
+To use this version, do `pip install nnAudio==0.1.4a0`.
+
 **version 0.1.2.dev3**: Add `win_length` to STFT so that it has the same funcationality as librosa.\
 To use this version, do `pip install nnAudio --pre -U`.
 
 **version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a seperated `iSTFT` layer class
 
-**version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.\
-To use this version, do `pip install nnAudio --pre -U`.
+**version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.
                     
 **version 0.1.1**: Add MFCC (1 June 2020)
 
@@ -23,8 +25,8 @@ To use this version, do `pip install nnAudio --pre -U`.
 | Differentiable | ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Linear frequency STFT| ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Logarithmic frequency STFT| ✅  | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Inverse STFT| ☑️  | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Griffin-Lim| ☑️  | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| Inverse STFT| ✅  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Griffin-Lim| ✅  | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
 | MFCC | ✅  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
