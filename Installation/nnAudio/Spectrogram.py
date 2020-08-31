@@ -13,6 +13,7 @@ import warnings
 
 from .librosa_filters import * # Use it for PyPip, and PyTest
 # from librosa_filters import * # Use it for debug
+# from librosa.filters import window_sumsquare
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -132,6 +133,29 @@ def nextpow2(A):
     """
 
     return int(np.ceil(np.log2(A)))
+
+## Basic tools for computation ##
+def prepow2(A):
+    """A helper function to calculate the next nearest number to the power of 2. 
+
+    Parameters
+    ----------
+    A : float
+        A float number that is going to be rounded up to the nearest power of 2
+
+    Returns
+    -------
+    int
+        The nearest power of 2 to the input number ``A``
+
+    Examples
+    --------
+
+    >>> nextpow2(6)
+    3
+    """
+
+    return int(np.floor(np.log2(A)))
 
 
 def complex_mul(cqt_filter, stft):
@@ -295,7 +319,7 @@ def create_fourier_kernels(n_fft, win_length=None, freq_bins=None, fmin=50,fmax=
             wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist
+    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist, window_mask
 
 
 def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1, 
@@ -484,8 +508,9 @@ class STFT(torch.nn.Module):
                 verbose=True, device='cuda:0'):
         
         super(STFT, self).__init__()
-
+              
         # Trying to make the default setting same as librosa
+        if win_length==None: win_length = n_fft
         if hop_length==None: hop_length = int(win_length // 4)
         
         self.trainable = trainable
@@ -498,10 +523,13 @@ class STFT(torch.nn.Module):
         self.device = device
         self.pad_amount = self.n_fft // 2
         self.window = window
+        self.win_length = win_length
         start = time()
         
+        
+        
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq, self.bin_list = create_fourier_kernels(n_fft, 
+        wsin, wcos, self.bins2freq, self.bin_list, window_mask = create_fourier_kernels(n_fft, 
                                                                            win_length=win_length,
                                                                            freq_bins=freq_bins, 
                                                                            window=window, 
@@ -511,7 +539,7 @@ class STFT(torch.nn.Module):
                                                                            sr=sr, 
                                                                            verbose=verbose)
         # Create filter windows for inverse
-        wsin_inv, wcos_inv, _, _ = create_fourier_kernels(n_fft, 
+        wsin_inv, wcos_inv, _, _, _ = create_fourier_kernels(n_fft, 
                                                           win_length=win_length,
                                                           freq_bins=n_fft, 
                                                           window='ones', 
@@ -532,7 +560,6 @@ class STFT(torch.nn.Module):
         self.wsin_inv = torch.nn.Parameter(self.wsin_inv, requires_grad=self.trainable)
         self.wcos_inv = torch.nn.Parameter(self.wcos_inv, requires_grad=self.trainable)
         
-        window_mask = get_window(self.window, self.n_fft, fftbins=True) + 1e-5
         self.window_mask = torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
 
         if verbose==True:
@@ -555,7 +582,6 @@ class STFT(torch.nn.Module):
                 padding = nn.ReflectionPad1d(self.pad_amount)
 
             x = padding(x)
-        
         spec_imag = conv1d(x, self.wsin, stride=self.stride) 
         spec_real = conv1d(x, self.wcos, stride=self.stride)  # Doing STFT by using conv1d
         
@@ -579,15 +605,15 @@ class STFT(torch.nn.Module):
             self.output_format = 'Phase'
             return torch.atan2(-spec_imag+0.0,spec_real)  # +0.0 removes -0.0 elements, which leads to error in calculating phase
     
-    def inverse(self, X):
+    def inverse(self, X,  num_samples=-1):
         if len(X.shape) == 3 and self.output_format == 'Magnitude':
             return self.griffin_lim(X)
         elif len(X.shape) == 4 and self.output_format == "Complex":
-            return self.__inverse(X)
+            return self.__inverse(X, num_samples=num_samples)
         else:
             raise AssertionError("Only perform inverse function on Magnitude or Complex spectrogram.")
     
-    def __inverse(self, X, is_window_normalized=True):
+    def __inverse(self, X, is_window_normalized=True, num_samples=None):
         X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
         
         # flip and extend beyond Nyquist frequency
@@ -611,29 +637,33 @@ class STFT(torch.nn.Module):
         # compute real and imag part. signal lies in the real part
         real = a1 - b2
         real = real.squeeze(-2)
-        real_old = real.clone() / self.n_fft
                 
         # each time step contains reconstructed signal, hence we stitch them together and remove
         # the repeated segments due to overlapping windows during STFT when hop_size < n_fft
-        
         if is_window_normalized:
+#             nonzero_indices = self.window_mask[0,:,0]>1e-6 # it doesn't work
             real /= self.window_mask
-            
+           
         real /= self.n_fft
         
-        real_last = real[:, self.stride:, -1]   # retain the signal in last time step
-        real_split = real[:, :self.stride, :]   # remove redundant samples at overlapped parts
+        # It doesn't work if we keep the last time-step as a whole. 
+        # Since the erroneous part is on the LHS of the window, we better chop them out 
+        real_first = real[:, :, 0]   # get the complet first frame
+        real_split = real[:, -self.stride:, 1:]   # remove redundant samples at overlapped parts
+
         
         # reshape output signal to 1D
         output_signal = torch.reshape(torch.transpose(real_split, 2, 1), (real_split.shape[0], -1))
-        output_signal = torch.cat([output_signal, real_last], dim=-1)    # stich the final signal back
-        
-        output_signal = output_signal[:, self.pad_amount:]
-#         output_signal = output_signal[:, :self.num_samples]
-        output_signal = output_signal[:, :-self.pad_amount]
+        output_signal = torch.cat([real_first, output_signal], dim=-1)    # stich the first signal back
+
+        output_signal = output_signal[:, self.pad_amount:] # remove padding on LHS      
+        if num_samples:
+            output_signal = output_signal[:, :num_samples]    
+        else:
+            output_signal = output_signal[:, :-self.pad_amount]
         return output_signal
     
-    def griffin_lim(self, X, maxiter=32, tol=1e-6, alpha=0.99, verbose=True, phase=None):
+    def griffin_lim(self, X, maxiter=32, tol=1e-6, alpha=0.99, verbose=False, phase=None):
         # only use griffin lim when X is not in complex form
         if phase is None:
             phase = torch.rand_like(X) * 2 - 1
@@ -642,7 +672,7 @@ class STFT(torch.nn.Module):
 
         phase = nn.Parameter(phase)
         criterion = nn.MSELoss()
-        optimizer = optim.Adam([phase], lr=1e-2)
+        optimizer = torch.optim.Adam([phase], lr=9e-1)
         
         for idx in range(maxiter):
             optimizer.zero_grad()
@@ -657,13 +687,13 @@ class STFT(torch.nn.Module):
             loss = criterion(rebuilt_mag, X)
             loss.backward()
             optimizer.step()
-            
-            print("Run: {}/{} MSE: {:.4}".format(idx + 1, maxiter, criterion(rebuilt_mag, X).item()))
+            if verbose:            
+                print("Run: {}/{} MSE: {:.4}".format(idx + 1, maxiter, criterion(rebuilt_mag, X).item()))
 
         # Return the final phase estimates
         X_real, X_imag = X * torch.cos(phase), X * torch.sin(phase)
         X_cur = torch.stack([X_real, X_imag], dim=-1)
-        return self.inverse(X_cur, is_window_normalized=False)
+        return self.__inverse(X_cur, is_window_normalized=False)
     
 
 class MelSpectrogram(torch.nn.Module):
@@ -758,7 +788,7 @@ class MelSpectrogram(torch.nn.Module):
         
         # Create filter windows for stft
         start = time()
-        wsin, wcos, self.bins2freq, _ = create_fourier_kernels(n_fft=n_fft, 
+        wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft=n_fft, 
                                                                 freq_bins=None, 
                                                                 window=window, 
                                                                 freq_scale='no', 
@@ -1880,13 +1910,13 @@ class DFT(torch.nn.Module):
 
 
 class iSTFT(torch.nn.Module):
-    """This function is to calculate the inverse short-time Fourier transform (STFT) of the input signal. 
-    Input should be in either of the following shapes. 
-        1. A Magnitude spectrogram with shape ``(batch, freq_bins, time_steps)``
-        2. A complex value spectrogram with shape ``(batch, freq_bins, time_steps, 2)``
+    """This function is to calculate the short-time Fourier transform (iSTFT) of the input signal. 
+    Input signal should be in either of the following shapes. 
+        1. ``(len_audio)``
+        2. ``(num_audio, len_audio)``
+        3. ``(num_audio, 1, len_audio)``
         
-    When the input is type 1, then Griffin-Lim will be used. 
-    If the input is type 2, then normal inverse STFT will be used 
+    The correct shape will be inferred automatically if the input follows these 3 shapes. 
     Most of the arguments follow the convention from librosa. 
     This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
 
@@ -1902,7 +1932,7 @@ class iSTFT(torch.nn.Module):
         The hop (or stride) size. Default value is 512.
 
     window : str
-        The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to 
+        The windowing function for iSTFT. It uses ``scipy.signal.get_window``, please refer to 
         scipy documentation for possible windowing functions. The default value is 'hann'.
 
     freq_scale : 'linear', 'log', or 'no'
@@ -1911,9 +1941,9 @@ class iSTFT(torch.nn.Module):
         start at 0Hz and end at Nyquist frequency with linear spacing.
 
     center : bool
-        Putting the STFT keneral at the center of the time-step or not. If ``False``, the time 
-        index is the beginning of the STFT kernel, if ``True``, the time index is the center of 
-        the STFT kernel. Default value if ``True``.
+        Putting the iSTFT keneral at the center of the time-step or not. If ``False``, the time 
+        index is the beginning of the iSTFT kernel, if ``True``, the time index is the center of 
+        the iSTFT kernel. Default value if ``True``.
 
     pad_mode : str
         The padding method. Default value is 'reflect'.
@@ -1950,16 +1980,20 @@ class iSTFT(torch.nn.Module):
 
     Examples
     --------
-    >>> spec_layer = Spectrogram.STFT()
+    >>> spec_layer = Spectrogram.iSTFT()
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, n_fft=2048, freq_bins=None, hop_length=512, window='hann', 
+    def __init__(self, n_fft=2048, win_length=None, freq_bins=None, hop_length=None, window='hann', 
                 freq_scale='no', center=True, pad_mode='reflect', 
                 fmin=50, fmax=6000, sr=22050, trainable=False, 
                 verbose=True, device='cuda:0'):
         
         super(iSTFT, self).__init__()
+              
+        # Trying to make the default setting same as librosa
+        if win_length==None: win_length = n_fft
+        if hop_length==None: hop_length = int(win_length // 4)
         
         self.trainable = trainable
         self.stride = hop_length
@@ -1971,11 +2005,16 @@ class iSTFT(torch.nn.Module):
         self.device = device
         self.pad_amount = self.n_fft // 2
         self.window = window
+        self.win_length = win_length
         start = time()
         
-
+        
+        window_mask = get_window(window,int(win_length), fftbins=True)
+        window_mask = pad_center(window_mask, n_fft)
+        
         # Create filter windows for inverse
-        wsin_inv, wcos_inv, _, _ = create_fourier_kernels(n_fft, 
+        wsin_inv, wcos_inv, _, _, _ = create_fourier_kernels(n_fft, 
+                                                          win_length=win_length,
                                                           freq_bins=n_fft, 
                                                           window='ones', 
                                                           freq_scale=freq_scale, 
@@ -1990,22 +2029,23 @@ class iSTFT(torch.nn.Module):
         # Making all these variables nn.Parameter, so that the model can be used with nn.Parallel
         self.wsin_inv = torch.nn.Parameter(self.wsin_inv, requires_grad=self.trainable)
         self.wcos_inv = torch.nn.Parameter(self.wcos_inv, requires_grad=self.trainable)
+        
+        self.window_mask = torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
 
         if verbose==True:
             print("iSTFT kernels created, time used = {:.4f} seconds".format(time()-start))
         else:
             pass
 
-    
-    def forward(self, X):
+    def forward(self, X,  num_samples=-1):
         if len(X.shape) == 3:
             return self.griffin_lim(X)
         elif len(X.shape) == 4:
-            return self.__inverse(X)
+            return self.__inverse(X, num_samples=num_samples)
         else:
             raise AssertionError("Only perform inverse function on Magnitude or Complex spectrogram.")
     
-    def __inverse(self, X, is_window_normalized=True):
+    def __inverse(self, X, is_window_normalized=True, num_samples=None):
         X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
         
         # flip and extend beyond Nyquist frequency
@@ -2029,28 +2069,33 @@ class iSTFT(torch.nn.Module):
         # compute real and imag part. signal lies in the real part
         real = a1 - b2
         real = real.squeeze(-2)
-        real_old = real.clone() / self.n_fft
                 
         # each time step contains reconstructed signal, hence we stitch them together and remove
         # the repeated segments due to overlapping windows during STFT when hop_size < n_fft
-        window_mask = get_window(self.window, self.n_fft, fftbins=True) + 1e-5
         if is_window_normalized:
-            real /= torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
-            
+#             nonzero_indices = self.window_mask[0,:,0]>1e-6 # it doesn't work
+            real /= self.window_mask
+           
         real /= self.n_fft
         
-        real_last = real[:, self.stride:, -1]   # retain the signal in last time step
-        real_split = real[:, :self.stride, :]   # remove redundant samples at overlapped parts
+        # It doesn't work if we keep the last time-step as a whole. 
+        # Since the erroneous part is on the LHS of the window, we better chop them out 
+        real_first = real[:, :, 0]   # get the complet first frame
+        real_split = real[:, -self.stride:, 1:]   # remove redundant samples at overlapped parts
+
         
         # reshape output signal to 1D
         output_signal = torch.reshape(torch.transpose(real_split, 2, 1), (real_split.shape[0], -1))
-        output_signal = torch.cat([output_signal, real_last], dim=-1)    # stich the final signal back
-        
-        output_signal = output_signal[:, self.pad_amount:]
-        output_signal = output_signal[:, :-self.pad_amount]
+        output_signal = torch.cat([real_first, output_signal], dim=-1)    # stich the first signal back
+
+        output_signal = output_signal[:, self.pad_amount:] # remove padding on LHS      
+        if num_samples:
+            output_signal = output_signal[:, :num_samples]    
+        else:
+            output_signal = output_signal[:, :-self.pad_amount]
         return output_signal
     
-    def griffin_lim(self, X, maxiter=32, tol=1e-6, alpha=0.99, verbose=True, phase=None):
+    def griffin_lim(self, X, maxiter=32, tol=1e-6, alpha=0.99, verbose=False, phase=None):
         # only use griffin lim when X is not in complex form
         if phase is None:
             phase = torch.rand_like(X) * 2 - 1
@@ -2059,7 +2104,7 @@ class iSTFT(torch.nn.Module):
 
         phase = nn.Parameter(phase)
         criterion = nn.MSELoss()
-        optimizer = optim.Adam([phase], lr=1e-2)
+        optimizer = torch.optim.Adam([phase], lr=9e-1)
         
         for idx in range(maxiter):
             optimizer.zero_grad()
@@ -2074,10 +2119,10 @@ class iSTFT(torch.nn.Module):
             loss = criterion(rebuilt_mag, X)
             loss.backward()
             optimizer.step()
-            
-            print("Run: {}/{} MSE: {:.4}".format(idx + 1, maxiter, criterion(rebuilt_mag, X).item()))
+            if verbose:            
+                print("Run: {}/{} MSE: {:.4}".format(idx + 1, maxiter, criterion(rebuilt_mag, X).item()))
 
         # Return the final phase estimates
         X_real, X_imag = X * torch.cos(phase), X * torch.sin(phase)
         X_cur = torch.stack([X_real, X_imag], dim=-1)
-        return self.inverse(X_cur, is_window_normalized=False)
+        return self.__inverse(X_cur, is_window_normalized=False)

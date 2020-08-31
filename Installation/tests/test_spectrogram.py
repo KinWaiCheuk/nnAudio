@@ -4,6 +4,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.signal import chirp, sweep_poly
 from nnAudio.Spectrogram import *
+from parameters import *
 
 gpu_idx=1
 
@@ -11,39 +12,69 @@ gpu_idx=1
 example_y, example_sr = librosa.load(librosa.util.example_audio_file())
 
 
-def test_stft_complex():
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)    
+def test_inverse2(n_fft, hop_length, window):
+    x = torch.tensor(example_y)
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device='cpu')
+    istft = iSTFT(n_fft=n_fft, hop_length=hop_length, window=window, device='cpu')
+    X = stft(x.unsqueeze(0), output_format="Complex")
+    x_recon = istft(X, num_samples=x.shape[0]).numpy().squeeze()
+    assert np.allclose(x, x_recon, rtol=1e-3, atol=1)    
+
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
+def test_inverse(n_fft, hop_length, window):
+    x = torch.tensor(example_y)
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device='cpu')
+    X = stft(x.unsqueeze(0), output_format="Complex")
+    x_recon = stft.inverse(X, num_samples=x.shape[0]).numpy().squeeze()
+    assert np.allclose(x, x_recon, rtol=1e-3, atol=1)
+    
+
+    
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
+def test_inverse_GPU(n_fft, hop_length, window):
+    x = torch.tensor(example_y,device=f'cuda:{gpu_idx}')
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device=f'cuda:{gpu_idx}')
+    X = stft(x.unsqueeze(0), output_format="Complex")
+    x_recon = stft.inverse(X, num_samples=x.shape[0]).squeeze()
+    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-3, atol=1)
+
+
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
+def test_stft_complex(n_fft, hop_length, window):
     x = example_y
-    stft = STFT(n_fft=2048, hop_length=512, device='cpu')
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device='cpu')
     X = stft(torch.tensor(x).unsqueeze(0), output_format="Complex")
     X_real, X_imag = X[:, :, :, 0].squeeze().numpy(), X[:, :, :, 1].squeeze().numpy()
-    X_librosa = librosa.stft(x, n_fft=2048, hop_length=512)
+    X_librosa = librosa.stft(x, n_fft=n_fft, hop_length=hop_length, window=window)
     real_diff, imag_diff = np.allclose(X_real, X_librosa.real, rtol=1e-3, atol=1e-3), \
                             np.allclose(X_imag, X_librosa.imag, rtol=1e-3, atol=1e-3)
     
-    assert real_diff and imag_diff
+    assert real_diff and imag_diff 
     
-def test_stft_complex_winlength():
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)    
+def test_stft_complex_GPU(n_fft, hop_length, window):
     x = example_y
-    stft = STFT(n_fft=512, win_length=400, hop_length=128, device='cpu')
-    X = stft(torch.tensor(x).unsqueeze(0), output_format="Complex")
-    X_real, X_imag = X[:, :, :, 0].squeeze().numpy(), X[:, :, :, 1].squeeze().numpy()
-    X_librosa = librosa.stft(x, n_fft=512, win_length=400, hop_length=128)
-    real_diff, imag_diff = np.allclose(X_real, X_librosa.real, rtol=1e-3, atol=1e-3), \
-                            np.allclose(X_imag, X_librosa.imag, rtol=1e-3, atol=1e-3)
-    assert real_diff and imag_diff    
-    
-    
-def test_stft_complex_GPU():
-    x = example_y
-    stft = STFT(n_fft=2048, hop_length=512, device=f'cuda:{gpu_idx}')
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device=f'cuda:{gpu_idx}')
     X = stft(torch.tensor(x,device=f'cuda:{gpu_idx}').unsqueeze(0), output_format="Complex")
     X_real, X_imag = X[:, :, :, 0].squeeze().detach().cpu(), X[:, :, :, 1].squeeze().detach().cpu()
-    X_librosa = librosa.stft(x, n_fft=2048, hop_length=512)
+    X_librosa = librosa.stft(x, n_fft=n_fft, hop_length=hop_length, window=window)
     real_diff, imag_diff = np.allclose(X_real, X_librosa.real, rtol=1e-3, atol=1e-3), \
                             np.allclose(X_imag, X_librosa.imag, rtol=1e-3, atol=1e-3)
     
+    assert real_diff and imag_diff        
+    
+@pytest.mark.parametrize("n_fft, win_length, hop_length", stft_with_win_parameters)      
+def test_stft_complex_winlength(n_fft, win_length, hop_length):
+    x = example_y
+    stft = STFT(n_fft=n_fft, win_length=win_length, hop_length=hop_length, device='cpu')
+    X = stft(torch.tensor(x).unsqueeze(0), output_format="Complex")
+    X_real, X_imag = X[:, :, :, 0].squeeze().numpy(), X[:, :, :, 1].squeeze().numpy()
+    X_librosa = librosa.stft(x, n_fft=n_fft, win_length=win_length, hop_length=hop_length)
+    real_diff, imag_diff = np.allclose(X_real, X_librosa.real, rtol=1e-3, atol=1e-3), \
+                            np.allclose(X_imag, X_librosa.imag, rtol=1e-3, atol=1e-3)
     assert real_diff and imag_diff    
-            
+              
 
 def test_stft_magnitude():
     x = example_y
@@ -215,14 +246,3 @@ def test_mfcc():
     X_librosa = librosa.feature.mfcc(x, sr=example_sr)
     assert np.allclose(X, X_librosa, rtol=1e-3, atol=1e-3)
 
-
-def test_inverse():
-    x = example_y
-    stft = STFT(n_fft=2048, hop_length=512, device='cpu')
-    X = stft(torch.tensor(x).unsqueeze(0), output_format="Complex")
-    x_recon = stft.inverse(X).numpy().squeeze()
-    
-    # I find that np.allclose is too strict for inverse reconstruction.
-    # Hence for inverse we use average element-wise distance as the test metric.
-    diff = np.mean(np.abs(x_recon - x))
-    assert diff < 1e-3
