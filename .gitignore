@@ -30,3 +30,5 @@ speed_test/Overhead/*
 !speed_test/Overhead/weight
 !speed_test/Overhead/weight/*.txt
 Paper/
+Demonstration
+Readme.ipynb

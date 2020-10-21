@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: nnAudio
-Version: 0.1.2.dev2
+Version: 0.1.5a0
 Summary: A fast GPU audio processing toolbox with 1D convolutional neural network
 Home-page: https://github.com/KinWaiCheuk/nnAudio
 Author: KinWaiCheuk

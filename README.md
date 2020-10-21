@@ -5,7 +5,26 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 
 The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
 
-## Changelog
+## How to Contribute
+nnAudio is a fast growing package. With increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
+1. Invertible Constant Q Transform (CQT)
+1. CQT with filter scale factor (see issue [#54](/../../issues/54))
+1. Variable Q Transform (see VQT[https://www.researchgate.net/publication/274009051_A_Matlab_Toolbox_for_Efficient_Perfect_Reconstruction_Time-Frequency_Transforms_with_Log-Frequency_Resolution])
+1. Speed and Performance improvements for Griffin-Lim (see issue [#41](/../../issues/41))
+1. Data Augmentation (see issue [#49](/../../issues/49))
+
+(Quick tips for unit test: `cd` inside Installation folder, then type `pytest`. You need at least 1931 MiB GPU memory to pass all the unit tests)
+
+Alternatively, you may also contribute by:
+   1. Refactoring the code strucutre (Now all functions are within the same file, but with increasing number of features, I think we need to break it down into smaller modules)
+   1. Making a better demonstration code or tutorial
+   1. Improving the documentation page (It is ugly and out-dated at the most. Probably a documentation page with tutorial, if point 2 is finished before this)
+
+
+
+
+
+## News & Changelog
 **version 0.1.4a0**: Finalized iSTFT and Griffin-Lim. They are now more accurate and stable.
 To use this version, do `pip install nnAudio==0.1.4a0`.
 
@@ -39,17 +58,19 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 ## How to cite nnAudio
 The paper for nnAudio is avaliable on [IEEE Access](https://ieeexplore.ieee.org/document/9174990)
 
-K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks," in IEEE Access, doi: 10.1109/ACCESS.2020.3019084.
+K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-Fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks," in IEEE Access, vol. 8, pp. 161981-162003, 2020, doi: 10.1109/ACCESS.2020.3019084.
 
 ### BibTex
 @ARTICLE{9174990,
   author={K. W. {Cheuk} and H. {Anderson} and K. {Agres} and D. {Herremans}},
   journal={IEEE Access}, 
-  title={nnAudio: An on-the-fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks}, 
+  title={nnAudio: An on-the-Fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks}, 
   year={2020},
-  volume={In press},
+  volume={8},
   number={},
-  pages={},}
+  pages={161981-162003},
+  doi={10.1109/ACCESS.2020.3019084}}
+
 
 
 # Dependencies
@@ -63,7 +84,7 @@ Python >= 3.6
 
 librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunk of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
 
-# Instructions
+# How to Use
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
 
 ## Installation
@@ -224,3 +245,7 @@ Machine C: DGX station with CPU: Intel Xeon E5-2698 v4 @ 2.20GHz and Tesla v100 
 [Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
 
 [torch-stft](https://github.com/pseeth/torch-stft)
+
+
+
+

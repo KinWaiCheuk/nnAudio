@@ -505,7 +505,7 @@ class STFT(torch.nn.Module):
     def __init__(self, n_fft=2048, win_length=None, freq_bins=None, hop_length=None, window='hann', 
                 freq_scale='no', center=True, pad_mode='reflect', 
                 fmin=50, fmax=6000, sr=22050, trainable=False, 
-                verbose=True, device='cuda:0'):
+                ouput_format="Complex", verbose=True, device='cuda:0'):
         
         super(STFT, self).__init__()
               
@@ -567,8 +567,8 @@ class STFT(torch.nn.Module):
         else:
             pass
 
-    def forward(self, x, output_format='Complex'):
-        self.output_format = output_format
+    def forward(self, x, output_format=None):
+        self.output_format = output_format or self.output_format
         self.num_samples = x.shape[-1]
         
         x = broadcast_dim(x)
@@ -776,7 +776,7 @@ class MelSpectrogram(torch.nn.Module):
     def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, 
                 window='hann', center=True, pad_mode='reflect', power=2.0, htk=False, 
                 fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, 
-                verbose=True, device='cuda:0'):
+                verbose=True, device='cuda:0', **kwargs):
 
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
@@ -785,14 +785,14 @@ class MelSpectrogram(torch.nn.Module):
         self.n_fft = n_fft
         self.device = device
         self.power = power
-        
+
         # Create filter windows for stft
         start = time()
         wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft=n_fft, 
                                                                 freq_bins=None, 
                                                                 window=window, 
                                                                 freq_scale='no', 
-                                                                sr=sr)
+                                                                sr=sr, **kwargs)
         self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
         self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
         

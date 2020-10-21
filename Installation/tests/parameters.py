@@ -35,3 +35,4 @@ for i in n_fft:
                 if k < (i/2):
                     stft_with_win_parameters.append((i,j,k))
 
+mel_win_parameters = [(512,400), (1024, 1000)]
