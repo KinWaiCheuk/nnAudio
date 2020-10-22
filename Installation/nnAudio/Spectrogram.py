@@ -771,10 +771,10 @@ class MelSpectrogram(torch.nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512,
-                window='hann', center=True, pad_mode='reflect', power=2.0, htk=False,
-                fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False,
-                verbose=True, device='cuda:0'):
+    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, 
+                window='hann', center=True, pad_mode='reflect', power=2.0, htk=False, 
+                fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, 
+                verbose=True, device='cuda:0', **kwargs):
 
         super(MelSpectrogram, self).__init__()
         self.stride = hop_length
@@ -786,11 +786,11 @@ class MelSpectrogram(torch.nn.Module):
 
         # Create filter windows for stft
         start = time()
-        wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft=n_fft,
-                                                                freq_bins=None,
-                                                                window=window,
-                                                                freq_scale='no',
-                                                                sr=sr)
+        wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft=n_fft, 
+                                                                freq_bins=None, 
+                                                                window=window, 
+                                                                freq_scale='no', 
+                                                                sr=sr, **kwargs)
         self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
         self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
 
