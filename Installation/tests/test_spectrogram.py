@@ -192,15 +192,17 @@ def test_cqt_2010_v2_log(device):
     # Magnitude
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Magnitude",
                      n_bins=207, bins_per_octave=24)
-    X = stft(torch.tensor(x, device=device).unsqueeze(0))
-    ground_truth = np.load("tests/ground-truths/log-sweep-cqt-2010-mag-ground-truth.npy")
+    X = stft(torch.tensor(x, device=device).unsqueeze(0))     
     X = torch.log(X + 1e-5)
+#     np.save("tests/ground-truths/log-sweep-cqt-2010-mag-ground-truth", X.cpu())
+    ground_truth = np.load("tests/ground-truths/log-sweep-cqt-2010-mag-ground-truth.npy")
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
     # Complex
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Complex",
                      n_bins=207, bins_per_octave=24)
     X = stft(torch.tensor(x, device=device).unsqueeze(0))
+#     np.save("tests/ground-truths/log-sweep-cqt-2010-complex-ground-truth", X.cpu())         
     ground_truth = np.load("tests/ground-truths/log-sweep-cqt-2010-complex-ground-truth.npy")
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
@@ -208,6 +210,7 @@ def test_cqt_2010_v2_log(device):
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Phase",
                      n_bins=207, bins_per_octave=24)
     X = stft(torch.tensor(x, device=device).unsqueeze(0))
+#     np.save("tests/ground-truths/log-sweep-cqt-2010-phase-ground-truth", X.cpu())      
     ground_truth = np.load("tests/ground-truths/log-sweep-cqt-2010-phase-ground-truth.npy")
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
@@ -226,14 +229,16 @@ def test_cqt_2010_v2_linear(device):
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Magnitude",
                      n_bins=207, bins_per_octave=24)
     X = stft(torch.tensor(x, device=device).unsqueeze(0))
-    ground_truth = np.load("tests/ground-truths/linear-sweep-cqt-2010-mag-ground-truth.npy")
     X = torch.log(X + 1e-5)
+#     np.save("tests/ground-truths/linear-sweep-cqt-2010-mag-ground-truth", X.cpu()) 
+    ground_truth = np.load("tests/ground-truths/linear-sweep-cqt-2010-mag-ground-truth.npy")    
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
     # Complex
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Complex",
                      n_bins=207, bins_per_octave=24)
     X = stft(torch.tensor(x, device=device).unsqueeze(0))
+#     np.save("tests/ground-truths/linear-sweep-cqt-2010-complex-ground-truth", X.cpu())
     ground_truth = np.load("tests/ground-truths/linear-sweep-cqt-2010-complex-ground-truth.npy")
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
@@ -241,6 +246,7 @@ def test_cqt_2010_v2_linear(device):
     stft = CQT2010v2(sr=fs, fmin=55, device=device, output_format="Phase",
                      n_bins=207, bins_per_octave=24)
     X = stft(torch.tensor(x, device=device).unsqueeze(0))
+#     np.save("tests/ground-truths/linear-sweep-cqt-2010-phase-ground-truth", X.cpu())
     ground_truth = np.load("tests/ground-truths/linear-sweep-cqt-2010-phase-ground-truth.npy")
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
 
