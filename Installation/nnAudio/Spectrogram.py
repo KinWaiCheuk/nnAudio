@@ -2124,3 +2124,82 @@ class iSTFT(torch.nn.Module):
         X_real, X_imag = X * torch.cos(phase), X * torch.sin(phase)
         X_cur = torch.stack([X_real, X_imag], dim=-1)
         return self.__inverse(X_cur, is_window_normalized=False)
+    
+    
+class Griffin_Lim(torch.nn.Module):
+    """This Griffin Lim is a direct clone from librosa.griffinlim"""
+    
+    def __init__(self,
+                 n_fft,
+                 n_iter=32,
+                 hop_length=None,
+                 win_length=None,
+                 window='hann', 
+                 center=True,
+                 pad_mode='reflect',
+                 device='cpu'):
+        super().__init__()
+        
+        self.n_fft = n_fft
+        self.win_length = win_length
+        self.n_iter = n_iter
+        self.center = center
+        self.pad_mode = pad_mode
+        self.device = device
+        if win_length==None:
+            self.win_length=n_fft
+        if hop_length==None:
+            self.hop_length = n_fft//2 
+            
+        # Creating window function for stft and istft later
+        self.w = torch.tensor(get_window(window,
+                                         int(self.win_length), 
+                                         fftbins=True), 
+                              device=device).float()
+
+    def forward(self, S):
+        assert S.dim()==3 , "Please make sure S is in the shape of (batch, freq_bins, timesteps)"
+        
+        # Initializing Random Phase
+        rand_phase = torch.randn(*S.shape, device=self.device)
+        angles = torch.empty((*S.shape,2), device=self.device)
+        angles[:, :,:,0] = torch.cos(2 * np.pi * rand_phase)
+        angles[:,:,:,1] = torch.sin(2 * np.pi * rand_phase)
+        
+        # Initializing the rebuilt magnitude spectrogram
+        rebuilt = torch.zeros(*angles.shape, device=self.device)
+        
+        for _ in range(self.n_iter):
+            tprev = rebuilt # Saving previous rebuilt magnitude spec
+
+            # spec2wav conversion
+#             print(f'win_length={self.win_length}\tw={self.w.shape}')
+            inverse = torch.istft(S.unsqueeze(-1) * angles,
+                                  self.n_fft,
+                                  self.hop_length,
+                                  win_length=self.win_length, 
+                                  window=self.w,
+                                  center=self.center)
+            # wav2spec conversion
+            rebuilt = torch.stft(inverse,
+                                 self.n_fft,
+                                 self.hop_length,
+                                 win_length=self.win_length,
+                                 window=self.w,
+                                 pad_mode=self.pad_mode)
+
+            # Phase update rule
+            angles[:,:,:,0] = rebuilt[:,:,:,0] - (momentum / (1 + momentum)) * tprev[:,:,:,0]
+            angles[:,:,:,1] = rebuilt[:,:,:,1] - (momentum / (1 + momentum)) * tprev[:,:,:,1]
+
+            # Phase normalization
+            angles = angles.div(torch.sqrt(angles.pow(2).sum(-1)).unsqueeze(-1) + 1e-16) # normalizing the phase
+        
+        # Using the final phase to reconstruct the waveforms
+        inverse = torch.istft(S.unsqueeze(-1) * angles,
+                              self.n_fft,
+                              self.hop_length,
+                              win_length=self.win_length, 
+                              window=self.w,
+                              center=self.center)
+        return inverse
