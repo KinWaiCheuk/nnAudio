@@ -2137,6 +2137,7 @@ class Griffin_Lim(torch.nn.Module):
                  window='hann', 
                  center=True,
                  pad_mode='reflect',
+                 momentum=0.99,
                  device='cpu'):
         super().__init__()
         
@@ -2145,11 +2146,16 @@ class Griffin_Lim(torch.nn.Module):
         self.n_iter = n_iter
         self.center = center
         self.pad_mode = pad_mode
+        self.momentum = momentum
         self.device = device
         if win_length==None:
             self.win_length=n_fft
+        else:
+            self.win_length=win_length
         if hop_length==None:
-            self.hop_length = n_fft//2 
+            self.hop_length = n_fft//4
+        else:
+            self.hop_length = hop_length
             
         # Creating window function for stft and istft later
         self.w = torch.tensor(get_window(window,
@@ -2158,7 +2164,7 @@ class Griffin_Lim(torch.nn.Module):
                               device=device).float()
 
     def forward(self, S):
-        assert S.dim()==3 , "Please make sure S is in the shape of (batch, freq_bins, timesteps)"
+        assert S.dim()==3 , "Please make sure your input is in the shape of (batch, freq_bins, timesteps)"
         
         # Initializing Random Phase
         rand_phase = torch.randn(*S.shape, device=self.device)
@@ -2189,8 +2195,7 @@ class Griffin_Lim(torch.nn.Module):
                                  pad_mode=self.pad_mode)
 
             # Phase update rule
-            angles[:,:,:,0] = rebuilt[:,:,:,0] - (momentum / (1 + momentum)) * tprev[:,:,:,0]
-            angles[:,:,:,1] = rebuilt[:,:,:,1] - (momentum / (1 + momentum)) * tprev[:,:,:,1]
+            angles[:,:,:] = rebuilt[:,:,:] - (self.momentum / (1 + self.momentum)) * tprev[:,:,:]
 
             # Phase normalization
             angles = angles.div(torch.sqrt(angles.pow(2).sum(-1)).unsqueeze(-1) + 1e-16) # normalizing the phase
