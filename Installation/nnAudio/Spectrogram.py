@@ -562,27 +562,20 @@ class STFT(torch.nn.Module):
                                                                            fmax=fmax,
                                                                            sr=sr,
                                                                            verbose=verbose)
-        # Create filter windows for inverse
-        kernal_sin_inv, kernal_cos_inv, _, _, _ = create_fourier_kernels(n_fft,
-                                                          win_length=win_length,
-                                                          freq_bins=n_fft,
-                                                          window='ones',
-                                                          freq_scale=freq_scale,
-                                                          fmin=fmin,
-                                                          fmax=fmax,
-                                                          sr=sr,
-                                                          verbose=False)
+
 
         self.kernal_sin = torch.tensor(kernal_sin, dtype=torch.float, device=self.device)
         self.kernal_cos = torch.tensor(kernal_cos, dtype=torch.float, device=self.device)
-        self.kernal_sin_inv = torch.tensor(kernal_sin_inv, dtype=torch.float, device=self.device)
-        self.kernal_cos_inv = torch.tensor(kernal_cos_inv, dtype=torch.float, device=self.device)
+        
+        self.kernal_sin_inv = torch.cat((self.kernal_sin, -self.kernal_sin[1:-1].flip(0)), 0)
+        self.kernal_cos_inv = torch.cat((self.kernal_cos, self.kernal_cos[1:-1].flip(0)), 0)
+        
+        self.kernal_sin_inv = self.kernal_sin_inv.unsqueeze(-1)
+        self.kernal_cos_inv = self.kernal_cos_inv.unsqueeze(-1)
 
         # Making all these variables nn.Parameter, so that the model can be used with nn.Parallel
         self.kernal_sin = torch.nn.Parameter(self.kernal_sin, requires_grad=self.trainable)
         self.kernal_cos = torch.nn.Parameter(self.kernal_cos, requires_grad=self.trainable)
-        self.kernal_sin_inv = torch.nn.Parameter(self.kernal_sin_inv, requires_grad=self.trainable)
-        self.kernal_cos_inv = torch.nn.Parameter(self.kernal_cos_inv, requires_grad=self.trainable)
 
         # Applying window functions to the Fourier Kernals
         self.window_mask = torch.tensor(window_mask, device=self.device)
@@ -631,95 +624,56 @@ class STFT(torch.nn.Module):
         elif output_format=='Phase':
             return torch.atan2(-spec_imag+0.0,spec_real)  # +0.0 removes -0.0 elements, which leads to error in calculating phase
 
-    def inverse(self, X,  num_samples=-1):
-        if len(X.shape) == 3 and self.output_format == 'Magnitude':
-            return self.griffin_lim(X)
-        elif len(X.shape) == 4 and self.output_format == "Complex":
-            return self.__inverse(X, num_samples=num_samples)
-        else:
-            raise AssertionError("Only perform inverse function on Magnitude or Complex spectrogram.")
+    def inverse(self, X, onesided=True, length=None, refresh_win=True):
+        """Same as the iSTFT class. You can increase the speed by setting refresh_win=False\n
+           if you have an input with fixed number of timesteps"""
+        
+        assert X.dim()==4 , "Inverse iSTFT only works for complex number," \
+                            "make sure our tensor is in the shape of (batch, freq_bins, timesteps, 2)."\
+                            "\nIf you have a magnitude spectrogram, please consider using Griffin-Lim."
+        if onesided:
+            X = extend_fbins(X) # extend freq
 
-    def __inverse(self, X, is_window_normalized=True, num_samples=None):
+    
         X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
-
-        # flip and extend beyond Nyquist frequency
-        X_real_nyquist = torch.flip(X_real, [1])
-        X_imag_nyquist = torch.flip(X_imag, [1])
-        X_real_nyquist = X_real_nyquist[:, 1:-1, :]
-        X_imag_nyquist = -X_imag_nyquist[:, 1:-1, :]
-
-        X_real = torch.cat([X_real, X_real_nyquist], axis=1)
-        X_imag = torch.cat([X_imag, X_imag_nyquist], axis=1)
 
         # broadcast dimensions to support 2D convolution
         X_real_bc = X_real.unsqueeze(1)
         X_imag_bc = X_imag.unsqueeze(1)
-        wsin_bc = self.wsin_inv.unsqueeze(-1)
-        wcos_bc = self.wcos_inv.unsqueeze(-1)
-
-        a1 = conv2d(X_real_bc, wcos_bc, stride=(1,1))
-        b2 = conv2d(X_imag_bc, wsin_bc, stride=(1,1))
-
+        a1 = conv2d(X_real_bc, self.kernal_cos_inv, stride=(1,1))
+        b2 = conv2d(X_imag_bc, self.kernal_sin_inv, stride=(1,1))
+       
         # compute real and imag part. signal lies in the real part
         real = a1 - b2
-        real = real.squeeze(-2)
+        real = real.squeeze(-2)*self.window_mask
 
-        # each time step contains reconstructed signal, hence we stitch them together and remove
-        # the repeated segments due to overlapping windows during STFT when hop_size < n_fft
-        if is_window_normalized:
-#             nonzero_indices = self.window_mask[0,:,0]>1e-6 # it doesn't work
-            real /= self.window_mask
+        # Normalize the amplitude with n_fft
+        real /= (self.n_fft)
 
-        real /= self.n_fft
-
-        # It doesn't work if we keep the last time-step as a whole.
-        # Since the erroneous part is on the LHS of the window, we better chop them out
-        real_first = real[:, :, 0]   # get the complet first frame
-        real_split = real[:, -self.stride:, 1:]   # remove redundant samples at overlapped parts
-
-
-        # reshape output signal to 1D
-        output_signal = torch.reshape(torch.transpose(real_split, 2, 1), (real_split.shape[0], -1))
-        output_signal = torch.cat([real_first, output_signal], dim=-1)    # stich the first signal back
-
-        output_signal = output_signal[:, self.pad_amount:] # remove padding on LHS
-        if num_samples:
-            output_signal = output_signal[:, :num_samples]
+        # Overlap and Add algorithm to connect all the frames
+        real = overlap_add(real, self.stride)
+    
+        # Prepare the window sumsqure for division
+        # Only need to create this window once to save time
+        # Unless the input spectrograms have different time steps
+        if hasattr(self, 'w_sum')==False or refresh_win==True:
+            self.w_sum = torch_window_sumsquare(self.window_mask.flatten(), X.shape[2], self.stride, self.n_fft).flatten()
+            self.nonzero_indices = (self.w_sum>1e-10)    
         else:
-            output_signal = output_signal[:, :-self.pad_amount]
-        return output_signal
+            pass
+        real[:, self.nonzero_indices] = real[:,self.nonzero_indices].div(self.w_sum[self.nonzero_indices])
+        # Remove padding
+        if length is None:       
+            if self.center:
+                real = real[:, self.pad_amount:-self.pad_amount]
 
-    def griffin_lim(self, X, maxiter=32, tol=1e-6, alpha=0.99, verbose=False, phase=None):
-        # only use griffin lim when X is not in complex form
-        if phase is None:
-            phase = torch.rand_like(X) * 2 - 1
-            phase = phase * np.pi
-            phase[:, 0, :] = 0.0
-
-        phase = nn.Parameter(phase)
-        criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam([phase], lr=9e-1)
-
-        for idx in range(maxiter):
-            optimizer.zero_grad()
-
-            X_real, X_imag = X * torch.cos(phase), X * torch.sin(phase)
-            X_cur = torch.stack([X_real, X_imag], dim=-1)
-            inverse_signal = self.__inverse(X_cur, is_window_normalized=False)
-
-            # Rebuild the spectrogram
-            rebuilt_mag = self.forward(inverse_signal, output_format="Complex")
-            rebuilt_mag = torch.sqrt(rebuilt_mag[:, :, :, 0].pow(2) + rebuilt_mag[:, :, :, 1].pow(2))
-            loss = criterion(rebuilt_mag, X)
-            loss.backward()
-            optimizer.step()
-            if verbose:
-                print("Run: {}/{} MSE: {:.4}".format(idx + 1, maxiter, criterion(rebuilt_mag, X).item()))
-
-        # Return the final phase estimates
-        X_real, X_imag = X * torch.cos(phase), X * torch.sin(phase)
-        X_cur = torch.stack([X_real, X_imag], dim=-1)
-        return self.__inverse(X_cur, is_window_normalized=False)
+        else:
+            if self.center:
+                real = real[:, self.pad_amount:self.pad_amount + length]    
+            else:
+                real = real[:, :length] 
+            
+        return real
 
 
 class MelSpectrogram(torch.nn.Module):
