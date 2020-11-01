@@ -317,8 +317,8 @@ def create_fourier_kernels(n_fft, win_length=None, freq_bins=None, fmin=50,fmax=
             # print("linear freq = {}".format((k*scaling_ind+start_bin)*sr/n_fft))
             bins2freq.append((k*scaling_ind+start_bin)*sr/n_fft)
             binslist.append((k*scaling_ind+start_bin))
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
+            wsin[k,0,:] = np.sin(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
+            wcos[k,0,:] = np.cos(2*np.pi*(k*scaling_ind+start_bin)*s/n_fft)
 
     elif freq_scale == 'log':
         if verbose==True:
@@ -331,18 +331,18 @@ def create_fourier_kernels(n_fft, win_length=None, freq_bins=None, fmin=50,fmax=
             # print("log freq = {}".format(np.exp(k*scaling_ind)*start_bin*sr/n_fft))
             bins2freq.append(np.exp(k*scaling_ind)*start_bin*sr/n_fft)
             binslist.append((np.exp(k*scaling_ind)*start_bin))
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
+            wsin[k,0,:] = np.sin(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
+            wcos[k,0,:] = np.cos(2*np.pi*(np.exp(k*scaling_ind)*start_bin)*s/n_fft)
 
     elif freq_scale == 'no':
         for k in range(freq_bins): # Only half of the bins contain useful info
             bins2freq.append(k*sr/n_fft)
             binslist.append(k)
-            wsin[k,0,:] = window_mask*np.sin(2*np.pi*k*s/n_fft)
-            wcos[k,0,:] = window_mask*np.cos(2*np.pi*k*s/n_fft)
+            wsin[k,0,:] = np.sin(2*np.pi*k*s/n_fft)
+            wcos[k,0,:] = np.cos(2*np.pi*k*s/n_fft)
     else:
         print("Please select the correct frequency scale, 'linear' or 'log'")
-    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist, window_mask
+    return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist, window_mask.astype(np.float32)
 
 
 def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
@@ -553,7 +553,7 @@ class STFT(torch.nn.Module):
 
 
         # Create filter windows for stft
-        wsin, wcos, self.bins2freq, self.bin_list, window_mask = create_fourier_kernels(n_fft,
+        kernal_sin, kernal_cos, self.bins2freq, self.bin_list, window_mask = create_fourier_kernels(n_fft,
                                                                            win_length=win_length,
                                                                            freq_bins=freq_bins,
                                                                            window=window,
@@ -563,7 +563,7 @@ class STFT(torch.nn.Module):
                                                                            sr=sr,
                                                                            verbose=verbose)
         # Create filter windows for inverse
-        wsin_inv, wcos_inv, _, _, _ = create_fourier_kernels(n_fft,
+        kernal_sin_inv, kernal_cos_inv, _, _, _ = create_fourier_kernels(n_fft,
                                                           win_length=win_length,
                                                           freq_bins=n_fft,
                                                           window='ones',
@@ -573,17 +573,22 @@ class STFT(torch.nn.Module):
                                                           sr=sr,
                                                           verbose=False)
 
-        self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device)
-        self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device)
-        self.wsin_inv = torch.tensor(wsin_inv, dtype=torch.float, device=self.device)
-        self.wcos_inv = torch.tensor(wcos_inv, dtype=torch.float, device=self.device)
+        self.kernal_sin = torch.tensor(kernal_sin, dtype=torch.float, device=self.device)
+        self.kernal_cos = torch.tensor(kernal_cos, dtype=torch.float, device=self.device)
+        self.kernal_sin_inv = torch.tensor(kernal_sin_inv, dtype=torch.float, device=self.device)
+        self.kernal_cos_inv = torch.tensor(kernal_cos_inv, dtype=torch.float, device=self.device)
 
         # Making all these variables nn.Parameter, so that the model can be used with nn.Parallel
-        self.wsin = torch.nn.Parameter(self.wsin, requires_grad=self.trainable)
-        self.wcos = torch.nn.Parameter(self.wcos, requires_grad=self.trainable)
-        self.wsin_inv = torch.nn.Parameter(self.wsin_inv, requires_grad=self.trainable)
-        self.wcos_inv = torch.nn.Parameter(self.wcos_inv, requires_grad=self.trainable)
+        self.kernal_sin = torch.nn.Parameter(self.kernal_sin, requires_grad=self.trainable)
+        self.kernal_cos = torch.nn.Parameter(self.kernal_cos, requires_grad=self.trainable)
+        self.kernal_sin_inv = torch.nn.Parameter(self.kernal_sin_inv, requires_grad=self.trainable)
+        self.kernal_cos_inv = torch.nn.Parameter(self.kernal_cos_inv, requires_grad=self.trainable)
 
+        # Applying window functions to the Fourier Kernals
+        self.window_mask = torch.tensor(window_mask, device=self.device)
+        self.wsin = self.kernal_sin * self.window_mask
+        self.wcos = self.kernal_cos * self.window_mask
+        # Prepare the shape of window mask so that it can be used later in inverse
         self.window_mask = torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
 
         if verbose==True:
@@ -799,7 +804,7 @@ class MelSpectrogram(torch.nn.Module):
                 fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, 
                 verbose=True, device='cuda:0', **kwargs):
 
-        super(MelSpectrogram, self).__init__()
+        super().__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
@@ -807,6 +812,12 @@ class MelSpectrogram(torch.nn.Module):
         self.device = device
         self.power = power
 
+        # Preparing for the stft layer. No need for center
+        self.stft = STFT(n_fft=n_fft, freq_bins=None, hop_length=hop_length, window=window,
+                freq_scale='no', center=center, pad_mode=pad_mode, sr=sr, trainable=trainable_STFT,
+                output_format="Magnitude", verbose=verbose, device=device, **kwargs)
+        
+        
         # Create filter windows for stft
         start = time()
         wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft=n_fft, 
@@ -841,16 +852,8 @@ class MelSpectrogram(torch.nn.Module):
 
     def forward(self, x):
         x = broadcast_dim(x)
-        if self.center:
-            if self.pad_mode == 'constant':
-                padding = nn.ConstantPad1d(self.n_fft//2, 0)
-            elif self.pad_mode == 'reflect':
-                padding = nn.ReflectionPad1d(self.n_fft//2)
-
-            x = padding(x)
-
-        spec = torch.sqrt(conv1d(x, self.wsin, stride=self.stride).pow(2) \
-           + conv1d(x, self.wcos, stride=self.stride).pow(2))**self.power  # Doing STFT by using conv1d
+        
+        spec = self.stft(x)**self.power
 
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec
@@ -2020,26 +2023,32 @@ class iSTFT(torch.nn.Module):
         start = time()
 
         # Create the window function and prepare the shape for batch-wise-time-wise multiplication
-        window_mask = get_window(window,int(win_length), fftbins=True).astype(np.float32)
-        self.window_mask = torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
 
         # Create filter windows for inverse
-        wsin, wcos, _, _, _ = create_fourier_kernels(n_fft,
+        kernal_sin, kernal_cos, _, _, window_mask = create_fourier_kernels(n_fft,
                                                           win_length=win_length,
                                                           freq_bins=n_fft,
-                                                          window='ones',
+                                                          window=window,
                                                           freq_scale=freq_scale,
                                                           fmin=fmin,
                                                           fmax=fmax,
                                                           sr=sr,
                                                           verbose=False)
-        # wsin and wcos have the shape (freq_bins, 1, n_fft, 1) to support 2D Conv
-        self.wsin = torch.tensor(wsin, dtype=torch.float, device=self.device).unsqueeze(-1)
-        self.wcos = torch.tensor(wcos, dtype=torch.float, device=self.device).unsqueeze(-1)
+        window_mask = get_window(window,int(win_length), fftbins=True)
+
+        # kernal_sin and kernal_cos have the shape (freq_bins, 1, n_fft, 1) to support 2D Conv
+        self.kernal_sin = torch.tensor(kernal_sin, dtype=torch.float, device=self.device).unsqueeze(-1)
+        self.kernal_cos = torch.tensor(kernal_cos, dtype=torch.float, device=self.device).unsqueeze(-1)
 
         # Making all these variables nn.Parameter, so that the model can be used with nn.Parallel
-        self.wsin = torch.nn.Parameter(self.wsin, requires_grad=self.trainable)
-        self.wcos = torch.nn.Parameter(self.wcos, requires_grad=self.trainable)
+        self.kernal_sin = torch.nn.Parameter(self.kernal_sin, requires_grad=self.trainable)
+        self.kernal_cos = torch.nn.Parameter(self.kernal_cos, requires_grad=self.trainable)
+
+        # For inverse, the Fourier kernals do not need to be windowed
+        self.wsin = self.kernal_sin
+        self.wcos = self.kernal_cos
+
+        self.window_mask = torch.tensor(window_mask, device=self.device).unsqueeze(0).unsqueeze(-1)
 
         
 
