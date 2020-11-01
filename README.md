@@ -1,11 +1,9 @@
 # nnAudio
-Audio processing by using pytorch 1D convolution network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training. [Kapre](https://github.com/keunwoochoi/kapre) and [torch-stft](https://github.com/pseeth/torch-stft) have a similar concept in which they also use 1D convolution from keras adn PyTorch to do the waveforms to spectrogram conversions.
+Audio processing by using PyTorch convolutional neural network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training and the processing kernels (e.g. Fourier kernels) can be trained. [Kapre](https://github.com/keunwoochoi/kapre) has a similar concept in which they also use 1D convolutional neural network to extract spectrograms.
 
-Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained.
+Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is still very difficult to install under the Windows environment due to `sox`. nnAudio is a more compatible audio processing tool across different operation systems since it relies mostly on PyTorch convolutional neural network. The name of nnAudio comes from `torch.nn`
 
-The name of nnAudio comes from `torch.nn`, since most of the codes are built from `torch.nn`.
-
-## How to Contribute
+## Call for Contributions
 nnAudio is a fast growing package. With increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
 1. Invertible Constant Q Transform (CQT)
 1. CQT with filter scale factor (see issue [#54](/../../issues/54))
@@ -22,13 +20,15 @@ Alternatively, you may also contribute by:
 
 
 
-
-
 ## News & Changelog
-**version 0.1.4a0**: Finalized iSTFT and Griffin-Lim. They are now more accurate and stable.
+**version 0.1.5**: Change
+Much better `iSTFT` and `Griffin-Lim`. Now Griffin-Lim is a seperated PyTorch class and requires `torch >= 1.6.0` to run. `STFT` has also been refactored and it is less memory consuming now.
+To use this version, do `pip install nnAudio==0.1.5`.
+
+**version 0.1.4a0**: Finalized `iSTFT` and `Griffin-Lim`. They are now more accurate and stable.
 To use this version, do `pip install nnAudio==0.1.4a0`.
 
-**version 0.1.2.dev3**: Add `win_length` to STFT so that it has the same funcationality as librosa.\
+**version 0.1.2.dev3**: Add `win_length` to `STFT` so that it has the same funcationality as librosa.\
 To use this version, do `pip install nnAudio --pre -U`.
 
 **version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a seperated `iSTFT` layer class
@@ -78,13 +78,13 @@ Numpy 1.14.5
 
 Scipy 1.2.0
 
-PyTorch >= 1.1.0
+PyTorch >= 1.6.0 (Griffin-Lim only available after 1.6.0)
 
 Python >= 3.6
 
 librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunk of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
 
-# How to Use
+# Usage
 All the required codes and examples are inside the jupyter-notebook. The audio processing layer can be integrated as part of the neural network as shown below. The [demo](https://colab.research.google.com/drive/1Zuf0vIFjvmHFbKjw4YOpALswc7A33UGK) on colab is also avaliable.
 
 ## Installation
