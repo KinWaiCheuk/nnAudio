@@ -22,14 +22,14 @@ def test_inverse2(n_fft, hop_length, window, device):
     x_recon = istft(X, length=x.shape[0], onesided=True).squeeze()
     assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-5, atol=1e-3)    
 
-# @pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
-# @pytest.mark.parametrize("device", ['cpu', f'cuda:{gpu_idx}'])
-# def test_inverse(n_fft, hop_length, window, device):
-#     x = torch.tensor(example_y, device=device)
-#     stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device=device)
-#     X = stft(x.unsqueeze(0), output_format="Complex")
-#     x_recon = stft.inverse(X, num_samples=x.shape[0]).squeeze()
-#     assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-3, atol=1)
+@pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
+@pytest.mark.parametrize("device", ['cpu', f'cuda:{gpu_idx}'])
+def test_inverse(n_fft, hop_length, window, device):
+    x = torch.tensor(example_y, device=device)
+    stft = STFT(n_fft=n_fft, hop_length=hop_length, window=window, device=device)
+    X = stft(x.unsqueeze(0), output_format="Complex")
+    x_recon = stft.inverse(X, length=x.shape[0]).squeeze()
+    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-3, atol=1)
     
 
     
