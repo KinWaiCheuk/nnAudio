@@ -21,7 +21,8 @@ Debug/
 performance_test/
 speed_test/
 Paper/
-Demonstration
+Trainable_STFT/
+Demonstration/
 Readme.ipynb
-
-Trainable_STFT
+Using nnAudio on Single GPU.ipynb
+Using nnAudio on Multiple GPUs.ipynb
