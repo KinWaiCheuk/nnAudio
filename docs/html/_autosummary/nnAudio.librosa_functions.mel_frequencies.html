@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nnAudio.librosa_functions.mel_frequencies &mdash; 0.1.15</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nnAudio.librosa_functions.mel_to_hz" href="nnAudio.librosa_functions.mel_to_hz.html" />
+    <link rel="prev" title="nnAudio.librosa_functions.mel" href="nnAudio.librosa_functions.mel.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> nnAudio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.15
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../nnAudio.html">nnAudio</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="nnAudio.librosa_functions.html">nnAudio.librosa_functions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.librosa_functions.fft_frequencies.html">nnAudio.librosa_functions.fft_frequencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.librosa_functions.hz_to_mel.html">nnAudio.librosa_functions.hz_to_mel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.librosa_functions.mel.html">nnAudio.librosa_functions.mel</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">nnAudio.librosa_functions.mel_frequencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.librosa_functions.mel_to_hz.html">nnAudio.librosa_functions.mel_to_hz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.librosa_functions.pad_center.html">nnAudio.librosa_functions.pad_center</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.html">nnAudio.utils</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Tutorials</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">nnAudio</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../nnAudio.html">nnAudio</a> &raquo;</li>
+        
+          <li><a href="nnAudio.librosa_functions.html">nnAudio.librosa_functions</a> &raquo;</li>
+        
+      <li>nnAudio.librosa_functions.mel_frequencies</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_autosummary/nnAudio.librosa_functions.mel_frequencies.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nnaudio-librosa-functions-mel-frequencies">
+<h1>nnAudio.librosa_functions.mel_frequencies<a class="headerlink" href="#nnaudio-librosa-functions-mel-frequencies" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="nnAudio.librosa_functions.mel_frequencies">
+<code class="sig-prename descclassname">nnAudio.librosa_functions.</code><code class="sig-name descname">mel_frequencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_mels</span><span class="o">=</span><span class="default_value">128</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">11025.0</span></em>, <em class="sig-param"><span class="n">htk</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.librosa_functions.mel_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an array of acoustic frequencies tuned to the mel scale.
+The mel scale is a quasi-logarithmic function of acoustic frequency
+designed such that perceptually similar pitch intervals (e.g. octaves)
+appear equal in width over the full hearing range.
+Because the definition of the mel scale is conditioned by a finite number
+of subjective psychoaoustical experiments, several implementations coexist
+in the audio signal processing literature <a href="#id6"><span class="problematic" id="id1">[1]_</span></a>. By default, librosa replicates
+the behavior of the well-established MATLAB Auditory Toolbox of Slaney <a class="footnote-reference brackets" href="#id4" id="id2">2</a>.
+According to this default implementation,  the conversion from Hertz to mel is
+linear below 1 kHz and logarithmic above 1 kHz. Another available implementation
+replicates the Hidden Markov Toolkit <a class="footnote-reference brackets" href="#id5" id="id3">3</a> (HTK) according to the following formula:
+<cite>mel = 2595.0 * np.log10(1.0 + f / 700.0).</cite>
+The choice of implementation is determined by the <cite>htk</cite> keyword argument: setting
+<cite>htk=False</cite> leads to the Auditory toolbox implementation, whereas setting it <cite>htk=True</cite>
+leads to the HTK implementation.
+.. [1] Umesh, S., Cohen, L., &amp; Nelson, D. Fitting the mel scale.</p>
+<blockquote>
+<div><p>In Proc. International Conference on Acoustics, Speech, and Signal Processing
+(ICASSP), vol. 1, pp. 217-220, 1998.</p>
+</div></blockquote>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Slaney, M. Auditory Toolbox: A MATLAB Toolbox for Auditory
+Modeling Work. Technical Report, version 2, Interval Research Corporation, 1998.</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Young, S., Evermann, G., Gales, M., Hain, T., Kershaw, D., Liu, X.,
+Moore, G., Odell, J., Ollason, D., Povey, D., Valtchev, V., &amp; Woodland, P.
+The HTK book, version 3.4. Cambridge University, March 2009.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="nnAudio.librosa_functions.hz_to_mel.html#nnAudio.librosa_functions.hz_to_mel" title="nnAudio.librosa_functions.hz_to_mel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hz_to_mel</span></code></a>, <a class="reference internal" href="nnAudio.librosa_functions.mel_to_hz.html#nnAudio.librosa_functions.mel_to_hz" title="nnAudio.librosa_functions.mel_to_hz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel_to_hz</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">librosa.feature.melspectrogram</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">librosa.feature.mfcc</span></code></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_mels</strong> (<em>int &gt; 0</em><em> [</em><em>scalar</em><em>]</em>) – Number of mel bins.</p></li>
+<li><p><strong>fmin</strong> (<em>float &gt;= 0</em><em> [</em><em>scalar</em><em>]</em>) – Minimum frequency (Hz).</p></li>
+<li><p><strong>fmax</strong> (<em>float &gt;= 0</em><em> [</em><em>scalar</em><em>]</em>) – Maximum frequency (Hz).</p></li>
+<li><p><strong>htk</strong> (<em>bool</em>) – If True, use HTK formula to convert Hz to mel.
+Otherwise (False), use Slaney’s Auditory Toolbox.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>bin_frequencies</strong> – Vector of n_mels frequencies in Hz which are uniformly spaced on the Mel
+axis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray [shape=(n_mels,)]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">librosa</span><span class="o">.</span><span class="n">mel_frequencies</span><span class="p">(</span><span class="n">n_mels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="go">array([     0.   ,     85.317,    170.635,    255.952,</span>
+<span class="go">          341.269,    426.586,    511.904,    597.221,</span>
+<span class="go">          682.538,    767.855,    853.173,    938.49 ,</span>
+<span class="go">         1024.856,   1119.114,   1222.042,   1334.436,</span>
+<span class="go">         1457.167,   1591.187,   1737.532,   1897.337,</span>
+<span class="go">         2071.84 ,   2262.393,   2470.47 ,   2697.686,</span>
+<span class="go">         2945.799,   3216.731,   3512.582,   3835.643,</span>
+<span class="go">         4188.417,   4573.636,   4994.285,   5453.621,</span>
+<span class="go">         5955.205,   6502.92 ,   7101.009,   7754.107,</span>
+<span class="go">         8467.272,   9246.028,  10096.408,  11025.   ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="nnAudio.librosa_functions.mel_to_hz.html" class="btn btn-neutral float-right" title="nnAudio.librosa_functions.mel_to_hz" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="nnAudio.librosa_functions.mel.html" class="btn btn-neutral float-left" title="nnAudio.librosa_functions.mel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Cheuk Kin Wai
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
