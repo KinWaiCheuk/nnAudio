@@ -26,3 +26,6 @@ Demonstration/
 Readme.ipynb
 Using nnAudio on Single GPU.ipynb
 Using nnAudio on Multiple GPUs.ipynb
+
+Sphinx/
+docs/

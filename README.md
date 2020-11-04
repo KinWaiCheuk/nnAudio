@@ -1,7 +1,10 @@
 # nnAudio
-Audio processing by using PyTorch convolutional neural network. By doing so, spectrograms can be generated from audio on-the-fly during neural network training and the processing kernels (e.g. Fourier kernels) can be trained. [Kapre](https://github.com/keunwoochoi/kapre) has a similar concept in which they also use 1D convolutional neural network to extract spectrograms.
+nnAudio is an audio processing toolbox using PyTorch convolutional neural network as its backend. By doing so, spectrograms can be generated from audio on-the-fly during neural network training and the Fourier kernels (e.g. or CQT kernels) can be trained. [Kapre](https://github.com/keunwoochoi/kapre) has a similar concept in which they also use 1D convolutional neural network to extract spectrograms based on [Keras](https://keras.io).
 
 Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is still very difficult to install under the Windows environment due to `sox`. nnAudio is a more compatible audio processing tool across different operation systems since it relies mostly on PyTorch convolutional neural network. The name of nnAudio comes from `torch.nn`
+
+## Documentation
+https://kinwaicheuk.github.io/nnAudio/index.html
 
 ## Call for Contributions
 nnAudio is a fast growing package. With increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
@@ -52,8 +55,7 @@ To use this version, do `pip install nnAudio --pre -U`.
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
 ✅: Fully support    ☑️: Developing (only available in dev version)    ❌: Not support
-## Documentation
-https://kinwaicheuk.github.io/nnAudio/index.html
+
 
 ## How to cite nnAudio
 The paper for nnAudio is avaliable on [IEEE Access](https://ieeexplore.ieee.org/document/9174990)
@@ -216,14 +218,14 @@ Spectrogram.CQT1992v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, 
 Spectrogram.CQT2010v2(sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84, bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect')
 ```
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/CQT_compare.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/CQT_compare.png)
 
 
 ## Output Spectrogram
 The spectrogram outputs from nnAudio are nearly identical to the implmentation of librosa. Four different input singals, linear sine sweep, logarithmic sine sweep, impluse, and piano chromatic scale, are used to test the nnAudio output. The figures below shows the result.
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_1.png)
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/performance_test/performance_2.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/performance_1.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/performance_2.png)
 
 
 ## Speed
@@ -235,7 +237,7 @@ Machine B: Linux Desktop with CPU: AMD Ryzen 7 PRO 3700 and 1 GeForce RTX 2080 T
 
 Machine C: DGX station with CPU: Intel Xeon E5-2698 v4 @ 2.20GHz and Tesla v100 32Gb GPU
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/speed_test/speedv3.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/speedv3.png)
 
   
 
