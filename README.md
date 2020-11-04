@@ -155,7 +155,7 @@ The follow demonstrations are avaliable on Google colab.
 
 The figure below shows the STFT basis before and after training.
 
-![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/Trained_basis.png)
+![alt text](https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/Trained_basis.png)
 
 The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.
 
