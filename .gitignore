@@ -9,7 +9,6 @@ statistic.ipynb
 nnAudio_doc.rst
 _templates
 _build
-Sphinx/build/html/_static/ 
 make.bat
 conf.py
 Makefile
@@ -27,5 +26,5 @@ Readme.ipynb
 Using nnAudio on Single GPU.ipynb
 Using nnAudio on Multiple GPUs.ipynb
 
-Sphinx/
+Sphinx/*
 docs/
