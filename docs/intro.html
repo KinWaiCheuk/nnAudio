@@ -100,6 +100,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#speed">Speed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trainable-kernals">Trainable kernals</a></li>
 </ul>
 </li>
 </ul>
@@ -269,6 +270,30 @@
 <li><p>Machine C: DGX station with CPU: Intel Xeon E5-2698 v4 &#64; 2.20GHz and Tesla v100 32Gb GPU</p></li>
 </ul>
 <img alt="Speed test across different machines" class="align-center" src="_images/speedv3.png" />
+</div>
+<div class="section" id="trainable-kernals">
+<h2>Trainable kernals<a class="headerlink" href="#trainable-kernals" title="Permalink to this headline">¶</a></h2>
+<p>Fourier basis in <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.STFT.html#nnAudio.Spectrogram.STFT" title="nnAudio.Spectrogram.STFT"><code class="xref py py-func docutils literal notranslate"><span class="pre">STFT()</span></code></a> can be set trainable by using <code class="docutils literal notranslate"><span class="pre">trainable=True</span></code> argument. Fourier basis in <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.MelSpectrogram.html#nnAudio.Spectrogram.MelSpectrogram" title="nnAudio.Spectrogram.MelSpectrogram"><code class="xref py py-func docutils literal notranslate"><span class="pre">MelSpectrogram()</span></code></a> can be also set trainable by using <cite>trainable_STFT=True</cite>, and Mel filter banks can be set trainable using <code class="docutils literal notranslate"><span class="pre">trainable_mel=False</span></code> argument. The same goes for <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.CQT.html#nnAudio.Spectrogram.CQT" title="nnAudio.Spectrogram.CQT"><code class="xref py py-func docutils literal notranslate"><span class="pre">CQT()</span></code></a>.</p>
+<p>The follow demonstrations are avaliable on Google colab.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://colab.research.google.com/drive/12VwjKSuXFkXCQd1hr3KUZ2bqzFEe-O6L">Trainable STFT Kernel</a></p></li>
+<li><p><a class="reference external" href="https://colab.research.google.com/drive/1UtswBYWhVxDNBRDajWzyplZfMiqENCEF">Trainable Mel Kernel</a></p></li>
+<li><p><a class="reference external" href="https://colab.research.google.com/drive/1coH54dfjAOxEyOjJrqscQRyC0_lmF04s">Trainable CQT Kernel</a></p></li>
+</ul>
+<p>The figure below shows the STFT basis before and after training.
+.. image:: ../../figures/Trained_basis.png</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">align</dt>
+<dd class="field-odd"><p>center</p>
+</dd>
+<dt class="field-even">alt</dt>
+<dd class="field-even"><p>Trained_basis</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.</p>
+<img alt="STFT_training" class="align-center" src="_images/STFT_training.png" />
 </div>
 </div>
 

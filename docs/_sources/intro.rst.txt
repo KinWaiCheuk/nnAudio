@@ -127,3 +127,27 @@ The speed test is conducted using three different machines, and it shows that nn
 .. image:: ../../figures/speedv3.png
     :align: center
     :alt: Speed test across different machines
+    
+    
+Trainable kernals
+*****************
+
+Fourier basis in :func:`~nnAudio.Spectrogram.STFT` can be set trainable by using ``trainable=True`` argument. Fourier basis in :func:`~nnAudio.Spectrogram.MelSpectrogram` can be also set trainable by using `trainable_STFT=True`, and Mel filter banks can be set trainable using ``trainable_mel=False`` argument. The same goes for :func:`~nnAudio.Spectrogram.CQT`.
+
+The follow demonstrations are avaliable on Google colab.
+
+* `Trainable STFT Kernel <https://colab.research.google.com/drive/12VwjKSuXFkXCQd1hr3KUZ2bqzFEe-O6L>`__
+* `Trainable Mel Kernel <https://colab.research.google.com/drive/1UtswBYWhVxDNBRDajWzyplZfMiqENCEF>`__
+* `Trainable CQT Kernel <https://colab.research.google.com/drive/1coH54dfjAOxEyOjJrqscQRyC0_lmF04s>`__
+
+The figure below shows the STFT basis before and after training.
+.. image:: ../../figures/Trained_basis.png
+    :align: center
+    :alt: Trained_basis
+    
+
+The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.
+
+.. image:: ../../figures/STFT_training.png
+    :align: center
+    :alt: STFT_training
