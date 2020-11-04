@@ -1,3 +1,9 @@
+"""
+Module containing functions cloned from librosa
+
+To make sure nnAudio would not become broken when updating librosa 
+"""
+
 import numpy as np
 import warnings
 ### ----------------Functions for generating kenral for Mel Spectrogram------------ ###
