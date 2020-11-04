@@ -159,7 +159,7 @@ The figure below shows the STFT basis before and after training.
 
 The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.
 
-<img src="https://github.com/KinWaiCheuk/nnAudio/blob/master/Trainable_STFT/STFT_training.png" :height="83%" width="83%">
+<img src="https://github.com/KinWaiCheuk/nnAudio/blob/master/figures/STFT_training.png" :height="83%" width="83%">
 
 ## Using GPU
 If GPU is avaliable in your computer, you should put the following command at the beginning of your script to ensure nnAudio is run in GPU. By default, PyTorch tensors are created in CPU, if you want to use nnAudio in GPU, make sure to transfer all your PyTorch tensors to GPU
