@@ -3,18 +3,53 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to nnAudio's documentation!
+nnAudio
 ===================================
-.. automodule:: Spectrogram
-   :members:
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+nnAudio is an audio processing toolbox using PyTorch convolutional neural
+network as its backend. By doing so, spectrograms can be generated from
+audio on-the-fly during neural network training and the Fourier kernels
+(e.g. or CQT kernels) can be trained.
+`Kapre <https://github.com/keunwoochoi/kapre>`__ has a similar concept
+in which they also use 1D convolutional neural network to extract
+spectrograms based on `Keras <https://keras.io>`__.
 
+Other GPU audio processing tools are
+`torchaudio <https://github.com/pytorch/audio>`__ and
+`tf.signal <https://www.tensorflow.org/api_docs/python/tf/signal>`__.
+But they are not using the neural network approach, and hence the
+Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is
+still very difficult to install under the Windows environment due to
+``sox``. nnAudio is a more compatible audio processing tool across
+different operation systems since it relies mostly on PyTorch
+convolutional neural network. The name of nnAudio comes from
+``torch.nn``
+
+
+Getting started
+--------------- 
+.. toctree::
+    :maxdepth: 2
+    
+    intro
+
+API documentation
+-----------------
+.. toctree::
+    :maxdepth: 1
+    
+    nnAudio
+ 
+Tutorial
+----------------- 
+.. toctree::
+    :maxdepth: 1
+    
+    examples
 
 
 Indices and tables
-==================
+----------------- 
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`
