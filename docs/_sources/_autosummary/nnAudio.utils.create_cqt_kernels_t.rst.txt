@@ -1,0 +1,6 @@
+nnAudio.utils.create\_cqt\_kernels\_t
+=====================================
+
+.. currentmodule:: nnAudio.utils
+
+.. autofunction:: create_cqt_kernels_t

@@ -1,0 +1,28 @@
+﻿nnAudio.Spectrogram.CQT2010v2
+=============================
+
+.. currentmodule:: nnAudio.Spectrogram
+
+.. autoclass:: CQT2010v2
+   :members:
+   :show-inheritance:
+   :no-inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~CQT2010v2.__init__
+      ~CQT2010v2.early_downsample
+      ~CQT2010v2.early_downsample_count
+      ~CQT2010v2.forward
+      ~CQT2010v2.forward_manual
+      ~CQT2010v2.get_cqt
+      ~CQT2010v2.get_cqt_complex
+      ~CQT2010v2.get_early_downsample_params
+   
+   

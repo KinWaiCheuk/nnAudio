@@ -1,0 +1,32 @@
+﻿nnAudio
+=======
+
+.. automodule:: nnAudio
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   nnAudio.Spectrogram
+   nnAudio.librosa_functions
+   nnAudio.utils
+
