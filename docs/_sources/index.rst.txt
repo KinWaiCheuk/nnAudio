@@ -26,6 +26,8 @@ convolutional neural network. The name of nnAudio comes from
 
 The implmentation details for **nnAudio** has also been published in IEEE Access, people who are interested can read the `paper <https://ieeexplore.ieee.org/document/9174990>`__.
 
+The source code for **nnAudio** can be found in `GitHub <https://github.com/KinWaiCheuk/nnAudio>`__.
+
 
 Getting started
 --------------- 
