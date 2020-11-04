@@ -141,6 +141,7 @@ The follow demonstrations are avaliable on Google colab.
 * `Trainable CQT Kernel <https://colab.research.google.com/drive/1coH54dfjAOxEyOjJrqscQRyC0_lmF04s>`__
 
 The figure below shows the STFT basis before and after training.
+
 .. image:: ../../figures/Trained_basis.png
     :align: center
     :alt: Trained_basis
