@@ -1,3 +1,4 @@
+.DS_Store
 y_list.npy
 __pycache__
 .ipynb_checkpoints
@@ -6,12 +7,6 @@ Installation/dist
 Bach.wav
 Chopin.wav
 statistic.ipynb
-nnAudio_doc.rst
-_templates
-_build
-make.bat
-conf.py
-Makefile
 Installation/nnAudio/Untitled.ipynb
 Installation/nnAudio/Untitled-Copy1.ipynb
 Installation/nnAudio/Orthogonal.ipynb
@@ -26,5 +21,5 @@ Readme.ipynb
 Using nnAudio on Single GPU.ipynb
 Using nnAudio on Multiple GPUs.ipynb
 
-Sphinx/*
+Sphinx/source/_autosummary
 docs/

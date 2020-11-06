@@ -26,7 +26,7 @@ copyright = '2019, Cheuk Kin Wai'
 author = 'Cheuk Kin Wai'
 
 # The short X.Y version
-version = '0.1.15'
+version = '0.1.5'
 # The full version, including alpha/beta/rc tags
 release = f'{version}'
 
