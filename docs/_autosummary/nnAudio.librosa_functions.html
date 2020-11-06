@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.librosa_functions &mdash; 0.1.15</title>
+  <title>nnAudio.librosa_functions &mdash; 0.1.5</title>
   
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
 
   
   
@@ -17,7 +21,9 @@
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -29,10 +35,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="nnAudio.librosa_functions.fft_frequencies" href="nnAudio.librosa_functions.fft_frequencies.html" />
@@ -50,7 +52,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> nnAudio
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
           
 
           
@@ -60,7 +62,7 @@
             
             
               <div class="version">
-                0.1.15
+                0.1.5
               </div>
             
           
@@ -77,6 +79,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -110,6 +113,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -148,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../nnAudio.html">nnAudio</a> &raquo;</li>
         
@@ -189,10 +193,10 @@
 <td><p>Convert Hz to Mels .</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.librosa_functions.mel.html#nnAudio.librosa_functions.mel" title="nnAudio.librosa_functions.mel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel</span></code></a></p></td>
-<td><p>Create a Filterbank matrix to combine FFT bins into Mel-frequency bins :param sr: sampling rate of the incoming signal :type sr: number &gt; 0 [scalar] :param n_fft: number of FFT components :type n_fft: int &gt; 0 [scalar] :param n_mels: number of Mel bands to generate :type n_mels: int &gt; 0 [scalar] :param fmin: lowest frequency (in Hz) :type fmin: float &gt;= 0 [scalar] :param fmax: highest frequency (in Hz). If <cite>None</cite>, use <cite>fmax = sr / 2.0</cite> :type fmax: float &gt;= 0 [scalar] :param htk: use HTK formula instead of Slaney :type htk: bool [scalar] :param norm: if 1, divide the triangular mel weights by the width of the mel band              (area normalization). Otherwise, leave all the triangles aiming for              a peak value of 1.0 :type norm: {None, 1, np.inf} [scalar] :param dtype: The data type of the output basis. By default, uses 32-bit (single-precision) floating point. :type dtype: np.dtype.</p></td>
+<td><p>This function is cloned from librosa 0.7.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="nnAudio.librosa_functions.mel_frequencies.html#nnAudio.librosa_functions.mel_frequencies" title="nnAudio.librosa_functions.mel_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel_frequencies</span></code></a></p></td>
-<td><p>Compute an array of acoustic frequencies tuned to the mel scale. The mel scale is a quasi-logarithmic function of acoustic frequency designed such that perceptually similar pitch intervals (e.g. octaves) appear equal in width over the full hearing range. Because the definition of the mel scale is conditioned by a finite number of subjective psychoaoustical experiments, several implementations coexist in the audio signal processing literature <a href="#id4"><span class="problematic" id="id1">[1]_</span></a>. By default, librosa replicates the behavior of the well-established MATLAB Auditory Toolbox of Slaney <a href="#id5"><span class="problematic" id="id2">[2]_</span></a>. According to this default implementation,  the conversion from Hertz to mel is linear below 1 kHz and logarithmic above 1 kHz. Another available implementation replicates the Hidden Markov Toolkit <a href="#id6"><span class="problematic" id="id3">[3]_</span></a> (HTK) according to the following formula: <cite>mel = 2595.0 * np.log10(1.0 + f / 700.0).</cite> The choice of implementation is determined by the <cite>htk</cite> keyword argument: setting <cite>htk=False</cite> leads to the Auditory toolbox implementation, whereas setting it <cite>htk=True</cite> leads to the HTK implementation. .. [1] Umesh, S., Cohen, L., &amp; Nelson, D. Fitting the mel scale. In Proc. International Conference on Acoustics, Speech, and Signal Processing     (ICASSP), vol. 1, pp. 217-220, 1998. .. [2] Slaney, M. Auditory Toolbox: A MATLAB Toolbox for Auditory     Modeling Work. Technical Report, version 2, Interval Research Corporation, 1998. .. [3] Young, S., Evermann, G., Gales, M., Hain, T., Kershaw, D., Liu, X.,     Moore, G., Odell, J., Ollason, D., Povey, D., Valtchev, V., &amp; Woodland, P. The HTK book, version 3.4. Cambridge University, March 2009. .. seealso:: <a class="reference internal" href="nnAudio.librosa_functions.hz_to_mel.html#nnAudio.librosa_functions.hz_to_mel" title="nnAudio.librosa_functions.hz_to_mel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hz_to_mel</span></code></a>, <a class="reference internal" href="nnAudio.librosa_functions.mel_to_hz.html#nnAudio.librosa_functions.mel_to_hz" title="nnAudio.librosa_functions.mel_to_hz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel_to_hz</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">librosa.feature.melspectrogram</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">librosa.feature.mfcc</span></code>.</p></td>
+<td><p>This function is cloned from librosa 0.7.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.librosa_functions.mel_to_hz.html#nnAudio.librosa_functions.mel_to_hz" title="nnAudio.librosa_functions.mel_to_hz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mel_to_hz</span></code></a></p></td>
 <td><p>Convert mel bin numbers to frequencies .</p></td>
@@ -224,11 +228,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Cheuk Kin Wai
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -239,6 +251,24 @@
 
   </div>
   
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: master
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../v0.1.5/_autosummary/nnAudio.librosa_functions.html">v0.1.5</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="../dev/_autosummary/nnAudio.librosa_functions.html">dev</a></dd>
+            <dd><a href="../master/_autosummary/nnAudio.librosa_functions.html">master</a></dd>
+        </dl>
+    </div>
+</div>
 
 
   <script type="text/javascript">
