@@ -133,51 +133,33 @@ def fft_frequencies(sr=22050, n_fft=2048):
                        endpoint=True)
 
 def mel_frequencies(n_mels=128, fmin=0.0, fmax=11025.0, htk=False):
-    """Compute an array of acoustic frequencies tuned to the mel scale.
-    The mel scale is a quasi-logarithmic function of acoustic frequency
-    designed such that perceptually similar pitch intervals (e.g. octaves)
-    appear equal in width over the full hearing range.
-    Because the definition of the mel scale is conditioned by a finite number
-    of subjective psychoaoustical experiments, several implementations coexist
-    in the audio signal processing literature [1]_. By default, librosa replicates
-    the behavior of the well-established MATLAB Auditory Toolbox of Slaney [2]_.
-    According to this default implementation,  the conversion from Hertz to mel is
-    linear below 1 kHz and logarithmic above 1 kHz. Another available implementation
-    replicates the Hidden Markov Toolkit [3]_ (HTK) according to the following formula:
-    `mel = 2595.0 * np.log10(1.0 + f / 700.0).`
-    The choice of implementation is determined by the `htk` keyword argument: setting
-    `htk=False` leads to the Auditory toolbox implementation, whereas setting it `htk=True`
-    leads to the HTK implementation.
-    .. [1] Umesh, S., Cohen, L., & Nelson, D. Fitting the mel scale.
-        In Proc. International Conference on Acoustics, Speech, and Signal Processing
-        (ICASSP), vol. 1, pp. 217-220, 1998.
-    .. [2] Slaney, M. Auditory Toolbox: A MATLAB Toolbox for Auditory
-        Modeling Work. Technical Report, version 2, Interval Research Corporation, 1998.
-    .. [3] Young, S., Evermann, G., Gales, M., Hain, T., Kershaw, D., Liu, X.,
-        Moore, G., Odell, J., Ollason, D., Povey, D., Valtchev, V., & Woodland, P.
-        The HTK book, version 3.4. Cambridge University, March 2009.
-    See Also
-    --------
-    hz_to_mel
-    mel_to_hz
-    librosa.feature.melspectrogram
-    librosa.feature.mfcc
+    """
+    This function is cloned from librosa 0.7.
+    Please refer to the original 
+    `documentation <https://librosa.org/doc/latest/generated/librosa.mel_frequencies.html?highlight=mel_frequencies#librosa.mel_frequencies>`__
+    for more info.
+    
     Parameters
     ----------
     n_mels    : int > 0 [scalar]
         Number of mel bins.
+
     fmin      : float >= 0 [scalar]
         Minimum frequency (Hz).
+
     fmax      : float >= 0 [scalar]
         Maximum frequency (Hz).
+
     htk       : bool
         If True, use HTK formula to convert Hz to mel.
         Otherwise (False), use Slaney's Auditory Toolbox.
+
     Returns
     -------
     bin_frequencies : ndarray [shape=(n_mels,)]
         Vector of n_mels frequencies in Hz which are uniformly spaced on the Mel
         axis.
+
     Examples
     --------
     >>> librosa.mel_frequencies(n_mels=40)
@@ -203,7 +185,14 @@ def mel_frequencies(n_mels=128, fmin=0.0, fmax=11025.0, htk=False):
 
 def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
         norm=1, dtype=np.float32):
-    """Create a Filterbank matrix to combine FFT bins into Mel-frequency bins
+    """
+    This function is cloned from librosa 0.7.
+    Please refer to the original 
+    `documentation <https://librosa.org/doc/latest/generated/librosa.filters.mel.html>`__
+    for more info.    
+    Create a Filterbank matrix to combine FFT bins into Mel-frequency bins
+
+
     Parameters
     ----------
     sr        : number > 0 [scalar]
@@ -226,13 +215,16 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
     dtype : np.dtype
         The data type of the output basis.
         By default, uses 32-bit (single-precision) floating point.
+
     Returns
     -------
     M         : np.ndarray [shape=(n_mels, 1 + n_fft/2)]
         Mel transform matrix
+
     Notes
     -----
     This function caches at level 10.
+    
     Examples
     --------
     >>> melfb = librosa.filters.mel(22050, 2048)
