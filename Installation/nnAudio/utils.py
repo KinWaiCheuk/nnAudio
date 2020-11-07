@@ -39,43 +39,6 @@ def extend_fbins(X):
     return torch.cat((X[:, :, :], X_upper), 1)
 
 
-def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):
-    """
-    Calculate the highest frequency we need to preserve and the lowest frequency we allow
-    to pass through.
-    Note that frequency is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist frequency of
-    the signal BEFORE downsampling.
-    """
-
-    # transitionBandwidth = 0.03
-    passbandMax = band_center / (1 + transitionBandwidth)
-    stopbandMin = band_center * (1 + transitionBandwidth)
-
-    # Unlike the filter tool we used online yesterday, this tool does
-    # not allow us to specify how closely the filter matches our
-    # specifications. Instead, we specify the length of the kernel.
-    # The longer the kernel is, the more precisely it will match.
-    # kernelLength = 256
-
-    # We specify a list of key frequencies for which we will require
-    # that the filter match a specific output gain.
-    # From [0.0 to passbandMax] is the frequency range we want to keep
-    # untouched and [stopbandMin, 1.0] is the range we want to remove
-    keyFrequencies = [0.0, passbandMax, stopbandMin, 1.0]
-
-    # We specify a list of output gains to correspond to the key
-    # frequencies listed above.
-    # The first two gains are 1.0 because they correspond to the first
-    # two key frequencies. the second two are 0.0 because they
-    # correspond to the stopband frequencies
-    gainAtKeyFrequencies = [1.0, 1.0, 0.0, 0.0]
-
-    # This command produces the filter kernel coefficients
-    filterKernel = signal.firwin2(kernelLength, keyFrequencies, gainAtKeyFrequencies)
-
-    return filterKernel.astype(np.float32)
-
-
 def downsampling_by_n(x, filterKernel, n):
     """A helper function that downsamples the audio by a arbitary factor n.
     It is used in CQT2010 and CQT2010v2.
@@ -341,10 +304,12 @@ def create_fourier_kernels(n_fft, win_length=None, freq_bins=None, fmin=50,fmax=
     return wsin.astype(np.float32),wcos.astype(np.float32), bins2freq, binslist, window_mask.astype(np.float32)
 
 
+# Tools for CQT
+
 def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
                        window='hann', fmax=None, topbin_check=True):
     """
-    Automatically create CQT kernels and convert it to frequency domain
+    Automatically create CQT kernels in time domain
     """
 
     # norm arg is not functioning
@@ -394,52 +359,98 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
     return tempKernel, fftLen, torch.tensor(lenghts).float()
 
 
-def create_cqt_kernels_t(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
-                         window='hann', fmax=None):
+
+def get_cqt_complex(x, cqt_kernels_real, cqt_kernels_imag, hop_length, padding):
+    """Multiplying the STFT result with the cqt_kernel, check out the 1992 CQT paper [1]
+    for how to multiple the STFT result with the CQT kernel
+    [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of
+    a constant Q transform.” (1992)."""
+
+    # STFT, converting the audio input from time domain to frequency domain
+    try:
+        x = padding(x) # When center == True, we need padding at the beginning and ending
+    except:
+        print("padding with reflection mode might not be the best choice, try using constant padding")
+    CQT_real = conv1d(x, cqt_kernels_real, stride=hop_length)
+    CQT_imag = -conv1d(x, cqt_kernels_imag, stride=hop_length)
+
+    return torch.stack((CQT_real, CQT_imag),-1)
+
+
+def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):
     """
-    Create cqt kernels in time-domain
+    Calculate the highest frequency we need to preserve and the lowest frequency we allow
+    to pass through.
+    Note that frequency is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist frequency of
+    the signal BEFORE downsampling.
     """
 
-    # norm arg is not functioning
+    # transitionBandwidth = 0.03
+    passbandMax = band_center / (1 + transitionBandwidth)
+    stopbandMin = band_center * (1 + transitionBandwidth)
 
-    fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
-    # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
+    # Unlike the filter tool we used online yesterday, this tool does
+    # not allow us to specify how closely the filter matches our
+    # specifications. Instead, we specify the length of the kernel.
+    # The longer the kernel is, the more precisely it will match.
+    # kernelLength = 256
 
-    if (fmax != None) and  (n_bins == None):
-        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+    # We specify a list of key frequencies for which we will require
+    # that the filter match a specific output gain.
+    # From [0.0 to passbandMax] is the frequency range we want to keep
+    # untouched and [stopbandMin, 1.0] is the range we want to remove
+    keyFrequencies = [0.0, passbandMax, stopbandMin, 1.0]
 
-    elif (fmax == None) and  (n_bins != None):
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+    # We specify a list of output gains to correspond to the key
+    # frequencies listed above.
+    # The first two gains are 1.0 because they correspond to the first
+    # two key frequencies. the second two are 0.0 because they
+    # correspond to the stopband frequencies
+    gainAtKeyFrequencies = [1.0, 1.0, 0.0, 0.0]
+
+    # This command produces the filter kernel coefficients
+    filterKernel = signal.firwin2(kernelLength, keyFrequencies, gainAtKeyFrequencies)
+
+    return filterKernel.astype(np.float32)
+
+def get_early_downsample_params(sr, hop_length, fmax_t, Q, n_octaves, verbose):
+    """Used in CQT2010 and CQT2010v2"""
+    
+    window_bandwidth = 1.5 # for hann window
+    filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)
+    sr, hop_length, downsample_factor = early_downsample(sr,
+                                                              hop_length,
+                                                              n_octaves,
+                                                              sr//2,
+                                                              filter_cutoff)
+    if downsample_factor != 1:
+        if verbose==True:
+            print("Can do early downsample, factor = ", downsample_factor)
+        earlydownsample=True
+        # print("new sr = ", sr)
+        # print("new hop_length = ", hop_length)
+        early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor,
+                                                        kernelLength=256,
+                                                        transitionBandwidth=0.03)
+        early_downsample_filter = torch.tensor(early_downsample_filter)[None, None, :]
 
     else:
-        warnings.warn('If fmax is given, n_bins will be ignored',SyntaxWarning)
-        n_bins = np.ceil(bins_per_octave * np.log2(fmax / fmin)) # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        if verbose==True:
+            print("No early downsampling is required, downsample_factor = ", downsample_factor)
+        early_downsample_filter = None
+        earlydownsample=False
 
-    if np.max(freqs) > fs/2:
-        raise ValueError('The top bin {}Hz has exceeded the Nyquist frequency, \
-                          please reduce the n_bins'.format(np.max(freqs)))
+    return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample
 
-    tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
-    specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
+def early_downsample(sr, hop_length, n_octaves,
+                     nyquist, filter_cutoff):
+    '''Return new sampling rate and hop length after early dowansampling'''
+    downsample_count = early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves)
+    # print("downsample_count = ", downsample_count)
+    downsample_factor = 2**(downsample_count)
 
-    for k in range(0, int(n_bins)):
-        freq = freqs[k]
-        l = np.ceil(Q * fs / freq)
-        lenghts = np.ceil(Q * fs / freqs)
-        # Centering the kernels
-        if l%2==1: # pad more zeros on RHS
-            start = int(np.ceil(fftLen / 2.0 - l / 2.0))-1
-        else:
-            start = int(np.ceil(fftLen / 2.0 - l / 2.0))
+    hop_length //= downsample_factor # Getting new hop_length
+    new_sr = sr / float(downsample_factor) # Getting new sampling rate
+    sr = new_sr
 
-        sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
-
-        if norm: # Normalizing the filter # Trying to normalize like librosa
-            tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
-        else:
-            tempKernel[k, start:start + int(l)] = sig
-        # specKernel[k, :]=fft(conj(tempKernel[k, :]))
-
-    return tempKernel, fftLen, torch.tensor(lenghts).float()
+    return sr, hop_length, downsample_factor
