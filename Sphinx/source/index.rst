@@ -5,7 +5,7 @@
 
 nnAudio 0.2.0
 ===================================
-Welcome to nnAudio 0.2.0. It changes the syntax of the spectrogram layers creation, 
+Welcome to nnAudio 0.2.0. This new version changes the syntax of the spectrogram layers creation, 
 such that ``stft_layer.to(device)`` can be used. This new version is more stable 
 than the previous version since it is more compatible with other torch modules.
 
@@ -24,35 +24,41 @@ But they are not using the neural network approach, and hence the
 Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is
 still very difficult to install under the Windows environment due to
 ``sox``. nnAudio is a more compatible audio processing tool across
-different operation systems since it relies mostly on PyTorch
+different operating systems since it relies mostly on PyTorch
 convolutional neural network. The name of nnAudio comes from
 ``torch.nn``.
 
-The implmentation details for **nnAudio** has also been published in IEEE Access, people who are interested can read the `paper <https://ieeexplore.ieee.org/document/9174990>`__.
+The implementation details for **nnAudio** have also been published in IEEE Access, people who are interested can read the `paper <https://ieeexplore.ieee.org/document/9174990>`__.
 
 The source code for **nnAudio** can be found in `GitHub <https://github.com/KinWaiCheuk/nnAudio>`__.
 
 
-Getting started
---------------- 
-.. toctree::
-    :maxdepth: 2
-    
-    intro
-
-API documentation
------------------
 .. toctree::
     :maxdepth: 1
+    :caption: Getting Started
+
+    intro
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: API Documentation
     
     nnAudio
  
-Tutorial
------------------ 
+
 .. toctree::
     :maxdepth: 1
+    :caption: Tutorials
     
     examples
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Citation
+    
+    citing
 
 
 Indices and tables

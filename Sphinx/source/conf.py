@@ -41,6 +41,7 @@ release = f'{version}'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
@@ -84,6 +85,7 @@ pygments_style = None
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_logo = "logo.png"
 html_title = f'{version}'
 
 # Theme options are theme-specific and customize the look and feel of a theme

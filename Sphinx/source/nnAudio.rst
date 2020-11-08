@@ -1,5 +1,3 @@
-nnAudio
-=======
 
 .. automodule:: nnAudio
 
