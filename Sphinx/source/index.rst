@@ -3,8 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-nnAudio
+nnAudio 0.2.0
 ===================================
+Welcome to nnAudio 0.2.0. It changes the syntax of the spectrogram layers creation, 
+such that ``stft_layer.to(device)`` can be used. This new version is more stable 
+than the previous version since it is more compatible with other torch modules.
+
 nnAudio is an audio processing toolbox using PyTorch convolutional neural
 network as its backend. By doing so, spectrograms can be generated from
 audio on-the-fly during neural network training and the Fourier kernels
