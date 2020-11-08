@@ -1,5 +1,3 @@
-Getting Started
-===============
 
 Introduction
 ************
@@ -20,15 +18,17 @@ Installation
 
 Via PyPI
 ~~~~~~~~
-To install stable release from pypi: ``pip install nnAudio==x.x.x``, where ``x.x.x`` is the version number. The lastest version is now ``0.1.15``.
+To install stable release from pypi: ``pip install nnAudio==x.x.x``, where ``x.x.x`` is the version number.
+The lastest version is now ``0.2.0``.
+
+When there are pre-release available, you can install the pre-release by ``pip install nnAudio --pre -U``.
+It allows the users to use the latest features, but the new features might not be stable.
+Please use it with care and report any problems that you found.
 
 Via GitHub
 ~~~~~~~~~~
 Alternatively, you can also install from the github by first cloning the repository with ``git clone https://github.com/KinWaiCheuk/nnAudio.git <any path you want to save to>``. Then ``cd`` into the ``Installation`` folder where the ``setup.py`` is located at, and do ``python setup.py install``.
 
-..
-    To install dev version: ``pip install nnAudio --pre -U``
-    It allows the users to use the latest features, but the new features might not be stable. Please use with care and report any problems that you found.
 
 Requirement
 ~~~~~~~~~~~
@@ -48,7 +48,9 @@ Usage
 
 Standalone Usage
 ~~~~~~~~~~~~~~~~
-To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be `(batch, len_audio)`.
+To use nnAudio, you need to define the spectrogram layer in the same way as a neural network layer.
+After that, you can pass a batch of waveform to that layer to obtain the spectrograms.
+The input shape should be `(batch, len_audio)`.
 
 .. code-block:: python
 
@@ -61,24 +63,30 @@ To use nnAudio, you need to define the neural network layer. After that, you can
 
     spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, 
                                   window='hann', freq_scale='linear', center=True, pad_mode='reflect', 
-                                  fmin=50,fmax=11025, sr=sr, device='cuda:0') # Initializing the model
+                                  fmin=50,fmax=11025, sr=sr) # Initializing the model
 
     spec = spec_layer(x) # Feed-forward your waveform to get the spectrogram      
     
  
+.. _on-the-fly: 
  
 On-the-fly audio processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network
 
 .. code-block:: python
-    :emphasize-lines: 5,22
+    :emphasize-lines: 5-10,27
     
     class Model(torch.nn.Module):
         def __init__(self):
             super(Model, self).__init__()
             # Getting Mel Spectrogram on the fly
-            self.spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, window='hann', freq_scale='no', center=True, pad_mode='reflect', fmin=50,fmax=6000, sr=22050, trainable=False, output_format='Magnitude', device='cuda:0')
+            self.spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, 
+                                               hop_length=512, window='hann',
+                                               freq_scale='no', center=True, 
+                                               pad_mode='reflect', fmin=50,
+                                               fmax=6000, sr=22050, trainable=False,
+                                               output_format='Magnitude')
             self.n_bins = freq_bins         
 
             # Creating CNN Layers
@@ -106,13 +114,18 @@ One application for nnAudio is on-the-fly spectrogram generation when integratin
 Using GPU
 ~~~~~~~~~
 
-If GPU is avaliable in your computer, you can initialize nnAudio by choosing either CPU or GPU with the ``device`` argument. The default setting for nnAudio is ``device='cpu'``
+If a GPU is available in your computer, you can use ``.to(device)`` method like any other PyTorch ``nn.Modules`` 
+to transfer the spectrogram layer to any device you like.
 
 
 .. code-block:: python
 
-    spec_layer = Spectrogram.STFT(device=device)
+    spec_layer = Spectrogram.STFT().to(device)
     
+Alternatively, if your ``Spectrogram`` module is used inside your PyTorch model 
+as in the :ref:`on-the-fly processing section<on-the-fly>`, then you just need 
+to simply do ``net.to(device)``, where ``net = Model()``.
+
 Speed
 *****
 
@@ -152,3 +165,26 @@ The figure below shows how is the STFT output affected by the changes in STFT ba
 .. image:: ../../figures/STFT_training.png
     :align: center
     :alt: STFT_training
+
+
+Different CQT versions
+**********************
+
+The result for ``CQT1992`` is smoother than ``CQT2010`` and librosa.
+Since librosa and ``CQT2010`` are using the same algorithm (downsampling approach as mentioned in this paper),
+you can see similar artifacts as a result of downsampling.
+
+For ``CQT1992v2`` and ``CQT2010v2``, the CQT is computed directly in the time domain
+without the need of transforming both input waveforms and the CQT kernels to the frequency domain.
+making it faster than the original CQT proposed in 1992.
+
+The default CQT in nnAudio is the ``CQT1992v2`` version.
+For more detail, please refer to our `paper <https://ieeexplore.ieee.org/document/9174990>`__
+
+All versions of CQT are available for users to choose.
+To explicitly choose which CQT to use, you can refer to the :ref:`CQT API section<nnAudio.Spectrogram.CQT>`.
+
+
+.. image:: ../../figures/CQT_compare.png
+    :align: center
+    :alt: Comparing different versions of CQTs

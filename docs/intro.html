@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started &mdash; 0.2.0</title>
+  <title>Introduction &mdash; 0.2.0</title>
   
 
   
@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="nnAudio" href="nnAudio.html" />
+    <link rel="next" title="&lt;no title&gt;" href="nnAudio.html" />
     <link rel="prev" title="nnAudio 0.2.0" href="index.html" /> 
 </head>
 
@@ -55,6 +55,9 @@
             <a href="index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
           
 
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -87,31 +90,38 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#via-pypi">Via PyPI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#via-github">Via GitHub</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#requirement">Requirement</a></li>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#via-pypi">Via PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#via-github">Via GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirement">Requirement</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#standalone-usage">Standalone Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#on-the-fly-audio-processing">On-the-fly audio processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-gpu">Using GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#standalone-usage">Standalone Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#on-the-fly-audio-processing">On-the-fly audio processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-gpu">Using GPU</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#speed">Speed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#speed">Speed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#different-cqt-versions">Different CQT versions</a></li>
 </ul>
-</li>
-</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="nnAudio.html">nnAudio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.utils.html">nnAudio.utils</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Citation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing nnAudio</a></li>
 </ul>
 
             
@@ -158,7 +168,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Getting Started</li>
+      <li>Introduction</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -177,26 +187,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>nnAudio is basically a GPU version of some of the librosa functions, with additional features such as differentiable and trainable. The figure below shows the spectrograms obtained by nnAudio and librosa using different input signals.</p>
 <img alt="Speed test across different machines" class="align-center" src="_images/performance_1.png" />
 <img alt="Speed test across different machines" class="align-center" src="_images/performance_2.png" />
 </div>
 <div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="via-pypi">
-<h3>Via PyPI<a class="headerlink" href="#via-pypi" title="Permalink to this headline">¶</a></h3>
-<p>To install stable release from pypi: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">nnAudio==x.x.x</span></code>, where <code class="docutils literal notranslate"><span class="pre">x.x.x</span></code> is the version number. The lastest version is now <code class="docutils literal notranslate"><span class="pre">0.1.15</span></code>.</p>
+<h2>Via PyPI<a class="headerlink" href="#via-pypi" title="Permalink to this headline">¶</a></h2>
+<p>To install stable release from pypi: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">nnAudio==x.x.x</span></code>, where <code class="docutils literal notranslate"><span class="pre">x.x.x</span></code> is the version number.
+The lastest version is now <code class="docutils literal notranslate"><span class="pre">0.2.0</span></code>.</p>
+<p>When there are pre-release available, you can install the pre-release by <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">nnAudio</span> <span class="pre">--pre</span> <span class="pre">-U</span></code>.
+It allows the users to use the latest features, but the new features might not be stable.
+Please use it with care and report any problems that you found.</p>
 </div>
 <div class="section" id="via-github">
-<h3>Via GitHub<a class="headerlink" href="#via-github" title="Permalink to this headline">¶</a></h3>
+<h2>Via GitHub<a class="headerlink" href="#via-github" title="Permalink to this headline">¶</a></h2>
 <p>Alternatively, you can also install from the github by first cloning the repository with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/KinWaiCheuk/nnAudio.git</span> <span class="pre">&lt;any</span> <span class="pre">path</span> <span class="pre">you</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">save</span> <span class="pre">to&gt;</span></code>. Then <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the <code class="docutils literal notranslate"><span class="pre">Installation</span></code> folder where the <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> is located at, and do <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code>.</p>
 </div>
 <div class="section" id="requirement">
-<h3>Requirement<a class="headerlink" href="#requirement" title="Permalink to this headline">¶</a></h3>
+<h2>Requirement<a class="headerlink" href="#requirement" title="Permalink to this headline">¶</a></h2>
 <p>Numpy &gt;= 1.14.5</p>
 <p>Scipy &gt;= 1.2.0</p>
 <p>PyTorch &gt;= 1.6.0 (Griffin-Lim only available after 1.6.0)</p>
@@ -205,10 +217,12 @@
 </div>
 </div>
 <div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="standalone-usage">
-<h3>Standalone Usage<a class="headerlink" href="#standalone-usage" title="Permalink to this headline">¶</a></h3>
-<p>To use nnAudio, you need to define the neural network layer. After that, you can pass a batch of waveform to that layer to obtain the spectrograms. The input shape should be <cite>(batch, len_audio)</cite>.</p>
+<h2>Standalone Usage<a class="headerlink" href="#standalone-usage" title="Permalink to this headline">¶</a></h2>
+<p>To use nnAudio, you need to define the spectrogram layer in the same way as a neural network layer.
+After that, you can pass a batch of waveform to that layer to obtain the spectrograms.
+The input shape should be <cite>(batch, len_audio)</cite>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nnAudio</span> <span class="kn">import</span> <span class="n">Spectrogram</span>
 <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -218,20 +232,25 @@
 
 <span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
                               <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span>
-                              <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">fmax</span><span class="o">=</span><span class="mi">11025</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">)</span> <span class="c1"># Initializing the model</span>
+                              <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">fmax</span><span class="o">=</span><span class="mi">11025</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span> <span class="c1"># Initializing the model</span>
 
 <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># Feed-forward your waveform to get the spectrogram</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="on-the-fly-audio-processing">
-<h3>On-the-fly audio processing<a class="headerlink" href="#on-the-fly-audio-processing" title="Permalink to this headline">¶</a></h3>
+<span id="on-the-fly"></span><h2>On-the-fly audio processing<a class="headerlink" href="#on-the-fly-audio-processing" title="Permalink to this headline">¶</a></h2>
 <p>One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># Getting Mel Spectrogram on the fly</span>
-<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">fmax</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="mi">22050</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">)</span>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">fmax</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="mi">22050</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">)</span>
 </span>        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">freq_bins</span>
 
         <span class="c1"># Creating CNN Layers</span>
@@ -258,15 +277,19 @@
 </div>
 </div>
 <div class="section" id="using-gpu">
-<h3>Using GPU<a class="headerlink" href="#using-gpu" title="Permalink to this headline">¶</a></h3>
-<p>If GPU is avaliable in your computer, you can initialize nnAudio by choosing either CPU or GPU with the <code class="docutils literal notranslate"><span class="pre">device</span></code> argument. The default setting for nnAudio is <code class="docutils literal notranslate"><span class="pre">device='cpu'</span></code></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+<h2>Using GPU<a class="headerlink" href="#using-gpu" title="Permalink to this headline">¶</a></h2>
+<p>If a GPU is available in your computer, you can use <code class="docutils literal notranslate"><span class="pre">.to(device)</span></code> method like any other PyTorch <code class="docutils literal notranslate"><span class="pre">nn.Modules</span></code>
+to transfer the spectrogram layer to any device you like.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Alternatively, if your <code class="docutils literal notranslate"><span class="pre">Spectrogram</span></code> module is used inside your PyTorch model
+as in the <a class="reference internal" href="#on-the-fly"><span class="std std-ref">on-the-fly processing section</span></a>, then you just need
+to simply do <code class="docutils literal notranslate"><span class="pre">net.to(device)</span></code>, where <code class="docutils literal notranslate"><span class="pre">net</span> <span class="pre">=</span> <span class="pre">Model()</span></code>.</p>
 </div>
 </div>
 <div class="section" id="speed">
-<h2>Speed<a class="headerlink" href="#speed" title="Permalink to this headline">¶</a></h2>
+<h1>Speed<a class="headerlink" href="#speed" title="Permalink to this headline">¶</a></h1>
 <p>The speed test is conducted using three different machines, and it shows that nnAudio running on GPU is faster than most of the existing libraries.</p>
 <ul class="simple">
 <li><p>Machine A: Windows Desktop with CPU: Intel Core i7-8700 &#64; 3.20GHz and GeForce GTX 1070 Ti 8Gb GPU</p></li>
@@ -276,7 +299,7 @@
 <img alt="Speed test across different machines" class="align-center" src="_images/speedv3.png" />
 </div>
 <div class="section" id="trainable-kernals">
-<h2>Trainable kernals<a class="headerlink" href="#trainable-kernals" title="Permalink to this headline">¶</a></h2>
+<h1>Trainable kernals<a class="headerlink" href="#trainable-kernals" title="Permalink to this headline">¶</a></h1>
 <p>Fourier basis in <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.STFT.html#nnAudio.Spectrogram.STFT" title="nnAudio.Spectrogram.STFT"><code class="xref py py-func docutils literal notranslate"><span class="pre">STFT()</span></code></a> can be set trainable by using <code class="docutils literal notranslate"><span class="pre">trainable=True</span></code> argument. Fourier basis in <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.MelSpectrogram.html#nnAudio.Spectrogram.MelSpectrogram" title="nnAudio.Spectrogram.MelSpectrogram"><code class="xref py py-func docutils literal notranslate"><span class="pre">MelSpectrogram()</span></code></a> can be also set trainable by using <cite>trainable_STFT=True</cite>, and Mel filter banks can be set trainable using <code class="docutils literal notranslate"><span class="pre">trainable_mel=False</span></code> argument. The same goes for <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.CQT.html#nnAudio.Spectrogram.CQT" title="nnAudio.Spectrogram.CQT"><code class="xref py py-func docutils literal notranslate"><span class="pre">CQT()</span></code></a>.</p>
 <p>The follow demonstrations are avaliable on Google colab.</p>
 <ul class="simple">
@@ -289,6 +312,19 @@
 <p>The figure below shows how is the STFT output affected by the changes in STFT basis. Notice the subtle signal in the background for the trained STFT.</p>
 <img alt="STFT_training" class="align-center" src="_images/STFT_training.png" />
 </div>
+<div class="section" id="different-cqt-versions">
+<h1>Different CQT versions<a class="headerlink" href="#different-cqt-versions" title="Permalink to this headline">¶</a></h1>
+<p>The result for <code class="docutils literal notranslate"><span class="pre">CQT1992</span></code> is smoother than <code class="docutils literal notranslate"><span class="pre">CQT2010</span></code> and librosa.
+Since librosa and <code class="docutils literal notranslate"><span class="pre">CQT2010</span></code> are using the same algorithm (downsampling approach as mentioned in this paper),
+you can see similar artifacts as a result of downsampling.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">CQT1992v2</span></code> and <code class="docutils literal notranslate"><span class="pre">CQT2010v2</span></code>, the CQT is computed directly in the time domain
+without the need of transforming both input waveforms and the CQT kernels to the frequency domain.
+making it faster than the original CQT proposed in 1992.</p>
+<p>The default CQT in nnAudio is the <code class="docutils literal notranslate"><span class="pre">CQT1992v2</span></code> version.
+For more detail, please refer to our <a class="reference external" href="https://ieeexplore.ieee.org/document/9174990">paper</a></p>
+<p>All versions of CQT are available for users to choose.
+To explicitly choose which CQT to use, you can refer to the <a class="reference internal" href="_autosummary/nnAudio.Spectrogram.CQT.html#nnaudio-spectrogram-cqt"><span class="std std-ref">CQT API section</span></a>.</p>
+<img alt="Comparing different versions of CQTs" class="align-center" src="_images/CQT_compare.png" />
 </div>
 
 
@@ -299,7 +335,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="nnAudio.html" class="btn btn-neutral float-right" title="nnAudio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nnAudio.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="nnAudio 0.2.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -37,6 +37,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Citing nnAudio" href="citing.html" />
     <link rel="prev" title="nnAudio.utils.uniform_distribution" href="_autosummary/nnAudio.utils.uniform_distribution.html" /> 
 </head>
 
@@ -54,6 +55,9 @@
             <a href="index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
           
 
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -86,17 +90,31 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Getting Started</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="nnAudio.html">nnAudio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#speed">Speed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#different-cqt-versions">Different CQT versions</a></li>
 </ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.utils.html">nnAudio.utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#call-for-contribution">Call for Contribution:</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption"><span class="caption-text">Citation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing nnAudio</a></li>
 </ul>
 
             
@@ -166,7 +184,23 @@
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="call-for-contribution">
 <h2>Call for Contribution:<a class="headerlink" href="#call-for-contribution" title="Permalink to this headline">¶</a></h2>
-<p>We are now looking for contributions. People who are interested in contributing to nnAudio can visit the <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio">github page</a> or contact me via kinwai&lt;underscore&gt;cheuk&lt;at&gt;mymail.sutd.edu.sg.</p>
+<p>nnAudio is a fast-growing package. With the increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:</p>
+<ol class="arabic simple">
+<li><p>Invertible Constant Q Transform (CQT)</p></li>
+<li><p>CQT with filter scale factor (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/54">#54</a>)</p></li>
+<li><p>Variable Q Transform see <a class="reference external" href="https://www.researchgate.net/publication/274009051_A_Matlab_Toolbox_for_Efficient_Perfect_Reconstruction_Time-Frequency_Transforms_with_Log-Frequency_Resolution">VQT</a>)</p></li>
+<li><p>Speed and Performance improvements for Griffin-Lim (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/41">#41</a>)</p></li>
+<li><p>Data Augmentation (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/49">#49</a>)</p></li>
+</ol>
+<p>(Quick tips for unit test: <cite>cd</cite> inside Installation folder, then type <cite>pytest</cite>. You need at least 1931 MiB GPU memory to pass all the unit tests)</p>
+<p>Alternatively, you may also contribute by:</p>
+<ol class="arabic simple">
+<li><p>Refactoring the code structure (Now all functions are within the same file, but with the increasing number of features, I think we need to break it down into smaller modules)</p></li>
+<li><p>Making a better demonstration code or tutorial</p></li>
+</ol>
+<p>People who are interested in contributing to nnAudio can visit
+the <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio">github page</a> or
+contact me via kinwai&lt;underscore&gt;cheuk&lt;at&gt;mymail.sutd.edu.sg.</p>
 </div>
 </div>
 
@@ -177,6 +211,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="citing.html" class="btn btn-neutral float-right" title="Citing nnAudio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="_autosummary/nnAudio.utils.uniform_distribution.html" class="btn btn-neutral float-left" title="nnAudio.utils.uniform_distribution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
