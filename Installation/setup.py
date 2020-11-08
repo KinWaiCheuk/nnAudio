@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nnAudio", # Replace with your own username
-    version="0.1.5",
+    version="0.2.0",
     author="KinWaiCheuk",
     author_email="u3500684@connect.hku.hk",
     description="A fast GPU audio processing toolbox with 1D convolutional neural network",
