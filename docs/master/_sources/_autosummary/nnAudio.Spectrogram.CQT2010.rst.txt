@@ -17,10 +17,7 @@ nnAudio.Spectrogram.CQT2010
       :nosignatures:
    
       ~CQT2010.__init__
-      ~CQT2010.early_downsample
-      ~CQT2010.early_downsample_count
+      ~CQT2010.extra_repr
       ~CQT2010.forward
-      ~CQT2010.get_cqt
-      ~CQT2010.get_early_downsample_params
    
    

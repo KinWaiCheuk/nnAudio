@@ -17,6 +17,7 @@ nnAudio.Spectrogram.CQT1992
       :nosignatures:
    
       ~CQT1992.__init__
+      ~CQT1992.extra_repr
       ~CQT1992.forward
    
    

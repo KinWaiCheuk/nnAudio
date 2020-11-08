@@ -19,12 +19,15 @@
       broadcast_dim_conv2d
       complex_mul
       create_cqt_kernels
-      create_cqt_kernels_t
       create_fourier_kernels
       create_lowpass_filter
       downsampling_by_2
       downsampling_by_n
+      early_downsample
+      early_downsample_count
       extend_fbins
+      get_cqt_complex
+      get_early_downsample_params
       nextpow2
       overlap_add
       prepow2

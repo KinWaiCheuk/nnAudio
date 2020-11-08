@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.Spectrogram.iSTFT &mdash; 0.1.5</title>
+  <title>nnAudio.Spectrogram.iSTFT &mdash; 0.2.0</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.2.0
               </div>
             
           
@@ -186,7 +186,7 @@
 <h1>nnAudio.Spectrogram.iSTFT<a class="headerlink" href="#nnaudio-spectrogram-istft" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="nnAudio.Spectrogram.iSTFT">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">iSTFT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_fft</span><span class="o">=</span><span class="default_value">2048</span></em>, <em class="sig-param"><span class="n">win_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">freq_bins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">freq_scale</span><span class="o">=</span><span class="default_value">'no'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">6000</span></em>, <em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">trainable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">'cpu'</span></em>, <em class="sig-param"><span class="n">refresh_win</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.iSTFT" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">iSTFT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_fft</span><span class="o">=</span><span class="default_value">2048</span></em>, <em class="sig-param"><span class="n">win_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">freq_bins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">freq_scale</span><span class="o">=</span><span class="default_value">'no'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">6000</span></em>, <em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">trainable_kernels</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">trainable_window</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">refresh_win</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.iSTFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>This class is to convert spectrograms back to waveforms. It only works for the complex value spectrograms.
 If you have the magnitude spectrograms, please use <a class="reference internal" href="nnAudio.Spectrogram.Griffin_Lim.html#nnAudio.Spectrogram.Griffin_Lim" title="nnAudio.Spectrogram.Griffin_Lim"><code class="xref py py-func docutils literal notranslate"><span class="pre">Griffin_Lim()</span></code></a>.
@@ -220,11 +220,13 @@ does nothing. Please make sure the value is the same as the forward STFT.</p></l
 does nothing. Please make sure the value is the same as the forward STFT.</p></li>
 <li><p><strong>sr</strong> (<em>int</em>) – The sampling rate for the input audio. It is used to calucate the correct <code class="docutils literal notranslate"><span class="pre">fmin</span></code> and <code class="docutils literal notranslate"><span class="pre">fmax</span></code>.
 Setting the correct sampling rate is very important for calculating the correct frequency.</p></li>
-<li><p><strong>trainable</strong> (<em>bool</em>) – Determine if the STFT kenrels are trainable or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the gradients for STFT
+<li><p><strong>trainable_kernels</strong> (<em>bool</em>) – Determine if the STFT kenrels are trainable or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the gradients for STFT
 kernels will also be caluclated and the STFT kernels will be updated during model training.
-Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, it shows layer information. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it suppresses all prints</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’</p></li>
+Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>trainable_window</strong> (<em>bool</em>) – Determine if the window function is trainable or not.
+Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, it shows layer information. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it suppresses all prints.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -323,10 +325,10 @@ computational speed.</p>
         <dl>
             <dt>Tags</dt>
             <dd><a href="../../v0.1.5/_autosummary/nnAudio.Spectrogram.iSTFT.html">v0.1.5</a></dd>
+            <dd><a href="../../v0.2.0/_autosummary/nnAudio.Spectrogram.iSTFT.html">v0.2.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../../dev/_autosummary/nnAudio.Spectrogram.iSTFT.html">dev</a></dd>
             <dd><a href="nnAudio.Spectrogram.iSTFT.html">master</a></dd>
         </dl>
     </div>

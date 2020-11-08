@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.Spectrogram.CQT1992v2 &mdash; 0.1.5</title>
+  <title>nnAudio.Spectrogram.CQT1992v2 &mdash; 0.2.0</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.2.0
               </div>
             
           
@@ -186,7 +186,7 @@
 <h1>nnAudio.Spectrogram.CQT1992v2<a class="headerlink" href="#nnaudio-spectrogram-cqt1992v2" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="nnAudio.Spectrogram.CQT1992v2">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">CQT1992v2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">32.7</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">84</span></em>, <em class="sig-param"><span class="n">bins_per_octave</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">trainable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">'Magnitude'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">'cpu'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT1992v2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">CQT1992v2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">32.7</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">84</span></em>, <em class="sig-param"><span class="n">bins_per_octave</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">trainable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">'Magnitude'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT1992v2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>This function is to calculate the CQT of the input signal.
 Input signal should be in either of the following shapes.</p>
@@ -236,7 +236,6 @@ The complex number is stored as <code class="docutils literal notranslate"><span
 </dl>
 </p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, it shows layer information. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it suppresses all prints</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -274,7 +273,7 @@ The complex number is stored as <code class="docutils literal notranslate"><span
 </table>
 <dl class="py method">
 <dt id="nnAudio.Spectrogram.CQT1992v2.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT1992v2.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT1992v2.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a batch of waveforms to CQT spectrograms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -353,10 +352,10 @@ It will be automatically broadcast to the right shape</p>
         <dl>
             <dt>Tags</dt>
             <dd><a href="../../v0.1.5/_autosummary/nnAudio.Spectrogram.CQT1992v2.html">v0.1.5</a></dd>
+            <dd><a href="../../v0.2.0/_autosummary/nnAudio.Spectrogram.CQT1992v2.html">v0.2.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../../dev/_autosummary/nnAudio.Spectrogram.CQT1992v2.html">dev</a></dd>
             <dd><a href="nnAudio.Spectrogram.CQT1992v2.html">master</a></dd>
         </dl>
     </div>

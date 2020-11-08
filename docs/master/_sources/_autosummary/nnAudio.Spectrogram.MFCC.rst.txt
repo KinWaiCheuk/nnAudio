@@ -17,7 +17,7 @@ nnAudio.Spectrogram.MFCC
       :nosignatures:
    
       ~MFCC.__init__
-      ~MFCC.dct
+      ~MFCC.extra_repr
       ~MFCC.forward
    
    

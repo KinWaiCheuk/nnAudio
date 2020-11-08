@@ -17,6 +17,7 @@ nnAudio.Spectrogram.STFT
       :nosignatures:
    
       ~STFT.__init__
+      ~STFT.extra_repr
       ~STFT.forward
       ~STFT.inverse
    

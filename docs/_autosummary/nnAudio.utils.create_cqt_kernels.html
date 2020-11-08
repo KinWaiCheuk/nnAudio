@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.utils.create_cqt_kernels &mdash; 0.1.5</title>
+  <title>nnAudio.utils.create_cqt_kernels &mdash; 0.2.0</title>
   
 
   
@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="nnAudio.utils.create_cqt_kernels_t" href="nnAudio.utils.create_cqt_kernels_t.html" />
+    <link rel="next" title="nnAudio.utils.create_fourier_kernels" href="nnAudio.utils.create_fourier_kernels.html" />
     <link rel="prev" title="nnAudio.utils.complex_mul" href="nnAudio.utils.complex_mul.html" /> 
 </head>
 
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.1.5
+                0.2.0
               </div>
             
           
@@ -99,12 +99,15 @@
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.broadcast_dim_conv2d.html">nnAudio.utils.broadcast_dim_conv2d</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.complex_mul.html">nnAudio.utils.complex_mul</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">nnAudio.utils.create_cqt_kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.create_cqt_kernels_t.html">nnAudio.utils.create_cqt_kernels_t</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.create_fourier_kernels.html">nnAudio.utils.create_fourier_kernels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.create_lowpass_filter.html">nnAudio.utils.create_lowpass_filter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.downsampling_by_2.html">nnAudio.utils.downsampling_by_2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.downsampling_by_n.html">nnAudio.utils.downsampling_by_n</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.early_downsample.html">nnAudio.utils.early_downsample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.early_downsample_count.html">nnAudio.utils.early_downsample_count</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.extend_fbins.html">nnAudio.utils.extend_fbins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.get_cqt_complex.html">nnAudio.utils.get_cqt_complex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.get_early_downsample_params.html">nnAudio.utils.get_early_downsample_params</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.nextpow2.html">nnAudio.utils.nextpow2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.overlap_add.html">nnAudio.utils.overlap_add</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nnAudio.utils.prepow2.html">nnAudio.utils.prepow2</a></li>
@@ -191,7 +194,7 @@
 <dl class="py function">
 <dt id="nnAudio.utils.create_cqt_kernels">
 <code class="sig-prename descclassname">nnAudio.utils.</code><code class="sig-name descname">create_cqt_kernels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Q</span></em>, <em class="sig-param"><span class="n">fs</span></em>, <em class="sig-param"><span class="n">fmin</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">84</span></em>, <em class="sig-param"><span class="n">bins_per_octave</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">topbin_check</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.utils.create_cqt_kernels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Automatically create CQT kernels and convert it to frequency domain</p>
+<dd><p>Automatically create CQT kernels in time domain</p>
 </dd></dl>
 
 </div>
@@ -204,7 +207,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="nnAudio.utils.create_cqt_kernels_t.html" class="btn btn-neutral float-right" title="nnAudio.utils.create_cqt_kernels_t" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nnAudio.utils.create_fourier_kernels.html" class="btn btn-neutral float-right" title="nnAudio.utils.create_fourier_kernels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="nnAudio.utils.complex_mul.html" class="btn btn-neutral float-left" title="nnAudio.utils.complex_mul" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -249,10 +252,10 @@
         <dl>
             <dt>Tags</dt>
             <dd><a href="../v0.1.5/_autosummary/nnAudio.utils.create_cqt_kernels.html">v0.1.5</a></dd>
+            <dd><a href="../v0.2.0/_autosummary/nnAudio.utils.create_cqt_kernels.html">v0.2.0</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
-            <dd><a href="../dev/_autosummary/nnAudio.utils.create_cqt_kernels.html">dev</a></dd>
             <dd><a href="../master/_autosummary/nnAudio.utils.create_cqt_kernels.html">master</a></dd>
         </dl>
     </div>

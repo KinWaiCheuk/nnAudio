@@ -17,6 +17,7 @@ nnAudio.Spectrogram.MelSpectrogram
       :nosignatures:
    
       ~MelSpectrogram.__init__
+      ~MelSpectrogram.extra_repr
       ~MelSpectrogram.forward
    
    
