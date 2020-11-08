@@ -2,6 +2,8 @@
 Module containing all the spectrogram classes
 """
 
+# 0.2.0
+
 import torch
 import torch.nn as nn
 from torch.nn.functional import conv1d, conv2d, fold
@@ -120,6 +122,8 @@ class STFT(torch.nn.Module):
         self.pad_amount = self.n_fft // 2
         self.window = window
         self.win_length = win_length
+        self.iSTFT = iSTFT
+        self.trainable = trainable
         start = time()
 
 
@@ -304,6 +308,11 @@ class STFT(torch.nn.Module):
                 real = real[:, :length] 
             
         return real
+    
+    def extra_repr(self) -> str:
+        return 'n_fft={}, Fourier Kernel size={}, iSTFT={}, trainable={}'.format(
+            self.n_fft, (*self.wsin.shape,), self.iSTFT, self.trainable
+        )    
 
 
 class MelSpectrogram(torch.nn.Module):
@@ -394,6 +403,8 @@ class MelSpectrogram(torch.nn.Module):
         self.pad_mode = pad_mode
         self.n_fft = n_fft
         self.power = power
+        self.trainable_mel = trainable_mel
+        self.trainable_STFT = trainable_STFT
 
         # Preparing for the stft layer. No need for center
         self.stft = STFT(n_fft=n_fft, freq_bins=None, hop_length=hop_length, window=window,
@@ -447,6 +458,11 @@ class MelSpectrogram(torch.nn.Module):
 
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec
+    
+    def extra_repr(self) -> str:
+        return 'Mel filter banks size = {}, trainable_mel={}'.format(
+            (*self.mel_basis.shape,), self.trainable_mel, self.trainable_STFT
+        )        
 
 
 class MFCC(torch.nn.Module):
@@ -503,6 +519,7 @@ class MFCC(torch.nn.Module):
         self.register_buffer('amin', amin)
         self.register_buffer('ref', ref)    
         self.top_db = top_db
+        self.n_mfcc = n_mfcc
 
     def _power_to_db(self, S):
         '''
@@ -533,6 +550,7 @@ class MFCC(torch.nn.Module):
         v = torch.cat([x[:, :, ::2], x[:, :, 1::2].flip([2])], dim=2)
         Vc = torch.rfft(v, 1, onesided=False)
 
+        # TODO: Can make the W_r and W_i trainable here
         k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
         W_r = torch.cos(k)
         W_i = torch.sin(k)
@@ -566,7 +584,10 @@ class MFCC(torch.nn.Module):
         x = self._dct(x, norm='ortho')[:,:self.m_mfcc,:]
         return x
 
-
+    def extra_repr(self) -> str:
+        return 'n_mfcc = {}'.format(
+            (self.n_mfcc)        
+        )     
 
 
 
@@ -783,7 +804,12 @@ class CQT1992(torch.nn.Module):
         elif output_format=='Phase':
             phase_real = torch.cos(torch.atan2(CQT_imag,CQT_real))
             phase_imag = torch.sin(torch.atan2(CQT_imag,CQT_real))
-            return torch.stack((phase_real,phase_imag), -1)            
+            return torch.stack((phase_real,phase_imag), -1)     
+        
+    def extra_repr(self) -> str:
+        return 'STFT kernel size = {}, CQT kernel size = {}'.format(
+            (*self.wcos.shape,), (*self.cqt_kernels_real.shape,)        
+        )             
 
 
 class CQT2010(torch.nn.Module):
@@ -869,7 +895,7 @@ class CQT2010(torch.nn.Module):
                 print("Creating early downsampling filter ...", end='\r')
             start = time()
             sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, \
-                self.earlydownsample = self.get_early_downsample_params(sr,
+                self.earlydownsample = get_early_downsample_params(sr,
                                                                         hop_length,
                                                                         fmax_t,
                                                                         Q,
@@ -955,62 +981,6 @@ class CQT2010(torch.nn.Module):
         elif self.pad_mode == 'reflect':
             self.padding = nn.ReflectionPad1d(self.n_fft//2)
 
-    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves, verbose):
-        window_bandwidth = 1.5 # for hann window
-        filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)
-        sr, hop_length, downsample_factor=self.early_downsample(sr,
-                                                                hop_length,
-                                                                n_octaves,
-                                                                sr//2,
-                                                                filter_cutoff)
-
-        if downsample_factor != 1:
-            if verbose==True:
-                print("Can do early downsample, factor = ", downsample_factor)
-            earlydownsample=True
-            # print("new sr = ", sr)
-            # print("new hop_length = ", hop_length)
-            early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor,
-                                                            kernelLength=256,
-                                                            transitionBandwidth=0.03)
-            early_downsample_filter = torch.tensor(early_downsample_filter, device=self.device)[None, None, :]
-
-        else:
-            if verbose==True:
-                print("No early downsampling is required, downsample_factor = ", downsample_factor)
-            early_downsample_filter = None
-            earlydownsample=False
-
-        return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample
-
-    # The following two downsampling count functions are obtained from librosa CQT
-    # They are used to determine the number of pre resamplings if the starting and ending frequency
-    # are both in low frequency regions.
-    def early_downsample_count(self, nyquist, filter_cutoff, hop_length, n_octaves):
-        '''Compute the number of early downsampling operations'''
-
-        downsample_count1 = max(0, int(np.ceil(np.log2(0.85 * nyquist /
-                                                       filter_cutoff)) - 1) - 1)
-        # print("downsample_count1 = ", downsample_count1)
-        num_twos = nextpow2(hop_length)
-        downsample_count2 = max(0, num_twos - n_octaves + 1)
-        # print("downsample_count2 = ",downsample_count2)
-
-        return min(downsample_count1, downsample_count2)
-
-    def early_downsample(self, sr, hop_length, n_octaves,
-                           nyquist, filter_cutoff):
-        '''Return new sampling rate and hop length after early dowansampling'''
-        downsample_count = self.early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves)
-        # print("downsample_count = ", downsample_count)
-        downsample_factor = 2**(downsample_count)
-
-        hop_length //= downsample_factor  # Getting new hop_length
-        new_sr = sr / float(downsample_factor)  # Getting new sampling rate
-
-        sr = new_sr
-
-        return sr, hop_length, downsample_factor
 
     def forward(self,x, output_format=None):
         """
@@ -1064,6 +1034,11 @@ class CQT2010(torch.nn.Module):
             phase_imag = torch.sin(torch.atan2(CQT[:,:,:,1],CQT[:,:,:,0]))
             return torch.stack((phase_real,phase_imag), -1)             
 
+    def extra_repr(self) -> str:
+        return 'STFT kernel size = {}, CQT kernel size = {}'.format(
+            (*self.wcos.shape,), (*self.cqt_kernels_real.shape,)        
+        )          
+        
 
 class CQT1992v2(torch.nn.Module):
     """This function is to calculate the CQT of the input signal.
@@ -1432,7 +1407,7 @@ class CQT2010v2(torch.nn.Module):
                 print("Creating early downsampling filter ...", end='\r')
             start = time()
             sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, \
-                self.earlydownsample = self.get_early_downsample_params(sr,
+                self.earlydownsample = get_early_downsample_params(sr,
                                                                         hop_length,
                                                                         fmax_t,
                                                                         Q,
@@ -1487,64 +1462,7 @@ class CQT2010v2(torch.nn.Module):
             self.padding = nn.ConstantPad1d(self.n_fft//2, 0)
         elif self.pad_mode == 'reflect':
             self.padding = nn.ReflectionPad1d(self.n_fft//2)
-
-
-
-
-    def get_early_downsample_params(self, sr, hop_length, fmax_t, Q, n_octaves, verbose):
-        window_bandwidth = 1.5 # for hann window
-        filter_cutoff = fmax_t * (1 + 0.5 * window_bandwidth / Q)
-        sr, hop_length, downsample_factor = self.early_downsample(sr,
-                                                                  hop_length,
-                                                                  n_octaves,
-                                                                  sr//2,
-                                                                  filter_cutoff)
-        if downsample_factor != 1:
-            if verbose==True:
-                print("Can do early downsample, factor = ", downsample_factor)
-            earlydownsample=True
-            # print("new sr = ", sr)
-            # print("new hop_length = ", hop_length)
-            early_downsample_filter = create_lowpass_filter(band_center=1/downsample_factor,
-                                                            kernelLength=256,
-                                                            transitionBandwidth=0.03)
-            early_downsample_filter = torch.tensor(early_downsample_filter, device=self.device)[None, None, :]
-
-        else:
-            if verbose==True:
-                print("No early downsampling is required, downsample_factor = ", downsample_factor)
-            early_downsample_filter = None
-            earlydownsample=False
-
-        return sr, hop_length, downsample_factor, early_downsample_filter, earlydownsample
-
-    # The following two downsampling count functions are obtained from librosa CQT
-    # They are used to determine the number of pre resamplings if the starting and ending frequency
-    # are both in low frequency regions.
-    def early_downsample_count(self, nyquist, filter_cutoff, hop_length, n_octaves):
-        '''Compute the number of early downsampling operations'''
-
-        downsample_count1 = max(0, int(np.ceil(np.log2(0.85 * nyquist /
-                                                       filter_cutoff)) - 1) - 1)
-        # print("downsample_count1 = ", downsample_count1)
-        num_twos = nextpow2(hop_length)
-        downsample_count2 = max(0, num_twos - n_octaves + 1)
-        # print("downsample_count2 = ",downsample_count2)
-
-        return min(downsample_count1, downsample_count2)
-
-    def early_downsample(self, sr, hop_length, n_octaves,
-                           nyquist, filter_cutoff):
-        '''Return new sampling rate and hop length after early dowansampling'''
-        downsample_count = self.early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves)
-        # print("downsample_count = ", downsample_count)
-        downsample_factor = 2**(downsample_count)
-
-        hop_length //= downsample_factor # Getting new hop_length
-        new_sr = sr / float(downsample_factor) # Getting new sampling rate
-        sr = new_sr
-
-        return sr, hop_length, downsample_factor
+            
 
     def forward(self,x,output_format=None):
         """

@@ -454,3 +454,33 @@ def early_downsample(sr, hop_length, n_octaves,
     sr = new_sr
 
     return sr, hop_length, downsample_factor
+
+
+# The following two downsampling count functions are obtained from librosa CQT
+# They are used to determine the number of pre resamplings if the starting and ending frequency
+# are both in low frequency regions.
+def early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves):
+    '''Compute the number of early downsampling operations'''
+
+    downsample_count1 = max(0, int(np.ceil(np.log2(0.85 * nyquist /
+                                                   filter_cutoff)) - 1) - 1)
+    # print("downsample_count1 = ", downsample_count1)
+    num_twos = nextpow2(hop_length)
+    downsample_count2 = max(0, num_twos - n_octaves + 1)
+    # print("downsample_count2 = ",downsample_count2)
+
+    return min(downsample_count1, downsample_count2)
+
+def early_downsample(sr, hop_length, n_octaves,
+                       nyquist, filter_cutoff):
+    '''Return new sampling rate and hop length after early dowansampling'''
+    downsample_count = early_downsample_count(nyquist, filter_cutoff, hop_length, n_octaves)
+    # print("downsample_count = ", downsample_count)
+    downsample_factor = 2**(downsample_count)
+
+    hop_length //= downsample_factor  # Getting new hop_length
+    new_sr = sr / float(downsample_factor)  # Getting new sampling rate
+
+    sr = new_sr
+
+    return sr, hop_length, downsample_factor
