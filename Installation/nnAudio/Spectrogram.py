@@ -894,13 +894,15 @@ class CQT2010(torch.nn.Module):
             if verbose==True:
                 print("Creating early downsampling filter ...", end='\r')
             start = time()
-            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, \
+            sr, self.hop_length, self.downsample_factor, early_downsample_filter, \
                 self.earlydownsample = get_early_downsample_params(sr,
                                                                         hop_length,
                                                                         fmax_t,
                                                                         Q,
                                                                         self.n_octaves,
                                                                         verbose)
+            
+            self.register_buffer('early_downsample_filter', early_downsample_filter)
             if verbose==True:
                 print("Early downsampling filter created, \
                             time used = {:.4f} seconds".format(time()-start))
@@ -1406,13 +1408,15 @@ class CQT2010v2(torch.nn.Module):
             if verbose==True:
                 print("Creating early downsampling filter ...", end='\r')
             start = time()
-            sr, self.hop_length, self.downsample_factor, self.early_downsample_filter, \
+            sr, self.hop_length, self.downsample_factor, early_downsample_filter, \
                 self.earlydownsample = get_early_downsample_params(sr,
                                                                         hop_length,
                                                                         fmax_t,
                                                                         Q,
                                                                         self.n_octaves,
                                                                         verbose)
+            self.register_buffer('early_downsample_filter', early_downsample_filter)
+            
             if verbose==True:
                 print("Early downsampling filter created, \
                         time used = {:.4f} seconds".format(time()-start))
