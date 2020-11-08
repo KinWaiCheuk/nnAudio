@@ -1,7 +1,8 @@
 # nnAudio
 nnAudio is an audio processing toolbox using PyTorch convolutional neural network as its backend. By doing so, spectrograms can be generated from audio on-the-fly during neural network training and the Fourier kernels (e.g. or CQT kernels) can be trained. [Kapre](https://github.com/keunwoochoi/kapre) has a similar concept in which they also use 1D convolutional neural network to extract spectrograms based on [Keras](https://keras.io).
 
-Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is still very difficult to install under the Windows environment due to `sox`. nnAudio is a more compatible audio processing tool across different operation systems since it relies mostly on PyTorch convolutional neural network. The name of nnAudio comes from `torch.nn`
+Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is still very difficult to install under the Windows environment due to `sox`. nnAudio is a more compatible audio processing tool across different operating systems since it relies mostly on PyTorch convolutional neural network. The name of nnAudio comes from `torch.nn`
+
 
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
@@ -31,7 +32,7 @@ No more `device` argument when creating the spectrogram layers.
 To use this version, do `pip install nnAudio==0.2.0`.
 
 **version 0.1.5**:
-Much better `iSTFT` and `Griffin-Lim`. Now Griffin-Lim is a seperated PyTorch class and requires `torch >= 1.6.0` to run. `STFT` has also been refactored and it is less memory consuming now.
+Much better `iSTFT` and `Griffin-Lim`. Now Griffin-Lim is a separated PyTorch class and requires `torch >= 1.6.0` to run. `STFT` has also been refactored and it is less memory consuming now.
 
 To use this version, do `pip install nnAudio==0.1.5`.
 
@@ -39,7 +40,7 @@ To use this version, do `pip install nnAudio==0.1.5`.
 
 **version 0.1.2.dev3**: Add `win_length` to `STFT` so that it has the same funcationality as librosa.
 
-**version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a seperated `iSTFT` layer class
+**version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a separated `iSTFT` layer class
 
 **version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.
                     
@@ -66,7 +67,7 @@ K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-Fly GPU
 
 
 ## Call for Contributions
-nnAudio is a fast growing package. With increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
+nnAudio is a fast-growing package. With the increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
 1. Invertible Constant Q Transform (CQT)
 1. CQT with filter scale factor (see issue [#54](/../../issues/54))
 1. Variable Q Transform (see VQT[https://www.researchgate.net/publication/274009051_A_Matlab_Toolbox_for_Efficient_Perfect_Reconstruction_Time-Frequency_Transforms_with_Log-Frequency_Resolution])
@@ -76,9 +77,8 @@ nnAudio is a fast growing package. With increasing number of feature requests, w
 (Quick tips for unit test: `cd` inside Installation folder, then type `pytest`. You need at least 1931 MiB GPU memory to pass all the unit tests)
 
 Alternatively, you may also contribute by:
-   1. Refactoring the code strucutre (Now all functions are within the same file, but with increasing number of features, I think we need to break it down into smaller modules)
+   1. Refactoring the code structure (Now all functions are within the same file, but with the increasing number of features, I think we need to break it down into smaller modules)
    1. Making a better demonstration code or tutorial
-   1. Improving the documentation page (It is ugly and out-dated at the most. Probably a documentation page with tutorial, if point 2 is finished before this)
 
 
 
@@ -92,7 +92,7 @@ PyTorch >= 1.6.0 (Griffin-Lim only available after 1.6.0)
 
 Python >= 3.6
 
-librosa = 0.7.0 (Theortically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunk of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
+librosa = 0.7.0 (Theoretically nnAudio depends on librosa. But we only need to use a single function `mel` from `librosa.filters`. To save users troubles from installing librosa for this single function, I just copy the chunk of functions corresponding to `mel` in my code so that nnAudio runs without the need to install librosa)
 
 
 
