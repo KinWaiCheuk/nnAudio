@@ -1,9 +1,9 @@
-nnAudio.Spectrogram.MFCC
-========================
+nnAudio.Spectrogram.Gammatonegram
+=================================
 
 .. currentmodule:: nnAudio.Spectrogram
 
-.. autoclass:: MFCC
+.. autoclass:: Gammatonegram
    :members:
    :show-inheritance:
    :no-inherited-members:
@@ -16,8 +16,7 @@ nnAudio.Spectrogram.MFCC
    .. autosummary::
       :nosignatures:
    
-      ~MFCC.__init__
-      ~MFCC.extra_repr
-      ~MFCC.forward
+      ~Gammatonegram.__init__
+      ~Gammatonegram.forward
    
    

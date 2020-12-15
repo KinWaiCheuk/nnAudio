@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-nnAudio 0.2.0
+nnAudio 0.2.1a
 ===================================
-Welcome to nnAudio 0.2.0. This new version changes the syntax of the spectrogram layers creation, 
+Welcome to nnAudio 0.2.1a. This new version changes the syntax of the spectrogram layers creation, 
 such that ``stft_layer.to(device)`` can be used. This new version is more stable 
 than the previous version since it is more compatible with other torch modules.
 

@@ -18,16 +18,20 @@ Installation
 
 Via PyPI
 ~~~~~~~~
-To install stable release from pypi: ``pip install nnAudio==x.x.x``, where ``x.x.x`` is the version number.
-The lastest version is now ``0.2.0``.
-
-When there are pre-release available, you can install the pre-release by ``pip install nnAudio --pre -U``.
-It allows the users to use the latest features, but the new features might not be stable.
-Please use it with care and report any problems that you found.
+To install previous releases from pypi: ``pip install nnAudio==x.x.x``, where ``x.x.x`` is the version number.
+The lastest version might not be always available in PyPI, in this case, please install the lastest version from github. 
 
 Via GitHub
 ~~~~~~~~~~
-Alternatively, you can also install from the github by first cloning the repository with ``git clone https://github.com/KinWaiCheuk/nnAudio.git <any path you want to save to>``. Then ``cd`` into the ``Installation`` folder where the ``setup.py`` is located at, and do ``python setup.py install``.
+To install the lastest version from github, you can do ``pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation``.
+
+Alternatively, you can also install from the github manually by the following steps:
+
+1. Clone the repository with ``git clone https://github.com/KinWaiCheuk/nnAudio.git <any path you want to save to>``
+
+2. ``cd`` into the ``Installation`` folder where the ``setup.py`` is located at
+
+3. ``python setup.py install``.
 
 
 Requirement
