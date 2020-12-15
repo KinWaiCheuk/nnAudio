@@ -90,6 +90,45 @@ def fft2gammatonemx(sr=20000, n_fft=2048, n_bins=64, width=1.0, fmin=0.0,
 
     return wts, cfreqs
 
+def gammatone(sr, n_fft, n_bins=64, fmin=20.0, fmax=None, htk=False,
+        norm=1, dtype=np.float32):
+    """Create a Filterbank matrix to combine FFT bins into Gammatone bins
+    Parameters
+    ----------
+    sr        : number > 0 [scalar]
+        sampling rate of the incoming signal
+    n_fft     : int > 0 [scalar]
+        number of FFT components
+    n_bins    : int > 0 [scalar]
+        number of Mel bands to generate
+    fmin      : float >= 0 [scalar]
+        lowest frequency (in Hz)
+    fmax      : float >= 0 [scalar]
+        highest frequency (in Hz).
+        If `None`, use `fmax = sr / 2.0`
+    htk       : bool [scalar]
+        use HTK formula instead of Slaney
+    norm : {None, 1, np.inf} [scalar]
+        if 1, divide the triangular mel weights by the width of the mel band
+        (area normalization).  Otherwise, leave all the triangles aiming for
+        a peak value of 1.0
+    dtype : np.dtype
+        The data type of the output basis.
+        By default, uses 32-bit (single-precision) floating point.
+    Returns
+    -------
+    G         : np.ndarray [shape=(n_bins, 1 + n_fft/2)]
+        Gammatone transform matrix
+    """
+
+    if fmax is None:
+        fmax = float(sr) / 2
+    n_bins = int(n_bins)
+    
+    weights,_ = fft2gammatonemx(sr=sr, n_fft=n_fft, n_bins=n_bins, fmin=fmin, fmax=fmax, maxlen=int(n_fft//2+1))
+
+    return (1/n_fft)*weights
+
 def mel_to_hz(mels, htk=False):
     """Convert mel bin numbers to frequencies
     Examples

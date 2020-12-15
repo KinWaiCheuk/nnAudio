@@ -2,7 +2,8 @@ README.md
 setup.py
 nnAudio/Spectrogram.py
 nnAudio/__init__.py
-nnAudio/librosa_filters.py
+nnAudio/librosa_functions.py
+nnAudio/utils.py
 nnAudio.egg-info/PKG-INFO
 nnAudio.egg-info/SOURCES.txt
 nnAudio.egg-info/dependency_links.txt
