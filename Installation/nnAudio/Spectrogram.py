@@ -592,7 +592,9 @@ class MFCC(torch.nn.Module):
 
 
 class Gammatonegram(torch.nn.Module):
-    """This function is to calculate the Gammatonegram of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+    """
+    This function is to calculate the Gammatonegram of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+    
     Parameters
     ----------
     sr : int
@@ -626,10 +628,12 @@ class Gammatonegram(torch.nn.Module):
         If ``True``, it shows layer information. If ``False``, it suppresses all prints
     device : str
         Choose which device to initialize this layer. Default value is 'cuda:0'
+
     Returns
     -------
     spectrogram : torch.tensor
         It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)``.
+        
     Examples
     --------
     >>> spec_layer = Spectrogram.Gammatonegram()

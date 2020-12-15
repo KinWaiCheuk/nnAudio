@@ -19,12 +19,20 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 | Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
 | MFCC | ✅  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Gammatone | ☑️ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| CFP<sup>1</sup> | ☑️ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 
 ✅: Fully support    ☑️: Developing (only available in dev version)    ❌: Not support
 
+<sup>1</sup> [Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music](https://ieeexplore.ieee.org/document/7118691)
 
 ## News & Changelog
+**version 0.2.1a** (8 Nov 2020): 
+Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`. This version can be obtained via:
+
+`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
+
 **version 0.2.0** (8 Nov 2020): 
 Now it is possible to do `stft_layer.to(device)` to move the spectrogram layers between different devices.
 No more `device` argument when creating the spectrogram layers.
@@ -100,9 +108,3 @@ librosa = 0.7.0 (Theoretically nnAudio depends on librosa. But we only need to u
 [Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
 
 [torch-stft](https://github.com/pseeth/torch-stft)
-
-
-
-
-
-
