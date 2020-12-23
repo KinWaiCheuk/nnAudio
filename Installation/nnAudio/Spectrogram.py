@@ -853,8 +853,8 @@ class CQT1992(torch.nn.Module):
         cqt_kernels_imag = torch.tensor(cqt_kernels.imag.astype(np.float32))
         
         if trainable_STFT:
-            wsin = torch.nn.Parameter(wsin, requires_grad=trainable_kernels)
-            wcos = torch.nn.Parameter(wcos, requires_grad=trainable_kernels)
+            wsin = torch.nn.Parameter(wsin, requires_grad=trainable_STFT)
+            wcos = torch.nn.Parameter(wcos, requires_grad=trainable_STFT)
             self.register_parameter('wsin', wsin)
             self.register_parameter('wcos', wcos)                   
         else:
@@ -862,8 +862,8 @@ class CQT1992(torch.nn.Module):
             self.register_buffer('wcos', wcos)
             
         if trainable_CQT:
-            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_kernels)
-            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_kernels)
+            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_CQT)
+            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_CQT)
             self.register_parameter('cqt_kernels_real', cqt_kernels_real)
             self.register_parameter('cqt_kernels_imag', cqt_kernels_imag)
         else:
@@ -1076,8 +1076,8 @@ class CQT2010(torch.nn.Module):
             print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
 
         if trainable_STFT:
-            wsin = torch.nn.Parameter(wsin, requires_grad=trainable_kernels)
-            wcos = torch.nn.Parameter(wcos, requires_grad=trainable_kernels)
+            wsin = torch.nn.Parameter(wsin, requires_grad=trainable_STFT)
+            wcos = torch.nn.Parameter(wcos, requires_grad=trainable_STFT)
             self.register_parameter('wsin', wsin)
             self.register_parameter('wcos', wcos)                   
         else:
@@ -1085,8 +1085,8 @@ class CQT2010(torch.nn.Module):
             self.register_buffer('wcos', wcos)
             
         if trainable_CQT:
-            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_kernels)
-            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_kernels)
+            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_CQT)
+            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_CQT)
             self.register_parameter('cqt_kernels_real', cqt_kernels_real)
             self.register_parameter('cqt_kernels_imag', cqt_kernels_imag)
         else:
@@ -1278,8 +1278,8 @@ class CQT1992v2(torch.nn.Module):
         cqt_kernels_imag = torch.tensor(cqt_kernels.imag).unsqueeze(1)
 
         if trainable:
-            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_kernels)
-            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_kernels)
+            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable)
+            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable)
             self.register_parameter('cqt_kernels_real', cqt_kernels_real)
             self.register_parameter('cqt_kernels_imag', cqt_kernels_imag)
         else:
@@ -1564,8 +1564,8 @@ class CQT2010v2(torch.nn.Module):
         cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
         
         if trainable:
-            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable_kernels)
-            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable_kernels)
+            cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable)
+            cqt_kernels_imag = torch.nn.Parameter(cqt_kernels_imag, requires_grad=trainable)
             self.register_parameter('cqt_kernels_real', cqt_kernels_real)
             self.register_parameter('cqt_kernels_imag', cqt_kernels_imag)
         else:
