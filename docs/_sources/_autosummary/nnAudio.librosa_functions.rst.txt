@@ -15,7 +15,9 @@
       :toctree:
       :nosignatures:
    
+      fft2gammatonemx
       fft_frequencies
+      gammatone
       hz_to_mel
       mel
       mel_frequencies

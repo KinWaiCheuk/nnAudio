@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.librosa_functions &mdash; 0.2.0</title>
+  <title>nnAudio.librosa_functions &mdash; 0.2.1</title>
   
 
   
@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="nnAudio.librosa_functions.fft_frequencies" href="nnAudio.librosa_functions.fft_frequencies.html" />
+    <link rel="next" title="nnAudio.librosa_functions.fft2gammatonemx" href="nnAudio.librosa_functions.fft2gammatonemx.html" />
     <link rel="prev" title="nnAudio.Spectrogram.iSTFT" href="nnAudio.Spectrogram.iSTFT.html" /> 
 </head>
 
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -103,7 +103,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">nnAudio.librosa_functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.fft2gammatonemx.html">nnAudio.librosa_functions.fft2gammatonemx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.fft_frequencies.html">nnAudio.librosa_functions.fft_frequencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.gammatone.html">nnAudio.librosa_functions.gammatone</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.hz_to_mel.html">nnAudio.librosa_functions.hz_to_mel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.mel.html">nnAudio.librosa_functions.mel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.librosa_functions.mel_frequencies.html">nnAudio.librosa_functions.mel_frequencies</a></li>
@@ -198,8 +200,14 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.librosa_functions.fft_frequencies.html#nnAudio.librosa_functions.fft_frequencies" title="nnAudio.librosa_functions.fft_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft_frequencies</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.librosa_functions.fft2gammatonemx.html#nnAudio.librosa_functions.fft2gammatonemx" title="nnAudio.librosa_functions.fft2gammatonemx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft2gammatonemx</span></code></a></p></td>
+<td><p># Ellis’ description in MATLAB: # [wts,cfreqa] = fft2gammatonemx(nfft, sr, nfilts, width, minfreq, maxfreq, maxlen) #      Generate a matrix of weights to combine FFT bins into #      Gammatone bins.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.librosa_functions.fft_frequencies.html#nnAudio.librosa_functions.fft_frequencies" title="nnAudio.librosa_functions.fft_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft_frequencies</span></code></a></p></td>
 <td><p>Alternative implementation of <cite>np.fft.fftfreq</cite> :param sr: Audio sampling rate :type sr: number &gt; 0 [scalar] :param n_fft: FFT window size :type n_fft: int &gt; 0 [scalar]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.librosa_functions.gammatone.html#nnAudio.librosa_functions.gammatone" title="nnAudio.librosa_functions.gammatone"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gammatone</span></code></a></p></td>
+<td><p>Create a Filterbank matrix to combine FFT bins into Gammatone bins :param sr: sampling rate of the incoming signal :type sr: number &gt; 0 [scalar] :param n_fft: number of FFT components :type n_fft: int &gt; 0 [scalar] :param n_bins: number of Mel bands to generate :type n_bins: int &gt; 0 [scalar] :param fmin: lowest frequency (in Hz) :type fmin: float &gt;= 0 [scalar] :param fmax: highest frequency (in Hz). If <cite>None</cite>, use <cite>fmax = sr / 2.0</cite> :type fmax: float &gt;= 0 [scalar] :param htk: use HTK formula instead of Slaney :type htk: bool [scalar] :param norm: if 1, divide the triangular mel weights by the width of the mel band              (area normalization). Otherwise, leave all the triangles aiming for              a peak value of 1.0 :type norm: {None, 1, np.inf} [scalar] :param dtype: The data type of the output basis. By default, uses 32-bit (single-precision) floating point. :type dtype: np.dtype.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="nnAudio.librosa_functions.hz_to_mel.html#nnAudio.librosa_functions.hz_to_mel" title="nnAudio.librosa_functions.hz_to_mel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hz_to_mel</span></code></a></p></td>
 <td><p>Convert Hz to Mels .</p></td>
@@ -228,7 +236,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="nnAudio.librosa_functions.fft_frequencies.html" class="btn btn-neutral float-right" title="nnAudio.librosa_functions.fft_frequencies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nnAudio.librosa_functions.fft2gammatonemx.html" class="btn btn-neutral float-right" title="nnAudio.librosa_functions.fft2gammatonemx" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="nnAudio.Spectrogram.iSTFT.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.iSTFT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
