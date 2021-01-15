@@ -13,10 +13,23 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import codecs
 import sys
 import sphinx_rtd_theme # This is for a nice html theme
 sys.path.insert(0, '../Installation/nnAudio')
 sys.path.insert(0, '../Installation/')
+ 
+def read(rel_path):
+    with codecs.open(rel_path, 'r') as fp:
+        return fp.read()      
+    
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")    
 
 
 # -- Project information -----------------------------------------------------
@@ -26,9 +39,16 @@ copyright = '2019, Cheuk Kin Wai'
 author = 'Cheuk Kin Wai'
 
 # The short X.Y version
-version = '0.2.1a'
+version = get_version("../../Installation/nnAudio/__init__.py")
 # The full version, including alpha/beta/rc tags
 release = f'{version}'
+
+#This line is for the rst files to read the version number via |ProjectVersion|
+rst_epilog = """
+.. |ProjectVersion| replace:: {versionnum}
+""".format(
+versionnum = version,
+)
 
 
 # -- General configuration ---------------------------------------------------
