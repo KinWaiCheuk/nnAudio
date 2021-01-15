@@ -29,13 +29,7 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 
 ## News & Changelog
 **version 0.2.1** (15 Jan 2021): 
-Fixed bugs [#80](/../../issues/80), [#82](/../../issues/82), and fulfilled request [#83](/../../issues/83). nnAudio version can be checked with `nnAudio.__version__` inside python now.
-
-`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
-
-**version 0.2.1a** (8 Nov 2020): 
-Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`. This version can be obtained via:
-
+Fixed bugs [#80](/../../issues/80), [#82](/../../issues/82), and fulfilled request [#83](/../../issues/83). nnAudio version can be checked with `nnAudio.__version__` inside python now. Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`. This version can be obtained via:
 `pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
 
 **version 0.2.0** (8 Nov 2020): 
