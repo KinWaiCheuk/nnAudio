@@ -1264,16 +1264,16 @@ class CQT1992v2(torch.nn.Module):
             print("Creating CQT kernels ...", end='\r')
 
         start = time()
-        cqt_kernels, self.kernel_width, lenghts = create_cqt_kernels(Q,
-                                                                     sr,
-                                                                     fmin,
-                                                                     n_bins,
-                                                                     bins_per_octave,
-                                                                     norm,
-                                                                     window,
-                                                                     fmax)
+        cqt_kernels, self.kernel_width, lenghts, freqs = create_cqt_kernels(Q,
+                                                                            sr,
+                                                                            fmin,
+                                                                            n_bins,
+                                                                            bins_per_octave,
+                                                                            norm,
+                                                                            window,
+                                                                            fmax)
         self.register_buffer('lenghts', lenghts)
-        
+        self.frequencies = freqs
         
         cqt_kernels_real = torch.tensor(cqt_kernels.real).unsqueeze(1)
         cqt_kernels_imag = torch.tensor(cqt_kernels.imag).unsqueeze(1)
