@@ -1203,9 +1203,11 @@ class CQT1992v2(torch.nn.Module):
         Normalization for the CQT kernels. ``1`` means L1 normalization, and ``2`` means L2 normalization.
         Default is ``1``, which is same as the normalization used in librosa.
 
-    window : str
-        The windowing function for CQT. It uses ``scipy.signal.get_window``, please refer to
-        scipy documentation for possible windowing functions. The default value is 'hann'.
+    window : string, float, or tuple
+        The windowing function for CQT. If it is a string, It uses ``scipy.signal.get_window``. If it is a
+        tuple, only the gaussian window wanrantees constant Q factor. Gaussian window should be given as a
+        tuple ('gaussian', att) where att is the attenuation in the border given in dB.
+        Please refer to scipy documentation for possible windowing functions. The default value is 'hann'.
 
     center : bool
         Putting the CQT keneral at the center of the time-step or not. If ``False``, the time index is
