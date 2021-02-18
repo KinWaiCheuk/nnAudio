@@ -354,7 +354,7 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
         # specKernel[k, :] = fft(tempKernel[k])
 
     # return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
-    return tempKernel, fftLen, torch.tensor(lengths).float(), freqs
+    return tempKernel, fftLen, torch.tensor(lengths).float()
 
 
 def get_window_dispatch(window, N, fftbins=True):
