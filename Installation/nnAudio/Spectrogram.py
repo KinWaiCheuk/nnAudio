@@ -1249,7 +1249,6 @@ class CQT1992v2(torch.nn.Module):
 
         super().__init__()
 
-        # norm arg is not functioning
         self.trainable = trainable
         self.hop_length = hop_length
         self.center = center
@@ -1315,10 +1314,8 @@ class CQT1992v2(torch.nn.Module):
             x = padding(x)
 
         # CQT
-        CQT_real = conv1d(x, self.cqt_kernels_real, stride=self.hop_length) * \
-                    torch.sqrt(self.lenghts.view(-1,1))
-        CQT_imag = -conv1d(x, self.cqt_kernels_imag, stride=self.hop_length) * \
-                    torch.sqrt(self.lenghts.view(-1,1))
+        CQT_real = conv1d(x, self.cqt_kernels_real, stride=self.hop_length) * 2  # cumulate positive and negative frequencies into one
+        CQT_imag = -conv1d(x, self.cqt_kernels_imag, stride=self.hop_length) * 2  # cumulate positive and negative frequencies into one
 
         if output_format=='Magnitude':
             if self.trainable==False:

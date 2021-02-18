@@ -312,8 +312,6 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
     Automatically create CQT kernels in time domain
     """
 
-    # norm arg is not functioning
-
     fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
     # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
 
