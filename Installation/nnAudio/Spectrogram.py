@@ -1199,6 +1199,14 @@ class CQT1992v2(torch.nn.Module):
     bins_per_octave : int
         Number of bins per octave. Default is 12.
 
+    filter_scale : float > 0
+        Filter scale factor. Values of filter_scale smaller than 1 can be used to improve the time resolution at the
+        cost of degrading the frequency resolution. Important to note is that setting for example filter_scale = 0.5 and
+        bins_per_octave = 48 leads to exactly the same time-frequency resolution trade-off as setting filter_scale = 1
+        and bins_per_octave = 24, but the former contains twice more frequency bins per octave. In this sense, values
+        filter_scale < 1 can be seen to implement oversampling of the frequency axis, analogously to the use of zero
+        padding when calculating the DFT.
+
     norm : int
         Normalization for the CQT kernels. ``1`` means L1 normalization, and ``2`` means L2 normalization.
         Default is ``1``, which is same as the normalization used in librosa.
@@ -1222,7 +1230,7 @@ class CQT1992v2(torch.nn.Module):
         will also be caluclated and the CQT kernels will be updated during model training.
         Default value is ``False``.
 
-     output_format : str
+    output_format : str
         Determine the return type.
         ``Magnitude`` will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins,time_steps)``;
         ``Complex`` will return the STFT result in complex number, shape = ``(num_samples, freq_bins,time_steps, 2)``;
@@ -1246,7 +1254,7 @@ class CQT1992v2(torch.nn.Module):
     """
 
     def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84,
-                 bins_per_octave=12, norm=1, window='hann', center=True, pad_mode='reflect',
+                 bins_per_octave=12, filter_scale=1, norm=1, window='hann', center=True, pad_mode='reflect',
                  trainable=False, output_format='Magnitude', verbose=True):
 
         super().__init__()
@@ -1258,7 +1266,7 @@ class CQT1992v2(torch.nn.Module):
         self.output_format = output_format
 
         # creating kernels for CQT
-        Q = 1/(2**(1/bins_per_octave)-1)
+        Q = float(filter_scale)/(2**(1/bins_per_octave)-1)
 
         if verbose==True:
             print("Creating CQT kernels ...", end='\r')
@@ -1291,7 +1299,7 @@ class CQT1992v2(torch.nn.Module):
             print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 
 
-    def forward(self,x, output_format=None):
+    def forward(self,x, output_format=None, normalization_type='librosa'):
         """
         Convert a batch of waveforms to CQT spectrograms.
         
@@ -1303,6 +1311,18 @@ class CQT1992v2(torch.nn.Module):
             2. ``(num_audio, len_audio)``\n
             3. ``(num_audio, 1, len_audio)``
             It will be automatically broadcast to the right shape
+
+        normalization_type : str
+            Type of the normalisation. The possible options are: \n
+            'librosa' : the output fits the librosa one \n
+            'convolutional' : the output conserves the convolutional inequalities of the wavelet transform:\n
+            for all p ϵ [1, inf] \n
+                - || CQT ||_p <= || f ||_p || g ||_1 \n
+                - || CQT ||_p <= || f ||_1 || g ||_p \n
+                - || CQT ||_2 = || f ||_2 || g ||_2 \n
+            'wrap' : wraps positive and negative frequencies into positive frequencies. This means that the CQT of a
+            sinus (or a cosinus) with a constant amplitude equal to 1 will have the value 1 in the bin corresponding to
+            its frequency.
         """
         output_format = output_format or self.output_format
         
@@ -1316,8 +1336,19 @@ class CQT1992v2(torch.nn.Module):
             x = padding(x)
 
         # CQT
-        CQT_real = conv1d(x, self.cqt_kernels_real, stride=self.hop_length) * 2  # cumulate positive and negative frequencies into one
-        CQT_imag = -conv1d(x, self.cqt_kernels_imag, stride=self.hop_length) * 2  # cumulate positive and negative frequencies into one
+        CQT_real = conv1d(x, self.cqt_kernels_real, stride=self.hop_length)
+        CQT_imag = -conv1d(x, self.cqt_kernels_imag, stride=self.hop_length)
+
+        if normalization_type == 'librosa':
+            CQT_real *= torch.sqrt(self.lenghts.view(-1, 1))
+            CQT_imag *= torch.sqrt(self.lenghts.view(-1, 1))
+        elif normalization_type == 'convolutional':
+            pass
+        elif normalization_type == 'wrap':
+            CQT_real *= 2
+            CQT_imag *= 2
+        else:
+            raise ValueError("The normalization_type %r is not part of our current options." % normalization_type)
 
         if output_format=='Magnitude':
             if self.trainable==False:
@@ -1428,7 +1459,7 @@ class CQT2010v2(torch.nn.Module):
         will also be caluclated and the CQT kernels will be updated during model training.
         Default value is ``False``
 
-     output_format : str
+    output_format : str
         Determine the return type.
         'Magnitude' will return the magnitude of the STFT result, shape = ``(num_samples, freq_bins, time_steps)``;
         'Complex' will return the STFT result in complex number, shape = ``(num_samples, freq_bins, time_steps, 2)``;
