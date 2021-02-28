@@ -384,11 +384,46 @@ def get_cqt_complex(x, cqt_kernels_real, cqt_kernels_imag, hop_length, padding):
     try:
         x = padding(x) # When center == True, we need padding at the beginning and ending
     except:
-        print("padding with reflection mode might not be the best choice, try using constant padding")
+        warnings.warn(f"\ninput size = {x.shape}\tkernel size = {cqt_kernels_real.shape[-1]}\n"
+                      "padding with reflection mode might not be the best choice, try using constant padding",
+                      UserWarning)        
+        x = torch.nn.functional.pad(x, (cqt_kernels_real.shape[-1]//2, cqt_kernels_real.shape[-1]//2))
     CQT_real = conv1d(x, cqt_kernels_real, stride=hop_length)
     CQT_imag = -conv1d(x, cqt_kernels_imag, stride=hop_length)
 
     return torch.stack((CQT_real, CQT_imag),-1)
+
+def get_cqt_complex2(x, cqt_kernels_real, cqt_kernels_imag, hop_length, padding, wcos=None, wsin=None):
+    """Multiplying the STFT result with the cqt_kernel, check out the 1992 CQT paper [1]
+    for how to multiple the STFT result with the CQT kernel
+    [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of
+    a constant Q transform.” (1992)."""
+
+    # STFT, converting the audio input from time domain to frequency domain
+    try:
+        x = padding(x) # When center == True, we need padding at the beginning and ending
+    except:
+        warnings.warn(f"\ninput size = {x.shape}\tkernel size = {cqt_kernels_real.shape[-1]}\n"
+                      "padding with reflection mode might not be the best choice, try using constant padding",
+                      UserWarning)        
+        x = torch.nn.functional.pad(x, (cqt_kernels_real.shape[-1]//2, cqt_kernels_real.shape[-1]//2))
+        
+   
+    
+    if wcos==None or wsin==None:
+        CQT_real = conv1d(x, cqt_kernels_real, stride=hop_length)
+        CQT_imag = -conv1d(x, cqt_kernels_imag, stride=hop_length)
+        
+    else:    
+        fourier_real = conv1d(x, wcos, stride=hop_length)
+        fourier_imag = conv1d(x, wsin, stride=hop_length)
+        # Multiplying input with the CQT kernel in freq domain
+        CQT_real, CQT_imag = complex_mul((cqt_kernels_real, cqt_kernels_imag),
+                                         (fourier_real, fourier_imag)) 
+        
+    return torch.stack((CQT_real, CQT_imag),-1)
+
+
 
 
 def create_lowpass_filter(band_center=0.5, kernelLength=256, transitionBandwidth=0.03):

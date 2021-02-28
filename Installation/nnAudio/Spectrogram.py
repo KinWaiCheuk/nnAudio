@@ -12,8 +12,11 @@ import scipy # used only in CFP
 import numpy as np
 from time import time
 
-from nnAudio.librosa_functions import * 
-from nnAudio.utils import * 
+# from nnAudio.librosa_functions import * # For debug purpose
+# from nnAudio.utils import * 
+
+from .librosa_functions import * 
+from .utils import * 
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
@@ -711,7 +714,9 @@ class Gammatonegram(torch.nn.Module):
 
 class CQT1992(torch.nn.Module):
     """
-    This alogrithm uses the method proposed in [1]. Please refer to :func:`~nnAudio.Spectrogram.CQT1992v2` for a more
+    This alogrithm uses the method proposed in [1], which would run extremely slow if low frequencies (below 220Hz)
+    are included in the frequency bins.
+    Please refer to :func:`~nnAudio.Spectrogram.CQT1992v2` for a more
     computational and memory efficient version.
     [1] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a
     constant Q transform.” (1992).    
@@ -805,8 +810,8 @@ class CQT1992(torch.nn.Module):
     """
     
     def __init__(self, sr=22050, hop_length=512, fmin=220, fmax=None, n_bins=84,
-                 trainable_STFT=False, trainable_CQT=False, bins_per_octave=12,
-                 output_format='Complex', norm=1, window='hann', center=True, pad_mode='reflect'):
+                 trainable_STFT=False, trainable_CQT=False, bins_per_octave=12, filter_scale=1,
+                 output_format='Magnitude', norm=1, window='hann', center=True, pad_mode='reflect'):
 
         super().__init__()
 
@@ -818,11 +823,11 @@ class CQT1992(torch.nn.Module):
         self.output_format = output_format
 
         # creating kernels for CQT
-        Q = 1/(2**(1/bins_per_octave)-1)
+        Q = float(filter_scale)/(2**(1/bins_per_octave)-1)
 
         print("Creating CQT kernels ...", end='\r')
         start = time()
-        cqt_kernels, self.kernel_width, lenghts = create_cqt_kernels(Q,
+        cqt_kernels, self.kernel_width, lenghts, freqs = create_cqt_kernels(Q,
                                                                 sr,
                                                                 fmin,
                                                                 n_bins,
@@ -832,6 +837,8 @@ class CQT1992(torch.nn.Module):
                                                                 fmax)
         
         self.register_buffer('lenghts', lenghts)
+        self.frequencies = freqs
+        
         cqt_kernels = fft(cqt_kernels)[:,:self.kernel_width//2+1]
         print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
 
@@ -872,7 +879,7 @@ class CQT1992(torch.nn.Module):
 
         print("STFT kernels created, time used = {:.4f} seconds".format(time()-start))
 
-    def forward(self, x, output_format=None):
+    def forward(self, x, output_format=None, normalization_type='librosa'):
         """
         Convert a batch of waveforms to CQT spectrograms.
         
@@ -905,11 +912,21 @@ class CQT1992(torch.nn.Module):
                                          (fourier_real, fourier_imag))
         
         CQT = torch.stack((CQT_real,-CQT_imag),-1)
-        
-        if self.norm:
-            CQT = CQT/self.kernel_width*torch.sqrt(self.lenghts.view(-1,1,1))
+
+        if normalization_type == 'librosa':
+            CQT *= torch.sqrt(self.lenghts.view(-1,1,1))/self.kernel_width
+        elif normalization_type == 'convolutional':
+            pass
+        elif normalization_type == 'wrap':
+            CQT *= 2/self.kernel_width
         else:
-            CQT = CQT*torch.sqrt(self.lenghts.view(-1,1,1))
+            raise ValueError("The normalization_type %r is not part of our current options." % normalization_type)        
+        
+        
+#         if self.norm:
+#             CQT = CQT/self.kernel_width*torch.sqrt(self.lenghts.view(-1,1,1))
+#         else:
+#             CQT = CQT*torch.sqrt(self.lenghts.view(-1,1,1))
 
         if output_format=='Magnitude':
             # Getting CQT Amplitude
@@ -937,22 +954,19 @@ class CQT2010(torch.nn.Module):
     Then we keep downsampling the input audio by a factor of 2 to convoluting it with the
     small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled
     input is equavalent to the next lower octave.
-
     The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code
     from the 1992 alogrithm [2]
     [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
     [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a
     constant Q transform.” (1992).
-
     early downsampling factor is to downsample the input audio to reduce the CQT kernel size.
     The result with and without early downsampling are more or less the same except in the very low
     frequency region where freq < 40Hz.
-
     """
 
     def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, bins_per_octave=12,
-                 norm=True, basis_norm=1, window='hann', pad_mode='reflect', trainable_STFT=False,
-                 trainable_CQT=False, output_format='Complex', earlydownsample=True, verbose=True):
+                 norm=True, basis_norm=1, window='hann', pad_mode='reflect', trainable_STFT=False, filter_scale=1,
+                 trainable_CQT=False, output_format='Magnitude', earlydownsample=True, verbose=True):
 
         super().__init__()
 
@@ -965,7 +979,7 @@ class CQT2010(torch.nn.Module):
         self.earlydownsample = earlydownsample  # TODO: activate early downsampling later if possible
 
         # This will be used to calculate filter_cutoff and creating CQT kernels
-        Q = 1/(2**(1/bins_per_octave)-1)
+        Q = float(filter_scale)/(2**(1/bins_per_octave)-1)
 
         # Creating lowpass filter and make it a torch tensor
         if verbose==True:
@@ -1032,7 +1046,7 @@ class CQT2010(torch.nn.Module):
 
         start = time()
         # print("Q = {}, fmin_t = {}, n_filters = {}".format(Q, self.fmin_t, n_filters))
-        basis, self.n_fft, _ = create_cqt_kernels(Q,
+        basis, self.n_fft, _, _ = create_cqt_kernels(Q,
                                                   sr,
                                                   self.fmin_t,
                                                   n_filters,
@@ -1042,6 +1056,8 @@ class CQT2010(torch.nn.Module):
 
         # This is for the normalization in the end
         freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        self.frequencies = freqs
+        
         lenghts = np.ceil(Q * sr / freqs)
         lenghts = torch.tensor(lenghts).float()
         self.register_buffer('lenghts', lenghts)
@@ -1101,7 +1117,7 @@ class CQT2010(torch.nn.Module):
             self.padding = nn.ReflectionPad1d(self.n_fft//2)
 
 
-    def forward(self,x, output_format=None):
+    def forward(self,x, output_format=None, normalization_type='librosa'):
         """
         Convert a batch of waveforms to CQT spectrograms.
         
@@ -1120,26 +1136,31 @@ class CQT2010(torch.nn.Module):
         if self.earlydownsample==True:
             x = downsampling_by_n(x, self.early_downsample_filter, self.downsample_factor)
         hop = self.hop_length
-        CQT = get_cqt_complex(x, self.wcos, self.wsin, hop, self.padding)  # Getting the top octave CQT
+        
+
+        
+        CQT = get_cqt_complex2(x, self.cqt_kernels_real, self.cqt_kernels_imag, hop, self.padding,
+                               wcos=self.wcos, wsin=self.wcos)
 
         x_down = x  # Preparing a new variable for downsampling
         for i in range(self.n_octaves-1):
             hop = hop//2
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
-            CQT1 = get_cqt_complex(x_down, self.wcos, self.wsin,  hop, self.padding)
+            
+            CQT1 = get_cqt_complex2(x_down, self.cqt_kernels_real, self.cqt_kernels_imag, hop, self.padding,
+                                    wcos=self.wcos, wsin=self.wcos)          
             CQT = torch.cat((CQT1, CQT),1)
-            
+             
         CQT = CQT[:,-self.n_bins:,:]  # Removing unwanted top bins
-        
-        if self.norm:
-            CQT = CQT/self.n_fft*torch.sqrt(self.lenghts.view(-1,1,1))
-        else:
-            CQT = CQT*torch.sqrt(self.lenghts.view(-1,1,1))     
-            
 
-        # Normalizing the output with the downsampling factor, 2**(self.n_octaves-1)
-        # is make it same mag as 1992
-        CQT = CQT*self.downsample_factor
+        if normalization_type == 'librosa':
+            CQT *= torch.sqrt(self.lenghts.view(-1,1,1))/self.n_fft
+        elif normalization_type == 'convolutional':
+            pass
+        elif normalization_type == 'wrap':
+            CQT *= 2/self.n_fft
+        else:
+            raise ValueError("The normalization_type %r is not part of our current options." % normalization_type)                
         
         if output_format=='Magnitude':
             # Getting CQT Amplitude
@@ -1156,7 +1177,7 @@ class CQT2010(torch.nn.Module):
     def extra_repr(self) -> str:
         return 'STFT kernel size = {}, CQT kernel size = {}'.format(
             (*self.wcos.shape,), (*self.cqt_kernels_real.shape,)        
-        )          
+        )    
         
 
 class CQT1992v2(torch.nn.Module):
@@ -1280,6 +1301,7 @@ class CQT1992v2(torch.nn.Module):
                                                                             norm,
                                                                             window,
                                                                             fmax)
+        
         self.register_buffer('lenghts', lenghts)
         self.frequencies = freqs
         
@@ -1489,7 +1511,7 @@ class CQT2010v2(torch.nn.Module):
 # To DO:
 # need to deal with the filter and other tensors
     
-    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84,
+    def __init__(self, sr=22050, hop_length=512, fmin=32.70, fmax=None, n_bins=84, filter_scale=1,
                 bins_per_octave=12, norm=True, basis_norm=1, window='hann', pad_mode='reflect',
                 earlydownsample=True, trainable=False, output_format='Magnitude', verbose=True):
 
@@ -1505,7 +1527,7 @@ class CQT2010v2(torch.nn.Module):
         self.output_format = output_format
 
         # It will be used to calculate filter_cutoff and creating CQT kernels
-        Q = 1/(2**(1/bins_per_octave)-1)
+        Q = float(filter_scale)/(2**(1/bins_per_octave)-1)
 
         # Creating lowpass filter and make it a torch tensor
         if verbose==True:
@@ -1574,16 +1596,20 @@ class CQT2010v2(torch.nn.Module):
         if verbose==True:
             print("Creating CQT kernels ...", end='\r')
         start = time()
-        basis, self.n_fft, lenghts = create_cqt_kernels(Q,
+        basis, self.n_fft, lenghts, _ = create_cqt_kernels(Q,
                                                              sr,
                                                              self.fmin_t,
                                                              n_filters,
                                                              bins_per_octave,
                                                              norm=basis_norm,
                                                              topbin_check=False)
-
         # For normalization in the end
+        # The freqs returned by create_cqt_kernels cannot be used
+        # Since that returns only the top octave bins
+        # We need the information for all freq bin
         freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        self.frequencies = freqs
+        
         lenghts = np.ceil(Q * sr / freqs)
         lenghts = torch.tensor(lenghts).float()
         self.register_buffer('lenghts', lenghts)
@@ -1615,7 +1641,7 @@ class CQT2010v2(torch.nn.Module):
             self.padding = nn.ReflectionPad1d(self.n_fft//2)
             
 
-    def forward(self,x,output_format=None):
+    def forward(self,x,output_format=None, normalization_type='librosa'):
         """
         Convert a batch of waveforms to CQT spectrograms.
         
@@ -1653,7 +1679,16 @@ class CQT2010v2(torch.nn.Module):
         # same mag as 1992
         CQT = CQT*self.downsample_factor
         # Normalize again to get same result as librosa
-        CQT = CQT*torch.sqrt(self.lenghts.view(-1,1,1))
+        if normalization_type == 'librosa':
+            CQT = CQT*torch.sqrt(self.lenghts.view(-1,1,1))
+        elif normalization_type == 'convolutional':
+            pass
+        elif normalization_type == 'wrap':
+            CQT *= 2
+        else:
+            raise ValueError("The normalization_type %r is not part of our current options." % normalization_type)
+
+        
 
         if output_format=='Magnitude':
             if self.trainable==False:
