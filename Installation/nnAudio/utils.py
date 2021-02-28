@@ -312,8 +312,6 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
     Automatically create CQT kernels in time domain
     """
 
-    # norm arg is not functioning
-
     fftLen = 2**nextpow2(np.ceil(Q * fs / fmin))
     # minWin = 2**nextpow2(np.ceil(Q * fs / fmax))
 
@@ -336,10 +334,10 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
     tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
     specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
 
+    lengths = np.ceil(Q * fs / freqs)
     for k in range(0, int(n_bins)):
         freq = freqs[k]
         l = np.ceil(Q * fs / freq)
-        lenghts = np.ceil(Q * fs / freqs)
 
         # Centering the kernels
         if l%2==1: # pad more zeros on RHS
@@ -347,7 +345,7 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
         else:
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))
 
-        sig = get_window(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
+        sig = get_window_dispatch(window,int(l), fftbins=True)*np.exp(np.r_[-l//2:l//2]*1j*2*np.pi*freq/fs)/l
 
         if norm: # Normalizing the filter # Trying to normalize like librosa
             tempKernel[k, start:start + int(l)] = sig/np.linalg.norm(sig, norm)
@@ -356,7 +354,23 @@ def create_cqt_kernels(Q, fs, fmin, n_bins=84, bins_per_octave=12, norm=1,
         # specKernel[k, :] = fft(tempKernel[k])
 
     # return specKernel[:,:fftLen//2+1], fftLen, torch.tensor(lenghts).float()
-    return tempKernel, fftLen, torch.tensor(lenghts).float()
+    return tempKernel, fftLen, torch.tensor(lengths).float(), freqs
+
+
+def get_window_dispatch(window, N, fftbins=True):
+    if isinstance(window, str):
+        return get_window(window, N, fftbins=fftbins)
+    elif isinstance(window, tuple):
+        if window[0] == 'gaussian':
+            assert window[1] >= 0
+            sigma = np.floor(- N / 2 / np.sqrt(- 2 * np.log(10**(- window[1] / 20))))
+            return get_window(('gaussian', sigma), N, fftbins=fftbins)
+        else:
+            Warning("Tuple windows may have undesired behaviour regarding Q factor")
+    elif isinstance(window, float):
+        Warning("You are using Kaiser window with beta factor " + str(window) + ". Correct behaviour not checked.")
+    else:
+        raise Exception("The function get_window from scipy only supports strings, tuples and floats.")
 
 
 
