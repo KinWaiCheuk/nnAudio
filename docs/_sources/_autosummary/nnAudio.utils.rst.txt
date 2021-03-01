@@ -27,7 +27,9 @@
       early_downsample_count
       extend_fbins
       get_cqt_complex
+      get_cqt_complex2
       get_early_downsample_params
+      get_window_dispatch
       nextpow2
       overlap_add
       prepow2

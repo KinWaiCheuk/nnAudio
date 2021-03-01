@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.Spectrogram &mdash; 0.2.1</title>
+  <title>nnAudio.Spectrogram &mdash; 0.2.2</title>
   
 
   
@@ -37,7 +37,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="nnAudio.Spectrogram.CQT" href="nnAudio.Spectrogram.CQT.html" />
+    <link rel="next" title="nnAudio.Spectrogram.CFP" href="nnAudio.Spectrogram.CFP.html" />
     <link rel="prev" title="&lt;no title&gt;" href="../nnAudio.html" /> 
 </head>
 
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -102,6 +102,7 @@
 <p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">nnAudio.Spectrogram</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CFP.html">nnAudio.Spectrogram.CFP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT.html">nnAudio.Spectrogram.CQT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT1992.html">nnAudio.Spectrogram.CQT1992</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT1992v2.html">nnAudio.Spectrogram.CQT1992v2</a></li>
@@ -204,43 +205,46 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT.html#nnAudio.Spectrogram.CQT" title="nnAudio.Spectrogram.CQT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CFP.html#nnAudio.Spectrogram.CFP" title="nnAudio.Spectrogram.CFP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CFP</span></code></a></p></td>
+<td><p>This is the modified version so that the number of timesteps fits with other classes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT.html#nnAudio.Spectrogram.CQT" title="nnAudio.Spectrogram.CQT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT</span></code></a></p></td>
 <td><p>An abbreviation for <a class="reference internal" href="nnAudio.Spectrogram.CQT1992v2.html#nnAudio.Spectrogram.CQT1992v2" title="nnAudio.Spectrogram.CQT1992v2"><code class="xref py py-func docutils literal notranslate"><span class="pre">CQT1992v2()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT1992.html#nnAudio.Spectrogram.CQT1992" title="nnAudio.Spectrogram.CQT1992"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT1992</span></code></a></p></td>
-<td><p>This alogrithm uses the method proposed in [1].</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT1992.html#nnAudio.Spectrogram.CQT1992" title="nnAudio.Spectrogram.CQT1992"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT1992</span></code></a></p></td>
+<td><p>This alogrithm uses the method proposed in [1], which would run extremely slow if low frequencies (below 220Hz) are included in the frequency bins.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT1992v2.html#nnAudio.Spectrogram.CQT1992v2" title="nnAudio.Spectrogram.CQT1992v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT1992v2</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT1992v2.html#nnAudio.Spectrogram.CQT1992v2" title="nnAudio.Spectrogram.CQT1992v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT1992v2</span></code></a></p></td>
 <td><p>This function is to calculate the CQT of the input signal.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT2010.html#nnAudio.Spectrogram.CQT2010" title="nnAudio.Spectrogram.CQT2010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT2010</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT2010.html#nnAudio.Spectrogram.CQT2010" title="nnAudio.Spectrogram.CQT2010"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT2010</span></code></a></p></td>
 <td><p>This algorithm is using the resampling method proposed in [1].</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT2010v2.html#nnAudio.Spectrogram.CQT2010v2" title="nnAudio.Spectrogram.CQT2010v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT2010v2</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.CQT2010v2.html#nnAudio.Spectrogram.CQT2010v2" title="nnAudio.Spectrogram.CQT2010v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CQT2010v2</span></code></a></p></td>
 <td><p>This function is to calculate the CQT of the input signal.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Combined_Frequency_Periodicity.html#nnAudio.Spectrogram.Combined_Frequency_Periodicity" title="nnAudio.Spectrogram.Combined_Frequency_Periodicity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Combined_Frequency_Periodicity</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Combined_Frequency_Periodicity.html#nnAudio.Spectrogram.Combined_Frequency_Periodicity" title="nnAudio.Spectrogram.Combined_Frequency_Periodicity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Combined_Frequency_Periodicity</span></code></a></p></td>
 <td><p>Vectorized version of the code in <a class="reference external" href="https://github.com/leo-so/VocalMelodyExtPatchCNN/blob/master/MelodyExt.py">https://github.com/leo-so/VocalMelodyExtPatchCNN/blob/master/MelodyExt.py</a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.DFT.html#nnAudio.Spectrogram.DFT" title="nnAudio.Spectrogram.DFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DFT</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.DFT.html#nnAudio.Spectrogram.DFT" title="nnAudio.Spectrogram.DFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DFT</span></code></a></p></td>
 <td><p>Experimental feature before <cite>torch.fft</cite> was made avaliable.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Gammatonegram.html#nnAudio.Spectrogram.Gammatonegram" title="nnAudio.Spectrogram.Gammatonegram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gammatonegram</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Gammatonegram.html#nnAudio.Spectrogram.Gammatonegram" title="nnAudio.Spectrogram.Gammatonegram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gammatonegram</span></code></a></p></td>
 <td><p>This function is to calculate the Gammatonegram of the input signal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Griffin_Lim.html#nnAudio.Spectrogram.Griffin_Lim" title="nnAudio.Spectrogram.Griffin_Lim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Griffin_Lim</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.Griffin_Lim.html#nnAudio.Spectrogram.Griffin_Lim" title="nnAudio.Spectrogram.Griffin_Lim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Griffin_Lim</span></code></a></p></td>
 <td><p>Converting Magnitude spectrograms back to waveforms based on the “fast Griffin-Lim”[1].</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.MFCC.html#nnAudio.Spectrogram.MFCC" title="nnAudio.Spectrogram.MFCC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MFCC</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.MFCC.html#nnAudio.Spectrogram.MFCC" title="nnAudio.Spectrogram.MFCC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MFCC</span></code></a></p></td>
 <td><p>This function is to calculate the Mel-frequency cepstral coefficients (MFCCs) of the input signal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.MelSpectrogram.html#nnAudio.Spectrogram.MelSpectrogram" title="nnAudio.Spectrogram.MelSpectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MelSpectrogram</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.MelSpectrogram.html#nnAudio.Spectrogram.MelSpectrogram" title="nnAudio.Spectrogram.MelSpectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MelSpectrogram</span></code></a></p></td>
 <td><p>This function is to calculate the Melspectrogram of the input signal.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.STFT.html#nnAudio.Spectrogram.STFT" title="nnAudio.Spectrogram.STFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STFT</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.STFT.html#nnAudio.Spectrogram.STFT" title="nnAudio.Spectrogram.STFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STFT</span></code></a></p></td>
 <td><p>This function is to calculate the short-time Fourier transform (STFT) of the input signal.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nnAudio.Spectrogram.iSTFT.html#nnAudio.Spectrogram.iSTFT" title="nnAudio.Spectrogram.iSTFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iSTFT</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="nnAudio.Spectrogram.iSTFT.html#nnAudio.Spectrogram.iSTFT" title="nnAudio.Spectrogram.iSTFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iSTFT</span></code></a></p></td>
 <td><p>This class is to convert spectrograms back to waveforms.</p></td>
 </tr>
 </tbody>
@@ -255,7 +259,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="nnAudio.Spectrogram.CQT.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.CQT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nnAudio.Spectrogram.CFP.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.CFP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../nnAudio.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

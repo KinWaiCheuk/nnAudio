@@ -20,6 +20,7 @@
       :template: custom-class-template.rst
       :nosignatures:
    
+      CFP
       CQT
       CQT1992
       CQT1992v2

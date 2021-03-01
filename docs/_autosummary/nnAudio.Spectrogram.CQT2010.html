@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>nnAudio.Spectrogram.CQT2010 &mdash; 0.2.1</title>
+  <title>nnAudio.Spectrogram.CQT2010 &mdash; 0.2.2</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -102,6 +102,7 @@
 <p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="nnAudio.Spectrogram.html">nnAudio.Spectrogram</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CFP.html">nnAudio.Spectrogram.CFP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT.html">nnAudio.Spectrogram.CQT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT1992.html">nnAudio.Spectrogram.CQT1992</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nnAudio.Spectrogram.CQT1992v2.html">nnAudio.Spectrogram.CQT1992v2</a></li>
@@ -200,20 +201,20 @@
 <h1>nnAudio.Spectrogram.CQT2010<a class="headerlink" href="#nnaudio-spectrogram-cqt2010" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="nnAudio.Spectrogram.CQT2010">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">CQT2010</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">32.7</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">84</span></em>, <em class="sig-param"><span class="n">bins_per_octave</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">basis_norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">trainable_STFT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">trainable_CQT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">'Complex'</span></em>, <em class="sig-param"><span class="n">earlydownsample</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT2010" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">CQT2010</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">32.7</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">84</span></em>, <em class="sig-param"><span class="n">bins_per_octave</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">basis_norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">trainable_STFT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">filter_scale</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">trainable_CQT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">'Magnitude'</span></em>, <em class="sig-param"><span class="n">earlydownsample</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT2010" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>This algorithm is using the resampling method proposed in [1].
 Instead of convoluting the STFT results with a gigantic CQT kernel covering the full frequency
 spectrum, we make a small CQT kernel covering only the top octave.
 Then we keep downsampling the input audio by a factor of 2 to convoluting it with the
 small CQT kernel. Everytime the input audio is downsampled, the CQT relative to the downsampled
-input is equavalent to the next lower octave.</p>
-<p>The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code
+input is equavalent to the next lower octave.
+The kernel creation process is still same as the 1992 algorithm. Therefore, we can reuse the code
 from the 1992 alogrithm [2]
 [1] Schörkhuber, Christian. “CONSTANT-Q TRANSFORM TOOLBOX FOR MUSIC PROCESSING.” (2010).
 [2] Brown, Judith C.C. and Miller Puckette. “An efficient algorithm for the calculation of a
-constant Q transform.” (1992).</p>
-<p>early downsampling factor is to downsample the input audio to reduce the CQT kernel size.
+constant Q transform.” (1992).
+early downsampling factor is to downsample the input audio to reduce the CQT kernel size.
 The result with and without early downsampling are more or less the same except in the very low
 frequency region where freq &lt; 40Hz.</p>
 <p class="rubric">Methods</p>
@@ -245,7 +246,7 @@ strings are acceptable.</p>
 
 <dl class="py method">
 <dt id="nnAudio.Spectrogram.CQT2010.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT2010.forward" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">output_format</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normalization_type</span><span class="o">=</span><span class="default_value">'librosa'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.CQT2010.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a batch of waveforms to CQT spectrograms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
