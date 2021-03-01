@@ -28,7 +28,7 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 <sup>1</sup> [Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music](https://ieeexplore.ieee.org/document/7118691)
 
 ## News & Changelog
-**version 0.2.2** (15 Jan 2021): 
+**version 0.2.2** (1 March 2021): 
 Added filter scale support to various version of CQT classes as requested in [#54](/../../issues/54). Different normalization methods are also added to the `forward()` method as `normalization_type` under each CQT class. A bug is discovered in CQT2010, the output is problematic [#85](/../../issues/85).
 
 This version can be obtained via:
