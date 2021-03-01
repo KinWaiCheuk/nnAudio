@@ -28,9 +28,14 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 <sup>1</sup> [Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music](https://ieeexplore.ieee.org/document/7118691)
 
 ## News & Changelog
-**version 0.2.1** (15 Jan 2021): 
-Fixed bugs [#80](/../../issues/80), [#82](/../../issues/82), and fulfilled request [#83](/../../issues/83). nnAudio version can be checked with `nnAudio.__version__` inside python now. Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`. This version can be obtained via:
+**version 0.2.2** (15 Jan 2021): 
+Added filter scale support to various version of CQT classes as requested in [#54](/../../issues/54). Different normalization methods are also added to the `forward()` method as `normalization_type` under each CQT class. A bug is discovered in CQT2010, the output is problematic [#85](/../../issues/85).
+
+This version can be obtained via:
 `pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
+
+**version 0.2.1** (15 Jan 2021): 
+Fixed bugs [#80](/../../issues/80), [#82](/../../issues/82), and fulfilled request [#83](/../../issues/83). nnAudio version can be checked with `nnAudio.__version__` inside python now. Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`.
 
 **version 0.2.0** (8 Nov 2020): 
 Now it is possible to do `stft_layer.to(device)` to move the spectrogram layers between different devices.
