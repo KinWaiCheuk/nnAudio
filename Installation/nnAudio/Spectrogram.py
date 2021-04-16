@@ -36,7 +36,11 @@ class STFT(torch.nn.Module):
     Parameters
     ----------
     n_fft : int
-        The window size. Default value is 2048.
+        Size of Fourier transform. Default value is 2048.
+
+    win_length : int
+        the size of window frame and STFT filter.
+        Default: None (treated as equal to n_fft)
 
     freq_bins : int
         Number of frequency bins. Default is ``None``, which means ``n_fft//2+1`` bins.
@@ -61,8 +65,10 @@ class STFT(torch.nn.Module):
     pad_mode : str
         The padding method. Default value is 'reflect'.
        
-    inverse : bool
+    iSTFT : bool
         To activate the iSTFT module or not. By default, it is False to save GPU memory.
+        Note: The iSTFT kernel is not trainable. If you want
+        a trainable iSTFT, use the iSTFT module.
 
     fmin : int
         The starting frequency for the lowest frequency bin. If freq_scale is ``no``, this argument
@@ -87,9 +93,6 @@ class STFT(torch.nn.Module):
 
     verbose : bool
         If ``True``, it shows layer information. If ``False``, it suppresses all prints
-
-    device : str
-        Choose which device to initialize this layer. Default value is 'cpu'
     
     Returns
     -------
@@ -340,6 +343,10 @@ class MelSpectrogram(torch.nn.Module):
     n_fft : int
         The window size for the STFT. Default value is 2048
 
+    win_length : int
+        the size of window frame and STFT filter.
+        Default: None (treated as equal to n_fft)
+
     n_mels : int
         The number of Mel filter banks. The filter banks maps the n_fft to mel bins.
         Default value is 128.
@@ -369,6 +376,12 @@ class MelSpectrogram(torch.nn.Module):
     fmax : int
         The ending frequency for the highest Mel filter bank.
 
+    norm :
+        if 1, divide the triangular mel weights by the width of the mel band
+        (area normalization, AKA 'slaney' default in librosa).
+        Otherwise, leave all the triangles aiming for
+        a peak value of 1.0
+
     trainable_mel : bool
         Determine if the Mel filter banks are trainable or not. If ``True``, the gradients for Mel
         filter banks will also be calculated and the Mel filter banks will be updated during model
@@ -382,9 +395,6 @@ class MelSpectrogram(torch.nn.Module):
     verbose : bool
         If ``True``, it shows layer information. If ``False``, it suppresses all prints.
 
-    device : str
-        Choose which device to initialize this layer. Default value is 'cpu'.
-
     Returns
     -------
     spectrogram : torch.tensor
@@ -396,7 +406,7 @@ class MelSpectrogram(torch.nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, n_fft=2048, n_mels=128, hop_length=512, 
+    def __init__(self, sr=22050, n_fft=2048, win_length=None, n_mels=128, hop_length=512, 
                 window='hann', center=True, pad_mode='reflect', power=2.0, htk=False, 
                 fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False, 
                 verbose=True, **kwargs):
@@ -411,8 +421,9 @@ class MelSpectrogram(torch.nn.Module):
         self.trainable_STFT = trainable_STFT
 
         # Preparing for the stft layer. No need for center
-        self.stft = STFT(n_fft=n_fft, freq_bins=None, hop_length=hop_length, window=window,
-                freq_scale='no', center=center, pad_mode=pad_mode, sr=sr, trainable=trainable_STFT,
+        self.stft = STFT(n_fft=n_fft, win_length=win_length, freq_bins=None,
+                hop_length=hop_length, window=window, freq_scale='no',
+                center=center, pad_mode=pad_mode, sr=sr, trainable=trainable_STFT,
                 output_format="Magnitude", verbose=verbose, **kwargs)
         
         
@@ -629,8 +640,6 @@ class Gammatonegram(torch.nn.Module):
 
     verbose : bool
         If ``True``, it shows layer information. If ``False``, it suppresses all prints
-    device : str
-        Choose which device to initialize this layer. Default value is 'cuda:0'
 
     Returns
     -------
@@ -645,13 +654,12 @@ class Gammatonegram(torch.nn.Module):
 
     def __init__(self, sr=44100, n_fft=2048, n_bins=64, hop_length=512, window='hann', center=True, pad_mode='reflect',
                  power=2.0, htk=False, fmin=20.0, fmax=None, norm=1, trainable_bins=False, trainable_STFT=False,
-                 verbose=True, device='cuda:0'):
+                 verbose=True):
         super(Gammatonegram, self).__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
         self.n_fft = n_fft
-        self.device = device
         self.power = power
 
         # Create filter windows for stft
@@ -1491,9 +1499,6 @@ class CQT2010v2(torch.nn.Module):
     verbose : bool
         If ``True``, it shows layer information. If ``False``, it suppresses all prints.
 
-    device : str
-        Choose which device to initialize this layer. Default value is 'cpu'.
-
     Returns
     -------
     spectrogram : torch.tensor
@@ -1879,9 +1884,6 @@ class iSTFT(torch.nn.Module):
     verbose : bool
         If ``True``, it shows layer information. If ``False``, it suppresses all prints.
 
-    device : str
-        Choose which device to initialize this layer. Default value is 'cpu'.
-
     Returns
     -------
     spectrogram : torch.tensor
@@ -2060,7 +2062,6 @@ class Griffin_Lim(torch.nn.Module):
 
     device : str
         Choose which device to initialize this layer. Default value is 'cpu'
-
     
     """
     
