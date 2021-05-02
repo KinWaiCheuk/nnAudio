@@ -10,7 +10,7 @@ from time import time
 import math
 from scipy.signal import get_window
 from scipy import signal
-from scipy import fft
+from scipy.fft import fft
 import warnings
 
 from nnAudio.librosa_functions import * 
