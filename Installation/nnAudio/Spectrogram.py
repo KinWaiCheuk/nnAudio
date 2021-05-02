@@ -1148,7 +1148,7 @@ class CQT2010(torch.nn.Module):
 
         
         CQT = get_cqt_complex2(x, self.cqt_kernels_real, self.cqt_kernels_imag, hop, self.padding,
-                               wcos=self.wcos, wsin=self.wcos)
+                               wcos=self.wcos, wsin=self.wsin)
 
         x_down = x  # Preparing a new variable for downsampling
         for i in range(self.n_octaves-1):
@@ -1156,7 +1156,7 @@ class CQT2010(torch.nn.Module):
             x_down = downsampling_by_2(x_down, self.lowpass_filter)
             
             CQT1 = get_cqt_complex2(x_down, self.cqt_kernels_real, self.cqt_kernels_imag, hop, self.padding,
-                                    wcos=self.wcos, wsin=self.wcos)          
+                                    wcos=self.wcos, wsin=self.wsin)          
             CQT = torch.cat((CQT1, CQT),1)
              
         CQT = CQT[:,-self.n_bins:,:]  # Removing unwanted top bins
