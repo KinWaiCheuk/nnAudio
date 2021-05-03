@@ -864,8 +864,8 @@ class CQT1992(torch.nn.Module):
         wsin = torch.tensor(kernel_sin * window)
         wcos = torch.tensor(kernel_cos * window) 
         
-        cqt_kernels_real = torch.tensor(cqt_kernels.real.astype(np.float32))
-        cqt_kernels_imag = torch.tensor(cqt_kernels.imag.astype(np.float32))
+        cqt_kernels_real = torch.tensor(cqt_kernels.real)
+        cqt_kernels_imag = torch.tensor(cqt_kernels.imag)
         
         if trainable_STFT:
             wsin = torch.nn.Parameter(wsin, requires_grad=trainable_STFT)
@@ -1075,8 +1075,8 @@ class CQT2010(torch.nn.Module):
         fft_basis = fft(basis)[:,:self.n_fft//2+1]  # Convert CQT kenral from time domain to freq domain
 
         # These cqt_kernel is already in the frequency domain
-        cqt_kernels_real = torch.tensor(fft_basis.real.astype(np.float32))
-        cqt_kernels_imag = torch.tensor(fft_basis.imag.astype(np.float32))
+        cqt_kernels_real = torch.tensor(fft_basis.real)
+        cqt_kernels_imag = torch.tensor(fft_basis.imag)
 
         if verbose==True:
             print("CQT kernels created, time used = {:.4f} seconds".format(time()-start))
@@ -1621,8 +1621,8 @@ class CQT2010v2(torch.nn.Module):
 
         self.basis = basis
         # These cqt_kernel is already in the frequency domain
-        cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1)
-        cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
+        cqt_kernels_real = torch.tensor(basis.real).unsqueeze(1)
+        cqt_kernels_imag = torch.tensor(basis.imag).unsqueeze(1)
         
         if trainable:
             cqt_kernels_real = torch.nn.Parameter(cqt_kernels_real, requires_grad=trainable)
@@ -2177,7 +2177,7 @@ class Combined_Frequency_Periodicity(nn.Module):
         self.f = fs*np.linspace(0, 0.5, np.round(self.N//2), endpoint=True) # it won't be used but will be returned          
         self.pad_value = ((self.N-window_size))
         # Create window function, always blackmanharris?
-        h = scipy.signal.blackmanharris(window_size).astype(np.float32) # window function for STFT
+        h = scipy.signal.blackmanharris(window_size) # window function for STFT
         self.register_buffer('h',torch.tensor(h))
         
         # variables for CFP
@@ -2194,8 +2194,8 @@ class Combined_Frequency_Periodicity(nn.Module):
         
         # filters for the final step
         freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix.astype(np.float32)))
-        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix.astype(np.float32)))
+        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix))
+        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix))
     
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])
@@ -2318,7 +2318,7 @@ class CFP(nn.Module):
         self.f = fs*np.linspace(0, 0.5, np.round(self.N//2), endpoint=True) # it won't be used but will be returned          
         self.pad_value = ((self.N-window_size))
         # Create window function, always blackmanharris?
-        h = scipy.signal.blackmanharris(window_size).astype(np.float32) # window function for STFT
+        h = scipy.signal.blackmanharris(window_size) # window function for STFT
         self.register_buffer('h',torch.tensor(h))
         
         # variables for CFP
@@ -2335,8 +2335,8 @@ class CFP(nn.Module):
         
         # filters for the final step
         freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix.astype(np.float32)))
-        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix.astype(np.float32)))
+        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix))
+        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix))
     
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])
