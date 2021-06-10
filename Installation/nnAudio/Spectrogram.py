@@ -2162,7 +2162,55 @@ class Combined_Frequency_Periodicity(nn.Module):
     This feature is described in 'Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music'
     https://ieeexplore.ieee.org/document/7118691
     
-    Under development, please report any bugs you found
+    Parameters
+    ----------
+    fr : int
+        Frequency resolution. The higher the number, the lower the resolution is.
+        Maximum frequency resolution occurs when ``fr=1``. The default value is ``2``
+
+    fs : int
+        Sample rate of the input audio clips. The default value is ``16000``
+
+    hop_length : int
+        The hop (or stride) size. The default value is ``320``.
+
+    window_size : str
+        It is same as ``n_fft`` in other Spectrogram classes. The default value is ``2049``
+
+    fc : int
+        Starting frequency. For example, ``fc=80`` means that `Z` starts at 80Hz.
+        The default value is ``80``.
+        
+    tc : int
+        Inverse of ending frequency. For example ``tc=1/8000`` means that `Z` ends at 8000Hz.
+        The default value is ``1/8000``.
+
+    g: list
+        Coefficients for non-linear activation function. ``len(g)`` should be the number of activation layers.
+        Each element in ``g`` is the activation coefficient, for example ``[0.24, 0.6, 1]``.
+
+    device : str
+        Choose which device to initialize this layer. Default value is 'cpu'
+        
+    Returns
+    -------
+    Z : torch.tensor
+        The Combined Frequency and Period Feature. It is equivalent to ``tfrLF * tfrLQ``
+        
+    tfrL0: torch.tensor
+        STFT output
+        
+    tfrLF: torch.tensor
+        Frequency Feature
+        
+    tfrLQ: torch.tensor
+        Period Feature
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.Combined_Frequency_Periodicity()
+    >>> Z, tfrL0, tfrLF, tfrLQ = spec_layer(x)        
+        
     """
     def __init__(self,fr=2, fs=16000, hop_length=320,
                  window_size=2049, fc=80, tc=1/1000,
@@ -2178,7 +2226,7 @@ class Combined_Frequency_Periodicity(nn.Module):
         self.pad_value = ((self.N-window_size))
         # Create window function, always blackmanharris?
         h = scipy.signal.blackmanharris(window_size) # window function for STFT
-        self.register_buffer('h',torch.tensor(h))
+        self.register_buffer('h',torch.tensor(h).float())
         
         # variables for CFP
         self.NumofLayer = np.size(g)
@@ -2194,8 +2242,8 @@ class Combined_Frequency_Periodicity(nn.Module):
         
         # filters for the final step
         freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix))
-        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix))
+        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix).float())
+        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix).float())
     
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])
@@ -2301,9 +2349,57 @@ class Combined_Frequency_Periodicity(nn.Module):
     
 class CFP(nn.Module):
     """
-    This is the modified version so that the number of timesteps fits with other classes
+    This is the modified version of :func:`~nnAudio.Spectrogram.Combined_Frequency_Periodicity`. This version different from the original version by returnning only ``Z`` and the number of timesteps fits with other classes.
     
-    Under development, please report any bugs you found
+    Parameters
+    ----------
+    fr : int
+        Frequency resolution. The higher the number, the lower the resolution is.
+        Maximum frequency resolution occurs when ``fr=1``. The default value is ``2``
+
+    fs : int
+        Sample rate of the input audio clips. The default value is ``16000``
+
+    hop_length : int
+        The hop (or stride) size. The default value is ``320``.
+
+    window_size : str
+        It is same as ``n_fft`` in other Spectrogram classes. The default value is ``2049``
+
+    fc : int
+        Starting frequency. For example, ``fc=80`` means that `Z` starts at 80Hz.
+        The default value is ``80``.
+        
+    tc : int
+        Inverse of ending frequency. For example ``tc=1/8000`` means that `Z` ends at 8000Hz.
+        The default value is ``1/8000``.
+
+    g: list
+        Coefficients for non-linear activation function. ``len(g)`` should be the number of activation layers.
+        Each element in ``g`` is the activation coefficient, for example ``[0.24, 0.6, 1]``.
+
+    device : str
+        Choose which device to initialize this layer. Default value is 'cpu'
+        
+    Returns
+    -------
+    Z : torch.tensor
+        The Combined Frequency and Period Feature. It is equivalent to ``tfrLF * tfrLQ``
+        
+    tfrL0: torch.tensor
+        STFT output
+        
+    tfrLF: torch.tensor
+        Frequency Feature
+        
+    tfrLQ: torch.tensor
+        Period Feature
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.Combined_Frequency_Periodicity()
+    >>> Z, tfrL0, tfrLF, tfrLQ = spec_layer(x)        
+        
     """
     def __init__(self,fr=2, fs=16000, hop_length=320,
                  window_size=2049, fc=80, tc=1/1000,
@@ -2319,7 +2415,7 @@ class CFP(nn.Module):
         self.pad_value = ((self.N-window_size))
         # Create window function, always blackmanharris?
         h = scipy.signal.blackmanharris(window_size) # window function for STFT
-        self.register_buffer('h',torch.tensor(h))
+        self.register_buffer('h',torch.tensor(h).float())
         
         # variables for CFP
         self.NumofLayer = np.size(g)
@@ -2335,8 +2431,8 @@ class CFP(nn.Module):
         
         # filters for the final step
         freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix))
-        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix))
+        self.register_buffer('freq2logfreq_matrix',torch.tensor(freq2logfreq_matrix).float())
+        self.register_buffer('quef2logfreq_matrix',torch.tensor(quef2logfreq_matrix).float())
     
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])

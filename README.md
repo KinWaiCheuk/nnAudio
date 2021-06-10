@@ -3,6 +3,12 @@ nnAudio is an audio processing toolbox using PyTorch convolutional neural networ
 
 Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/audio) and [tf.signal](https://www.tensorflow.org/api_docs/python/tf/signal). But they are not using the neural network approach, and hence the Fourier basis can not be trained. As of PyTorch 1.6.0, torchaudio is still very difficult to install under the Windows environment due to `sox`. nnAudio is a more compatible audio processing tool across different operating systems since it relies mostly on PyTorch convolutional neural network. The name of nnAudio comes from `torch.nn`
 
+## Installation
+`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`
+
+or
+
+`pip install nnAudio==0.2.3`
 
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
@@ -28,37 +34,20 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 <sup>1</sup> [Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music](https://ieeexplore.ieee.org/document/7118691)
 
 ## News & Changelog
-**version 0.2.2** (1 March 2021): 
-Added filter scale support to various version of CQT classes as requested in [#54](/../../issues/54). Different normalization methods are also added to the `forward()` method as `normalization_type` under each CQT class. A bug is discovered in CQT2010, the output is problematic [#85](/../../issues/85).
+To view the full changelog, please go to [CHANGELOG.md](CHANGELOG.md)
+
+**version 0.2.3** (10 June 2021): 
+1. CQT2010 bug has been fixed [#85](/../../issues/85).
+1. Provide a wider support for scipy versions using `from scipy.fftpack import fft` in [utils.py](https://github.com/KinWaiCheuk/nnAudio/blob/e9b1697963f0fd8e5030b130a30974bc06408baf/Installation/nnAudio/utils.py#L13)
+1. Documentation error for STFT has been fixed [#90](/../../issues/90)
 
 This version can be obtained via:
-`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
 
-**version 0.2.1** (15 Jan 2021): 
-Fixed bugs [#80](/../../issues/80), [#82](/../../issues/82), and fulfilled request [#83](/../../issues/83). nnAudio version can be checked with `nnAudio.__version__` inside python now. Added two more spectrogram types `Gammatonegram()` and `Combined_Frequency_Periodicity()`.
+`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`
 
-**version 0.2.0** (8 Nov 2020): 
-Now it is possible to do `stft_layer.to(device)` to move the spectrogram layers between different devices.
-No more `device` argument when creating the spectrogram layers.
+or
 
-To use this version, do `pip install nnAudio==0.2.0`.
-
-**version 0.1.5**:
-Much better `iSTFT` and `Griffin-Lim`. Now Griffin-Lim is a separated PyTorch class and requires `torch >= 1.6.0` to run. `STFT` has also been refactored and it is less memory consuming now.
-
-To use this version, do `pip install nnAudio==0.1.5`.
-
-**version 0.1.4a0**: Finalized `iSTFT` and `Griffin-Lim`. They are now more accurate and stable.
-
-**version 0.1.2.dev3**: Add `win_length` to `STFT` so that it has the same funcationality as librosa.
-
-**version 0.1.2.dev2**: Fix bugs where the inverse cannot be done using GPU. And add a separated `iSTFT` layer class
-
-**version 0.1.2.dev1**: Add Inverse STFT and Griffin-Lim. They are still under development, please use with care.
-                    
-**version 0.1.1**  (1 June 2020): Add MFCC
-
-
+`pip install nnAudio==0.2.3`
 
 
 ## How to cite nnAudio
@@ -96,9 +85,9 @@ Alternatively, you may also contribute by:
 
 
 ## Dependencies
-Numpy 1.14.5
+Numpy >= 1.14.5
 
-Scipy 1.2.0
+Scipy >= 1.2.0
 
 PyTorch >= 1.6.0 (Griffin-Lim only available after 1.6.0)
 
@@ -112,3 +101,5 @@ librosa = 0.7.0 (Theoretically nnAudio depends on librosa. But we only need to u
 [Kapre](https://www.semanticscholar.org/paper/Kapre%3A-On-GPU-Audio-Preprocessing-Layers-for-a-of-Choi-Joo/b1ad5643e5dd66fac27067b00e5c814f177483ca?citingPapersSort=is-influential#citing-papers)
 
 [torch-stft](https://github.com/pseeth/torch-stft)
+
+
