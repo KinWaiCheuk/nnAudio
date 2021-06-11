@@ -3,21 +3,26 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>nnAudio.Spectrogram.Combined_Frequency_Periodicity &mdash; 0.2.2</title>
+  <title>nnAudio.Spectrogram.Combined_Frequency_Periodicity &mdash; 0.2.4</title>
   
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -52,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
+            <a href="../index.html" class="icon icon-home"> nnAudio
           
 
           
@@ -65,7 +70,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.4
               </div>
             
           
@@ -168,6 +173,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -183,7 +190,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/_autosummary/nnAudio.Spectrogram.Combined_Frequency_Periodicity.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -200,13 +207,44 @@
   <div class="section" id="nnaudio-spectrogram-combined-frequency-periodicity">
 <h1>nnAudio.Spectrogram.Combined_Frequency_Periodicity<a class="headerlink" href="#nnaudio-spectrogram-combined-frequency-periodicity" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="nnAudio.Spectrogram.Combined_Frequency_Periodicity">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">Combined_Frequency_Periodicity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fr</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">fs</span><span class="o">=</span><span class="default_value">16000</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">320</span></em>, <em class="sig-param"><span class="n">window_size</span><span class="o">=</span><span class="default_value">2049</span></em>, <em class="sig-param"><span class="n">fc</span><span class="o">=</span><span class="default_value">80</span></em>, <em class="sig-param"><span class="n">tc</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">g</span><span class="o">=</span><span class="default_value">[0.24, 0.6, 1]</span></em>, <em class="sig-param"><span class="n">NumPerOct</span><span class="o">=</span><span class="default_value">48</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.Combined_Frequency_Periodicity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.Combined_Frequency_Periodicity">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">nnAudio.Spectrogram.</span></span><span class="sig-name descname"><span class="pre">Combined_Frequency_Periodicity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">320</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2049</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.24,</span> <span class="pre">0.6,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NumPerOct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.Combined_Frequency_Periodicity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Vectorized version of the code in <a class="reference external" href="https://github.com/leo-so/VocalMelodyExtPatchCNN/blob/master/MelodyExt.py">https://github.com/leo-so/VocalMelodyExtPatchCNN/blob/master/MelodyExt.py</a>.
 This feature is described in ‘Combining Spectral and Temporal Representations for Multipitch Estimation of Polyphonic Music’
 <a class="reference external" href="https://ieeexplore.ieee.org/document/7118691">https://ieeexplore.ieee.org/document/7118691</a></p>
-<p>Under development, please report any bugs you found</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fr</strong> (<em>int</em>) – Frequency resolution. The higher the number, the lower the resolution is.
+Maximum frequency resolution occurs when <code class="docutils literal notranslate"><span class="pre">fr=1</span></code>. The default value is <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>fs</strong> (<em>int</em>) – Sample rate of the input audio clips. The default value is <code class="docutils literal notranslate"><span class="pre">16000</span></code></p></li>
+<li><p><strong>hop_length</strong> (<em>int</em>) – The hop (or stride) size. The default value is <code class="docutils literal notranslate"><span class="pre">320</span></code>.</p></li>
+<li><p><strong>window_size</strong> (<em>str</em>) – It is same as <code class="docutils literal notranslate"><span class="pre">n_fft</span></code> in other Spectrogram classes. The default value is <code class="docutils literal notranslate"><span class="pre">2049</span></code></p></li>
+<li><p><strong>fc</strong> (<em>int</em>) – Starting frequency. For example, <code class="docutils literal notranslate"><span class="pre">fc=80</span></code> means that <cite>Z</cite> starts at 80Hz.
+The default value is <code class="docutils literal notranslate"><span class="pre">80</span></code>.</p></li>
+<li><p><strong>tc</strong> (<em>int</em>) – Inverse of ending frequency. For example <code class="docutils literal notranslate"><span class="pre">tc=1/8000</span></code> means that <cite>Z</cite> ends at 8000Hz.
+The default value is <code class="docutils literal notranslate"><span class="pre">1/8000</span></code>.</p></li>
+<li><p><strong>g</strong> (<em>list</em>) – Coefficients for non-linear activation function. <code class="docutils literal notranslate"><span class="pre">len(g)</span></code> should be the number of activation layers.
+Each element in <code class="docutils literal notranslate"><span class="pre">g</span></code> is the activation coefficient, for example <code class="docutils literal notranslate"><span class="pre">[0.24,</span> <span class="pre">0.6,</span> <span class="pre">1]</span></code>.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>Z</strong> (<em>torch.tensor</em>) – The Combined Frequency and Period Feature. It is equivalent to <code class="docutils literal notranslate"><span class="pre">tfrLF</span> <span class="pre">*</span> <span class="pre">tfrLQ</span></code></p></li>
+<li><p><strong>tfrL0</strong> (<em>torch.tensor</em>) – STFT output</p></li>
+<li><p><strong>tfrLF</strong> (<em>torch.tensor</em>) – Frequency Feature</p></li>
+<li><p><strong>tfrLQ</strong> (<em>torch.tensor</em>) – Period Feature</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">Combined_Frequency_Periodicity</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span><span class="p">,</span> <span class="n">tfrL0</span><span class="p">,</span> <span class="n">tfrLF</span><span class="p">,</span> <span class="n">tfrLQ</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -237,37 +275,29 @@ This feature is described in ‘Combining Spectral and Temporal Representations 
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="nnAudio.Spectrogram.DFT.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.DFT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="nnAudio.Spectrogram.CQT2010v2.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.CQT2010v2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="nnAudio.Spectrogram.DFT.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.DFT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.Spectrogram.CQT2010v2.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.CQT2010v2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Cheuk Kin Wai
+        &#169; Copyright 2019, Cheuk Kin Wai.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

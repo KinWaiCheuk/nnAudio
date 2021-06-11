@@ -3,21 +3,26 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>nnAudio.Spectrogram.DFT &mdash; 0.2.2</title>
+  <title>nnAudio.Spectrogram.DFT &mdash; 0.2.4</title>
   
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -52,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
+            <a href="../index.html" class="icon icon-home"> nnAudio
           
 
           
@@ -65,7 +70,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.4
               </div>
             
           
@@ -168,6 +173,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -183,7 +190,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/_autosummary/nnAudio.Spectrogram.DFT.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -200,8 +207,8 @@
   <div class="section" id="nnaudio-spectrogram-dft">
 <h1>nnAudio.Spectrogram.DFT<a class="headerlink" href="#nnaudio-spectrogram-dft" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="nnAudio.Spectrogram.DFT">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">DFT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_fft</span><span class="o">=</span><span class="default_value">2048</span></em>, <em class="sig-param"><span class="n">freq_bins</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">freq_scale</span><span class="o">=</span><span class="default_value">'no'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">6000</span></em>, <em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.DFT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">nnAudio.Spectrogram.</span></span><span class="sig-name descname"><span class="pre">DFT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22050</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Experimental feature before <cite>torch.fft</cite> was made avaliable.
 The inverse function only works for 1 single frame. i.e. input shape = (batch, n_fft, 1)</p>
@@ -224,8 +231,8 @@ The inverse function only works for 1 single frame. i.e. input shape = (batch, n
 </tbody>
 </table>
 <dl class="py method">
-<dt id="nnAudio.Spectrogram.DFT.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.DFT.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a batch of waveforms to spectrums.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -242,8 +249,8 @@ It will be automatically broadcast to the right shape</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="nnAudio.Spectrogram.DFT.inverse">
-<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_real</span></em>, <em class="sig-param"><span class="n">x_imag</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT.inverse" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.DFT.inverse">
+<span class="sig-name descname"><span class="pre">inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_real</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_imag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.DFT.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a batch of waveforms to CQT spectrograms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,37 +271,29 @@ It will be automatically broadcast to the right shape</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="nnAudio.Spectrogram.Gammatonegram.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.Gammatonegram" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="nnAudio.Spectrogram.Combined_Frequency_Periodicity.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.Combined_Frequency_Periodicity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="nnAudio.Spectrogram.Gammatonegram.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.Gammatonegram" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.Spectrogram.Combined_Frequency_Periodicity.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.Combined_Frequency_Periodicity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Cheuk Kin Wai
+        &#169; Copyright 2019, Cheuk Kin Wai.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

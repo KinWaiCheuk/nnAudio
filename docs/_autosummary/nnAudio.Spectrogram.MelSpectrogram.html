@@ -3,21 +3,26 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>nnAudio.Spectrogram.MelSpectrogram &mdash; 0.2.2</title>
+  <title>nnAudio.Spectrogram.MelSpectrogram &mdash; 0.2.4</title>
   
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -52,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
+            <a href="../index.html" class="icon icon-home"> nnAudio
           
 
           
@@ -65,7 +70,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.4
               </div>
             
           
@@ -168,6 +173,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -183,7 +190,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/_autosummary/nnAudio.Spectrogram.MelSpectrogram.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -200,8 +207,8 @@
   <div class="section" id="nnaudio-spectrogram-melspectrogram">
 <h1>nnAudio.Spectrogram.MelSpectrogram<a class="headerlink" href="#nnaudio-spectrogram-melspectrogram" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="nnAudio.Spectrogram.MelSpectrogram">
-<em class="property">class </em><code class="sig-prename descclassname">nnAudio.Spectrogram.</code><code class="sig-name descname">MelSpectrogram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sr</span><span class="o">=</span><span class="default_value">22050</span></em>, <em class="sig-param"><span class="n">n_fft</span><span class="o">=</span><span class="default_value">2048</span></em>, <em class="sig-param"><span class="n">n_mels</span><span class="o">=</span><span class="default_value">128</span></em>, <em class="sig-param"><span class="n">hop_length</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">'hann'</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pad_mode</span><span class="o">=</span><span class="default_value">'reflect'</span></em>, <em class="sig-param"><span class="n">power</span><span class="o">=</span><span class="default_value">2.0</span></em>, <em class="sig-param"><span class="n">htk</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">fmin</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">fmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">trainable_mel</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">trainable_STFT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.MelSpectrogram">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">nnAudio.Spectrogram.</span></span><span class="sig-name descname"><span class="pre">MelSpectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22050</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_mels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">htk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_mel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_STFT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>This function is to calculate the Melspectrogram of the input signal.
 Input signal should be in either of the following shapes.</p>
@@ -220,6 +227,8 @@ This class inherits from <code class="docutils literal notranslate"><span class=
 It is used to calculate the correct <code class="docutils literal notranslate"><span class="pre">fmin</span></code> and <code class="docutils literal notranslate"><span class="pre">fmax</span></code>.
 Setting the correct sampling rate is very important for calculating the correct frequency.</p></li>
 <li><p><strong>n_fft</strong> (<em>int</em>) – The window size for the STFT. Default value is 2048</p></li>
+<li><p><strong>win_length</strong> (<em>int</em>) – the size of window frame and STFT filter.
+Default: None (treated as equal to n_fft)</p></li>
 <li><p><strong>n_mels</strong> (<em>int</em>) – The number of Mel filter banks. The filter banks maps the n_fft to mel bins.
 Default value is 128.</p></li>
 <li><p><strong>hop_length</strong> (<em>int</em>) – The hop (or stride) size. Default value is 512.</p></li>
@@ -233,6 +242,10 @@ center of the STFT kernel. Default value if <code class="docutils literal notran
 Mel scale is logarithmic. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>fmin</strong> (<em>int</em>) – The starting frequency for the lowest Mel filter bank.</p></li>
 <li><p><strong>fmax</strong> (<em>int</em>) – The ending frequency for the highest Mel filter bank.</p></li>
+<li><p><strong>norm</strong> – if 1, divide the triangular mel weights by the width of the mel band
+(area normalization, AKA ‘slaney’ default in librosa).
+Otherwise, leave all the triangles aiming for
+a peak value of 1.0</p></li>
 <li><p><strong>trainable_mel</strong> (<em>bool</em>) – Determine if the Mel filter banks are trainable or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the gradients for Mel
 filter banks will also be calculated and the Mel filter banks will be updated during model
 training. Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -240,7 +253,6 @@ training. Default value is <code class="docutils literal notranslate"><span clas
 kernels will also be caluclated and the STFT kernels will be updated during model training.
 Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, it shows layer information. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it suppresses all prints.</p></li>
-<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -274,8 +286,8 @@ Default value is <code class="docutils literal notranslate"><span class="pre">Fa
 </tbody>
 </table>
 <dl class="py method">
-<dt id="nnAudio.Spectrogram.MelSpectrogram.extra_repr">
-<code class="sig-name descname">extra_repr</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram.extra_repr" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.MelSpectrogram.extra_repr">
+<span class="sig-name descname"><span class="pre">extra_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram.extra_repr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the extra representation of the module</p>
 <p>To print customized extra information, you should reimplement
 this method in your own modules. Both single-line and multi-line
@@ -283,8 +295,8 @@ strings are acceptable.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="nnAudio.Spectrogram.MelSpectrogram.forward">
-<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.Spectrogram.MelSpectrogram.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.Spectrogram.MelSpectrogram.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a batch of waveforms to Mel spectrograms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -309,37 +321,29 @@ It will be automatically broadcast to the right shape</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="nnAudio.Spectrogram.STFT.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.STFT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="nnAudio.Spectrogram.MFCC.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.MFCC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="nnAudio.Spectrogram.STFT.html" class="btn btn-neutral float-right" title="nnAudio.Spectrogram.STFT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.Spectrogram.MFCC.html" class="btn btn-neutral float-left" title="nnAudio.Spectrogram.MFCC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Cheuk Kin Wai
+        &#169; Copyright 2019, Cheuk Kin Wai.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
