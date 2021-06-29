@@ -21,7 +21,6 @@ else:
 # librosa example audio for testing
 example_y, example_sr = librosa.load(librosa.util.example_audio_file())
 
-
 @pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)  
 @pytest.mark.parametrize("device", [*device_args])
 def test_inverse2(n_fft, hop_length, window, device):
