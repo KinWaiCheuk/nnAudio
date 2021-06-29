@@ -3,6 +3,7 @@ Module containing all the spectrogram classes
 """
 
 # 0.2.0
+import sys
 
 import torch
 import torch.nn as nn
@@ -20,6 +21,24 @@ from .utils import *
 
 sz_float = 4    # size of a float
 epsilon = 10e-8 # fudge factor for normalization
+
+# Acquires and parses the PyTorch version
+__TORCH_GTE_1_7 = False
+split_version = torch.__version__.split('.')
+major_version = int(split_version[0])
+minor_version = int(split_version[1])
+if major_version > 1 or (major_version == 1 and minor_version >= 7):
+    __TORCH_GTE_1_7 = True
+    import torch.fft
+    if "torch.fft" not in sys.modules:
+        raise RuntimeError("torch.fft module available but not imported")
+
+def rfft_fn(x, n=None, onesided=False):
+    if __TORCH_GTE_1_7:
+        y = torch.fft.fft(x)
+        return torch.view_as_real(y)
+    else:
+        return torch.rfft(x, n, onesided=onesided)
 
 ### --------------------------- Spectrogram Classes ---------------------------###
 class STFT(torch.nn.Module):
@@ -563,7 +582,7 @@ class MFCC(torch.nn.Module):
         N = x_shape[-1]
 
         v = torch.cat([x[:, :, ::2], x[:, :, 1::2].flip([2])], dim=2)
-        Vc = torch.rfft(v, 1, onesided=False)
+        Vc = rfft_fn(v, 1, onesided=False)
 
         # TODO: Can make the W_r and W_i trainable here
         k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
@@ -2251,10 +2270,10 @@ class Combined_Frequency_Periodicity(nn.Module):
         if self.NumofLayer >= 2:
             for gc in range(1, self.NumofLayer):
                 if np.remainder(gc, 2) == 1:
-                    ceps = torch.rfft(spec, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
+                    ceps = rfft_fn(spec, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
                     ceps = self.nonlinear_func(ceps, self.g[gc], self.tc_idx)
                 else:
-                    spec = torch.rfft(ceps, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
+                    spec = rfft_fn(ceps, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
                     spec = self.nonlinear_func(spec, self.g[gc], self.fc_idx)    
         
         return spec, ceps
@@ -2440,10 +2459,10 @@ class CFP(nn.Module):
         if self.NumofLayer >= 2:
             for gc in range(1, self.NumofLayer):
                 if np.remainder(gc, 2) == 1:
-                    ceps = torch.rfft(spec, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
+                    ceps = rfft_fn(spec, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
                     ceps = self.nonlinear_func(ceps, self.g[gc], self.tc_idx)
                 else:
-                    spec = torch.rfft(ceps, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
+                    spec = rfft_fn(ceps, 1, onesided=False)[:,:,:,0]/np.sqrt(self.N)
                     spec = self.nonlinear_func(spec, self.g[gc], self.fc_idx)    
         
         return spec, ceps
