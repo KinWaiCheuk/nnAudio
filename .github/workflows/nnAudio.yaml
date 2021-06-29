@@ -1,0 +1,28 @@
+name: nnAudio
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        torch-version: [1.6, 1.7, 1.8]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies pytorch version == ${{ matrix.torch-version }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install librosa
+          pip insatll torch==${{matrix.torch-version}}
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Test with pytest
+        run: |
+          cd Installation/ && pytest
