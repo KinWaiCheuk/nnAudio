@@ -29,7 +29,11 @@ def test_inverse2(n_fft, hop_length, window, device):
     istft = iSTFT(n_fft=n_fft, hop_length=hop_length, window=window).to(device)
     X = stft(x.unsqueeze(0), output_format="Complex")
     x_recon = istft(X, length=x.shape[0], onesided=True).squeeze()
-    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-5, atol=1e-3)    
+    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-5, atol=1e-3)  
+    x = torch.randn(4,16000).to(device)
+    X = stft(x, output_format="Complex")
+    x_recon = istft(X, length=x.shape[1], onesided=True).squeeze()    
+    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-5, atol=1e-3)     
 
 @pytest.mark.parametrize("n_fft, hop_length, window", stft_parameters)
 @pytest.mark.parametrize("device", [*device_args])
@@ -39,6 +43,10 @@ def test_inverse(n_fft, hop_length, window, device):
     X = stft(x.unsqueeze(0), output_format="Complex")
     x_recon = stft.inverse(X, length=x.shape[0]).squeeze()
     assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-3, atol=1)
+    x = torch.randn(4,16000).to(device)
+    X = stft(x, output_format="Complex")
+    x_recon = stft.inverse(X, length=x.shape[1]).squeeze() 
+    assert np.allclose(x.cpu(), x_recon.cpu(), rtol=1e-5, atol=1e-3)      
     
 
     
@@ -322,7 +330,8 @@ def test_mfcc(device):
     mfcc = MFCC(sr=example_sr).to(device)
     X = mfcc(torch.tensor(x, device=device).unsqueeze(0)).squeeze()
     X_librosa = librosa.feature.mfcc(x, sr=example_sr)
-    assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-3)
+    assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-2)
+
 
 @pytest.mark.parametrize("device", [*device_args])
 def test_cfp_original(device):
@@ -357,14 +366,6 @@ def test_cfp_new(device):
     X = cfp_layer(x)
     ground_truth = torch.load("tests/ground-truths/cfp_new.pt")    
     assert torch.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-1)
-
-@pytest.mark.parametrize("device", [*device_args])
-def test_mfcc(device):
-    x = example_y
-    mfcc = MFCC(sr=example_sr).to(device)
-    X = mfcc(torch.tensor(x, device=device).unsqueeze(0)).squeeze()
-    X_librosa = librosa.feature.mfcc(x, sr=example_sr)
-    assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-3)    
     
 
 
