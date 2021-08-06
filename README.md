@@ -8,7 +8,7 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 
 or
 
-`pip install nnAudio==0.2.3`
+`pip install nnAudio==0.2.5`
 
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
@@ -36,18 +36,10 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 ## News & Changelog
 To view the full changelog, please go to [CHANGELOG.md](CHANGELOG.md)
 
-**version 0.2.4** (11 June 2021): 
-1. CQT2010 bug has been fixed [#85](/../../issues/85).
-1. Provide a wider support for scipy versions using `from scipy.fftpack import fft` in [utils.py](https://github.com/KinWaiCheuk/nnAudio/blob/e9b1697963f0fd8e5030b130a30974bc06408baf/Installation/nnAudio/utils.py#L13)
-1. Documentation error for STFT has been fixed [#90](/../../issues/90)
-
-This version can be obtained via:
-
-`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`
-
-or
-
-`pip install nnAudio==0.2.4`
+**version 0.2.5** (06 Aug 2021): 
+1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
+1. Add more test cases in unit test 
+1. Refactor `STFT` and `iSTFT`
 
 
 ## How to cite nnAudio

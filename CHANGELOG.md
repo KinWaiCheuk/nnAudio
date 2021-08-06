@@ -1,4 +1,9 @@
 # Changelog
+## version 0.2.5 (06 Aug 2021): 
+1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
+1. Add more test cases in unit test 
+1. Refactor `STFT` and `iSTFT`
+
 
 ## version 0.2.4 (11 June 2021): 
 1. CQT2010 bug has been fixed [#85](/../../issues/85).
