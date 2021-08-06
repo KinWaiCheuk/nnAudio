@@ -34,7 +34,7 @@ def uniform_distribution(r1,r2, *size, device):
 def extend_fbins(X):
     """Extending the number of frequency bins from `n_fft//2+1` back to `n_fft` by
        reversing all bins except DC and Nyquist and append it on top of existing spectrogram"""
-    X_upper = torch.flip(X[:,1:-1],(0,1))
+    X_upper = X[:,1:-1].flip(1)
     X_upper[:,:,:,1] = -X_upper[:,:,:,1] # For the imaganinry part, it is an odd function
     return torch.cat((X[:, :, :], X_upper), 1)
 
