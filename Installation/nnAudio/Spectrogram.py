@@ -40,8 +40,57 @@ def rfft_fn(x, n=None, onesided=False):
     else:
         return torch.rfft(x, n, onesided=onesided)
 
+class STFTBase(torch.nn.Module):
+    """
+    STFT and iSTFT share the same `inverse_stft` function
+    """
+    def inverse_stft(self, X, kernel_cos, kernel_sin, onesided=True, length=None, refresh_win=True):
+        # If the input spectrogram contains only half of the n_fft
+        # Use extend_fbins function to get back another half
+        if onesided:
+            X = extend_fbins(X) # extend freq
+        X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
+
+        # broadcast dimensions to support 2D convolution
+        X_real_bc = X_real.unsqueeze(1)
+        X_imag_bc = X_imag.unsqueeze(1) 
+        a1 = conv2d(X_real_bc, kernel_cos, stride=(1,1))
+        b2 = conv2d(X_imag_bc, kernel_sin, stride=(1,1))
+        # compute real and imag part. signal lies in the real part
+        real = a1 - b2
+        real = real.squeeze(-2)*self.window_mask
+
+        # Normalize the amplitude with n_fft
+        real /= (self.n_fft)
+
+        # Overlap and Add algorithm to connect all the frames
+        real = overlap_add(real, self.stride)
+
+        # Prepare the window sumsqure for division
+        # Only need to create this window once to save time
+        # Unless the input spectrograms have different time steps
+        if hasattr(self, 'w_sum')==False or refresh_win==True:
+            self.w_sum = torch_window_sumsquare(self.window_mask.flatten(), X.shape[2], self.stride, self.n_fft).flatten()
+            self.nonzero_indices = (self.w_sum>1e-10)    
+        else:
+            pass
+        real[:, self.nonzero_indices] = real[:,self.nonzero_indices].div(self.w_sum[self.nonzero_indices])
+        # Remove padding
+        if length is None:       
+            if self.center:
+                real = real[:, self.pad_amount:-self.pad_amount]
+
+        else:
+            if self.center:
+                real = real[:, self.pad_amount:self.pad_amount + length]    
+            else:
+                real = real[:, :length] 
+
+        return real   
+
+
 ### --------------------------- Spectrogram Classes ---------------------------###
-class STFT(torch.nn.Module):
+class STFT(STFTBase):
     """This function is to calculate the short-time Fourier transform (STFT) of the input signal.
     Input signal should be in either of the following shapes.\n
     1. ``(len_audio)``\n
@@ -291,49 +340,8 @@ class STFT(torch.nn.Module):
         assert X.dim()==4 , "Inverse iSTFT only works for complex number," \
                             "make sure our tensor is in the shape of (batch, freq_bins, timesteps, 2)."\
                             "\nIf you have a magnitude spectrogram, please consider using Griffin-Lim."
-        if onesided:
-            X = extend_fbins(X) # extend freq
+        return self.inverse_stft(X, self.kernel_cos_inv, self.kernel_sin_inv, onesided, length, refresh_win)        
 
-    
-        X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
-
-        # broadcast dimensions to support 2D convolution
-        X_real_bc = X_real.unsqueeze(1)
-        X_imag_bc = X_imag.unsqueeze(1)
-        a1 = conv2d(X_real_bc, self.kernel_cos_inv, stride=(1,1))
-        b2 = conv2d(X_imag_bc, self.kernel_sin_inv, stride=(1,1))
-       
-        # compute real and imag part. signal lies in the real part
-        real = a1 - b2
-        real = real.squeeze(-2)*self.window_mask
-
-        # Normalize the amplitude with n_fft
-        real /= (self.n_fft)
-
-        # Overlap and Add algorithm to connect all the frames
-        real = overlap_add(real, self.stride)
-    
-        # Prepare the window sumsqure for division
-        # Only need to create this window once to save time
-        # Unless the input spectrograms have different time steps
-        if hasattr(self, 'w_sum')==False or refresh_win==True:
-            self.w_sum = torch_window_sumsquare(self.window_mask.flatten(), X.shape[2], self.stride, self.n_fft).flatten()
-            self.nonzero_indices = (self.w_sum>1e-10)    
-        else:
-            pass
-        real[:, self.nonzero_indices] = real[:,self.nonzero_indices].div(self.w_sum[self.nonzero_indices])
-        # Remove padding
-        if length is None:       
-            if self.center:
-                real = real[:, self.pad_amount:-self.pad_amount]
-
-        else:
-            if self.center:
-                real = real[:, self.pad_amount:self.pad_amount + length]    
-            else:
-                real = real[:, :length] 
-            
-        return real
     
     def extra_repr(self) -> str:
         return 'n_fft={}, Fourier Kernel size={}, iSTFT={}, trainable={}'.format(
@@ -1839,7 +1847,7 @@ class DFT(torch.nn.Module):
 
 
     
-class iSTFT(torch.nn.Module):
+class iSTFT(STFTBase):
     """This class is to convert spectrograms back to waveforms. It only works for the complex value spectrograms.
     If you have the magnitude spectrograms, please use :func:`~nnAudio.Spectrogram.Griffin_Lim`. 
     The parameters (e.g. n_fft, window) need to be the same as the STFT in order to obtain the correct inverse.
@@ -1997,53 +2005,8 @@ class iSTFT(torch.nn.Module):
         assert X.dim()==4 , "Inverse iSTFT only works for complex number," \
                             "make sure our tensor is in the shape of (batch, freq_bins, timesteps, 2)" 
         
-        # If the input spectrogram contains only half of the n_fft
-        # Use extend_fbins function to get back another half
-        if onesided:
-            X = extend_fbins(X) # extend freq
-
-    
-        X_real, X_imag = X[:, :, :, 0], X[:, :, :, 1]
-
-        # broadcast dimensions to support 2D convolution
-        X_real_bc = X_real.unsqueeze(1)
-        X_imag_bc = X_imag.unsqueeze(1)
+        return self.inverse_stft(X, self.kernel_cos, self.kernel_sin, onesided, length, refresh_win)  
         
-        a1 = conv2d(X_real_bc, self.kernel_cos, stride=(1,1))
-        b2 = conv2d(X_imag_bc, self.kernel_sin, stride=(1,1))
-       
-        # compute real and imag part. signal lies in the real part
-        real = a1 - b2
-        real = real.squeeze(-2)*self.window_mask
-
-        # Normalize the amplitude with n_fft
-        real /= (self.n_fft)
-
-        # Overlap and Add algorithm to connect all the frames
-        real = overlap_add(real, self.stride)
-    
-        # Prepare the window sumsqure for division
-        # Only need to create this window once to save time
-        # Unless the input spectrograms have different time steps
-        if hasattr(self, 'w_sum')==False or refresh_win==True:
-            self.w_sum = torch_window_sumsquare(self.window_mask.flatten(), X.shape[2], self.stride, self.n_fft).flatten()
-            self.nonzero_indices = (self.w_sum>1e-10)    
-        else:
-            pass
-        real[:, self.nonzero_indices] = real[:,self.nonzero_indices].div(self.w_sum[self.nonzero_indices])
-        # Remove padding
-        if length is None:       
-            if self.center:
-                real = real[:, self.pad_amount:-self.pad_amount]
-
-        else:
-            if self.center:
-                real = real[:, self.pad_amount:self.pad_amount + length]    
-            else:
-                real = real[:, :length] 
-            
-        return real
-    
     
 class Griffin_Lim(torch.nn.Module):
     """
