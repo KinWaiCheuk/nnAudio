@@ -2281,7 +2281,7 @@ class Combined_Frequency_Periodicity(nn.Module):
             X[:, :, -cutoff:] = 0
             X = X.pow(g)
         else: # when g=0, it converges to log
-            X = torch.log(X)
+            X = torch.log(X.relu())
             X[:, :, :cutoff] = 0
             X[:, :, -cutoff:] = 0
         return X   
@@ -2470,7 +2470,7 @@ class CFP(nn.Module):
             X[:, :, -cutoff:] = 0
             X = X.pow(g)
         else: # when g=0, it converges to log
-            X = torch.log(X)
+            X = torch.log(X.relu())
             X[:, :, :cutoff] = 0
             X[:, :, -cutoff:] = 0
         return X   
