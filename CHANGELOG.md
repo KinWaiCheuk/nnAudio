@@ -3,6 +3,7 @@
 1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
 1. Add more test cases in unit test 
 1. Refactor `STFT` and `iSTFT`
+This version can be obtained via `pip install nnAudio==0.2.5`.
 
 
 ## version 0.2.4 (11 June 2021): 
@@ -10,13 +11,7 @@
 1. Provide a wider support for scipy versions using `from scipy.fftpack import fft` in [utils.py](https://github.com/KinWaiCheuk/nnAudio/blob/e9b1697963f0fd8e5030b130a30974bc06408baf/Installation/nnAudio/utils.py#L13)
 1. Documentation error for STFT has been fixed [#90](/../../issues/90)
 
-This version can be obtained via:
-
-`pip install git+https://github.com/KinWaiCheuk/nnAudio.git#subdirectory=Installation`.
-
-or
-
-`pip install nnAudio==0.2.4`
+This version can be obtained via `pip install nnAudio==0.2.4`.
 
 ## version 0.2.3 (10 June 2021): 
 Broken package, please ignore this one.

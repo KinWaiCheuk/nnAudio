@@ -20,7 +20,7 @@ from .librosa_functions import *
 from .utils import * 
 
 sz_float = 4    # size of a float
-epsilon = 10e-8 # fudge factor for normalization
+epsilon = 1e-8 # fudge factor for normalization
 
 # Acquires and parses the PyTorch version
 __TORCH_GTE_1_7 = False
@@ -2281,7 +2281,7 @@ class Combined_Frequency_Periodicity(nn.Module):
             X[:, :, -cutoff:] = 0
             X = X.pow(g)
         else: # when g=0, it converges to log
-            X = torch.log(X.relu())
+            X = torch.log(X.relu()+epsilon)
             X[:, :, :cutoff] = 0
             X[:, :, -cutoff:] = 0
         return X   
@@ -2470,7 +2470,7 @@ class CFP(nn.Module):
             X[:, :, -cutoff:] = 0
             X = X.pow(g)
         else: # when g=0, it converges to log
-            X = torch.log(X.relu())
+            X = torch.log(X.relu()+epsilon)
             X[:, :, :cutoff] = 0
             X[:, :, -cutoff:] = 0
         return X   
