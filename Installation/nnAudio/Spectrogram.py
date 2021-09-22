@@ -2507,12 +2507,179 @@ class CFP(nn.Module):
 
         # Calculating the quef_band_transformation                
         f = 1/q # divide by 0, do I need to fix this?   
-        quef_band_transformation = np.zeros((Nest-1, len(f)), dtype=np.float)
-        for i in range(1, Nest-1):      
-            for j in range(int(round(fs/central_freq[i+1])), int(round(fs/central_freq[i-1])+1)):
-                if f[j] > central_freq[i-1] and f[j] < central_freq[i]:
-                    quef_band_transformation[i, j] = (f[j] - central_freq[i-1])/(central_freq[i] - central_freq[i-1])
-                elif f[j] > central_freq[i] and f[j] < central_freq[i+1]:
-                    quef_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (central_freq[i + 1] - central_freq[i])                    
-                        
-        return freq_band_transformation, quef_band_transformation    
+        quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
+        for i in range(1, Nest - 1):
+            for j in range(int(round(fs / central_freq[i + 1])), int(round(fs / central_freq[i - 1]) + 1)):
+                if f[j] > central_freq[i - 1] and f[j] < central_freq[i]:
+                    quef_band_transformation[i, j] = (f[j] - central_freq[i - 1]) / (
+                                central_freq[i] - central_freq[i - 1])
+                elif f[j] > central_freq[i] and f[j] < central_freq[i + 1]:
+                    quef_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (
+                                central_freq[i + 1] - central_freq[i])
+
+        return freq_band_transformation, quef_band_transformation
+
+
+class Chromagram(torch.nn.Module):
+    """This function is to calculate the librosa's Chromagram of the input signal.
+    Input signal should be in either of the following shapes.\n
+    1. ``(len_audio)``\n
+    2. ``(num_audio, len_audio)``\n
+    3. ``(num_audio, 1, len_audio)``
+
+    The correct shape will be inferred automatically if the input follows these 3 shapes.
+    Most of the arguments follow the convention from librosa.
+    This class inherits from ``torch.nn.Module``, therefore, the usage is same as ``torch.nn.Module``.
+
+    Parameters
+    ----------
+    sr : int
+        The sampling rate for the input audio.
+        It is used to calculate the correct ``fmin`` and ``fmax``.
+        Setting the correct sampling rate is very important for calculating the correct frequency.
+
+    n_fft : int
+        The window size for the STFT. Default value is 2048
+
+    win_length : int
+        the size of window frame and STFT filter.
+        Default: None (treated as equal to n_fft)
+
+     n_chroma  : int > 0
+        number of chroma bins
+
+    hop_length : int
+        The hop (or stride) size. Default value is 512.
+
+    window : str
+        The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to
+        scipy documentation for possible windowing functions. The default value is 'hann'.
+
+    center : bool
+        Putting the STFT keneral at the center of the time-step or not. If ``False``,
+        the time index is the beginning of the STFT kernel, if ``True``, the time index is the
+        center of the STFT kernel. Default value if ``True``.
+
+    pad_mode : str
+        The padding method. Default value is 'reflect'.
+
+    tuning : float
+        Tuning deviation from A440 in fractions of a chroma bin.
+
+    ctroct    : float > 0 [scalar]
+
+    octwidth  : float > 0 or None [scalar]
+        ``ctroct`` and ``octwidth`` specify a dominance window:
+        a Gaussian weighting centered on ``ctroct`` (in octs, A0 = 27.5Hz)
+        and with a gaussian half-width of ``octwidth``.
+
+        Set ``octwidth`` to `None` to use a flat weighting.
+
+    norm : float > 0 or np.inf
+        Normalization factor for each filter
+
+    base_c : bool
+        If True, the filter bank will start at 'C'.
+        If False, the filter bank will start at 'A'.
+
+    norm :
+        if 1, divide the triangular mel weights by the width of the mel band
+        (area normalization, AKA 'slaney' default in librosa).
+        Otherwise, leave all the triangles aiming for
+        a peak value of 1.0
+
+    trainable_chromagram : bool
+        Determine if the chroma filter banks are trainable or not. If ``True``, the gradients for chroma
+        filter banks will also be calculated and the chroma filter banks will be updated during model
+        training. Default value is ``False``.
+
+    trainable_STFT : bool
+        Determine if the STFT kenrels are trainable or not. If ``True``, the gradients for STFT
+        kernels will also be caluclated and the STFT kernels will be updated during model training.
+        Default value is ``False``.
+
+    verbose : bool
+        If ``True``, it shows layer information. If ``False``, it suppresses all prints.
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.  shape = ``(num_samples, freq_bins,time_steps)``.
+
+    Examples
+    --------
+    >>> spec_layer = Spectrogram.Chromagram()
+    >>> specs = spec_layer(x)
+    """
+
+    def __init__(self, sr=22050, n_fft=2048, win_length=None, n_chroma=12, hop_length=512,
+                 window='hann', center=True, pad_mode='reflect', power=2.0, base_c=True,
+                 tuning=0.0, ctroct=5.0, octwidth=2, norm=2, trainable_chroma=False, trainable_STFT=False,
+                 verbose=True, **kwargs):
+
+        super().__init__()
+        self.stride = hop_length
+        self.center = center
+        self.pad_mode = pad_mode
+        self.n_fft = n_fft
+        self.power = power
+        self.n_chroma = n_chroma
+        self.trainable_chroma = trainable_chroma
+        self.trainable_STFT = trainable_STFT
+        self.ctroct = ctroct
+        self.tuning = tuning
+        self.octwidth = octwidth
+        self.base_c = base_c
+
+        # Preparing for the stft layer. No need for center
+        self.stft = STFT(n_fft=n_fft, win_length=win_length, freq_bins=None,
+                         hop_length=hop_length, window=window, freq_scale='no',
+                         center=center, pad_mode=pad_mode, sr=sr, trainable=trainable_STFT,
+                         output_format="Magnitude", verbose=verbose, **kwargs)
+
+        # Create filter windows for stft
+        start = time()
+
+        # Creating kernel for chromagram
+        start = time()
+        chroma_basis = chroma(sr, n_fft, n_chroma=n_chroma, tuning=tuning, ctroct=ctroct, octwidth=octwidth,
+                              norm=norm, base_c=base_c, dtype=np.float32)
+        chroma_basis = torch.tensor(chroma_basis)
+
+        if verbose == True:
+            print("STFT filter created, time used = {:.4f} seconds".format(time() - start))
+            print("Chromagram filter created, time used = {:.4f} seconds".format(time() - start))
+        else:
+            pass
+
+        if trainable_chroma:
+            # Making everything nn.Parameter, so that this model can support nn.DataParallel
+            chroma_basis = torch.nn.Parameter(chroma_basis, requires_grad=trainable_chroma)
+            self.register_parameter('chroma_basis', chroma_basis)
+        else:
+            self.register_buffer('chroma_basis', chroma_basis)
+
+    def forward(self, x):
+        """
+        Convert a batch of waveforms to Chroma.
+
+        Parameters
+        ----------
+        x : torch tensor
+            Input signal should be in either of the following shapes.\n
+            1. ``(len_audio)``\n
+            2. ``(num_audio, len_audio)``\n
+            3. ``(num_audio, 1, len_audio)``
+            It will be automatically broadcast to the right shape
+        """
+        x = broadcast_dim(x)
+
+        spec = self.stft(x, output_format='Magnitude') ** self.power
+
+        chromagram = torch.matmul(self.chroma_basis, spec)
+        return chromagram
+
+    def extra_repr(self) -> str:
+        return 'Chroma filter banks size = {}, trainable_mel={}'.format(
+            (*self.chroma_basis.shape,), self.trainable_chroma, self.trainable_STFT
+        )
