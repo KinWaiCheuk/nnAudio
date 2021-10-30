@@ -1,6 +1,7 @@
 """
 Module containing helper functions such as overlap sum and Fourier kernels generators
 """
+import sys
 
 import torch
 from torch.nn.functional import conv1d, fold
@@ -13,7 +14,29 @@ from scipy import signal
 from scipy.fftpack import fft
 import warnings
 
-from nnAudio.librosa_functions import * 
+from nnAudio.librosa_functions import *
+
+sz_float = 4    # size of a float
+epsilon = 1e-8 # fudge factor for normalization
+
+# Acquires and parses the PyTorch version
+__TORCH_GTE_1_7 = False
+split_version = torch.__version__.split('.')
+major_version = int(split_version[0])
+minor_version = int(split_version[1])
+if major_version > 1 or (major_version == 1 and minor_version >= 7):
+    __TORCH_GTE_1_7 = True
+    import torch.fft
+    if "torch.fft" not in sys.modules:
+        raise RuntimeError("torch.fft module available but not imported")
+
+
+def rfft_fn(x, n=None, onesided=False):
+    if __TORCH_GTE_1_7:
+        y = torch.fft.fft(x)
+        return torch.view_as_real(y)
+    else:
+        return torch.rfft(x, n, onesided=onesided)
 
 ## --------------------------- Filter Design ---------------------------##
 def torch_window_sumsquare(w, n_frames, stride, n_fft, power=2):
