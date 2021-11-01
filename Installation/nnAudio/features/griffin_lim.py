@@ -44,16 +44,18 @@ class Griffin_Lim(nn.Module):
 
     """
 
-    def __init__(self,
-                 n_fft,
-                 n_iter=32,
-                 hop_length=None,
-                 win_length=None,
-                 window='hann',
-                 center=True,
-                 pad_mode='reflect',
-                 momentum=0.99,
-                 device='cpu'):
+    def __init__(
+        self,
+        n_fft,
+        n_iter=32,
+        hop_length=None,
+        win_length=None,
+        window="hann",
+        center=True,
+        pad_mode="reflect",
+        momentum=0.99,
+        device="cpu",
+    ):
         super().__init__()
 
         self.n_fft = n_fft
@@ -73,10 +75,9 @@ class Griffin_Lim(nn.Module):
             self.hop_length = hop_length
 
         # Creating window function for stft and istft later
-        self.w = torch.tensor(get_window(window,
-                                         int(self.win_length),
-                                         fftbins=True),
-                              device=device).float()
+        self.w = torch.tensor(
+            get_window(window, int(self.win_length), fftbins=True), device=device
+        ).float()
 
     def forward(self, S):
         """
@@ -88,7 +89,9 @@ class Griffin_Lim(nn.Module):
             Spectrogram of the shape ``(batch, n_fft//2+1, timesteps)``
         """
 
-        assert S.dim() == 3, "Please make sure your input is in the shape of (batch, freq_bins, timesteps)"
+        assert (
+            S.dim() == 3
+        ), "Please make sure your input is in the shape of (batch, freq_bins, timesteps)"
 
         # Initializing Random Phase
         rand_phase = torch.randn(*S.shape, device=self.device)
@@ -104,31 +107,42 @@ class Griffin_Lim(nn.Module):
 
             # spec2wav conversion
             #             print(f'win_length={self.win_length}\tw={self.w.shape}')
-            inverse = torch.istft(S.unsqueeze(-1) * angles,
-                                  self.n_fft,
-                                  self.hop_length,
-                                  win_length=self.win_length,
-                                  window=self.w,
-                                  center=self.center)
+            inverse = torch.istft(
+                S.unsqueeze(-1) * angles,
+                self.n_fft,
+                self.hop_length,
+                win_length=self.win_length,
+                window=self.w,
+                center=self.center,
+            )
             # wav2spec conversion
-            rebuilt = torch.stft(inverse,
-                                 self.n_fft,
-                                 self.hop_length,
-                                 win_length=self.win_length,
-                                 window=self.w,
-                                 pad_mode=self.pad_mode)
+            rebuilt = torch.stft(
+                inverse,
+                self.n_fft,
+                self.hop_length,
+                win_length=self.win_length,
+                window=self.w,
+                pad_mode=self.pad_mode,
+            )
 
             # Phase update rule
-            angles[:, :, :] = rebuilt[:, :, :] - (self.momentum / (1 + self.momentum)) * tprev[:, :, :]
+            angles[:, :, :] = (
+                rebuilt[:, :, :]
+                - (self.momentum / (1 + self.momentum)) * tprev[:, :, :]
+            )
 
             # Phase normalization
-            angles = angles.div(torch.sqrt(angles.pow(2).sum(-1)).unsqueeze(-1) + 1e-16)  # normalizing the phase
+            angles = angles.div(
+                torch.sqrt(angles.pow(2).sum(-1)).unsqueeze(-1) + 1e-16
+            )  # normalizing the phase
 
         # Using the final phase to reconstruct the waveforms
-        inverse = torch.istft(S.unsqueeze(-1) * angles,
-                              self.n_fft,
-                              self.hop_length,
-                              win_length=self.win_length,
-                              window=self.w,
-                              center=self.center)
+        inverse = torch.istft(
+            S.unsqueeze(-1) * angles,
+            self.n_fft,
+            self.hop_length,
+            win_length=self.win_length,
+            window=self.w,
+            center=self.center,
+        )
         return inverse

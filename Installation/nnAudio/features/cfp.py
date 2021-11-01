@@ -63,9 +63,17 @@ class Combined_Frequency_Periodicity(nn.Module):
 
     """
 
-    def __init__(self, fr=2, fs=16000, hop_length=320,
-                 window_size=2049, fc=80, tc=1 / 1000,
-                 g=[0.24, 0.6, 1], NumPerOct=48):
+    def __init__(
+        self,
+        fr=2,
+        fs=16000,
+        hop_length=320,
+        window_size=2049,
+        fc=80,
+        tc=1 / 1000,
+        g=[0.24, 0.6, 1],
+        NumPerOct=48,
+    ):
         super().__init__()
 
         self.window_size = window_size
@@ -73,29 +81,40 @@ class Combined_Frequency_Periodicity(nn.Module):
 
         # variables for STFT part
         self.N = int(fs / float(fr))  # Will be used to calculate padding
-        self.f = fs * np.linspace(0, 0.5, np.round(self.N // 2),
-                                  endpoint=True)  # it won't be used but will be returned
-        self.pad_value = ((self.N - window_size))
+        self.f = fs * np.linspace(
+            0, 0.5, np.round(self.N // 2), endpoint=True
+        )  # it won't be used but will be returned
+        self.pad_value = self.N - window_size
         # Create window function, always blackmanharris?
         h = scipy.signal.blackmanharris(window_size)  # window function for STFT
-        self.register_buffer('h', torch.tensor(h).float())
+        self.register_buffer("h", torch.tensor(h).float())
 
         # variables for CFP
         self.NumofLayer = np.size(g)
         self.g = g
-        self.tc_idx = round(fs * tc)  # index to filter out top tc_idx and bottom tc_idx bins
-        self.fc_idx = round(fc / fr)  # index to filter out top fc_idx and bottom fc_idx bins
+        self.tc_idx = round(
+            fs * tc
+        )  # index to filter out top tc_idx and bottom tc_idx bins
+        self.fc_idx = round(
+            fc / fr
+        )  # index to filter out top fc_idx and bottom fc_idx bins
         self.HighFreqIdx = int(round((1 / tc) / fr) + 1)
         self.HighQuefIdx = int(round(fs / fc) + 1)
 
         # attributes to be returned
-        self.f = self.f[:self.HighFreqIdx]
+        self.f = self.f[: self.HighFreqIdx]
         self.q = np.arange(self.HighQuefIdx) / float(fs)
 
         # filters for the final step
-        freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix', torch.tensor(freq2logfreq_matrix).float())
-        self.register_buffer('quef2logfreq_matrix', torch.tensor(quef2logfreq_matrix).float())
+        freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(
+            self.f, self.q, fr, fc, tc, NumPerOct, fs
+        )
+        self.register_buffer(
+            "freq2logfreq_matrix", torch.tensor(freq2logfreq_matrix).float()
+        )
+        self.register_buffer(
+            "quef2logfreq_matrix", torch.tensor(quef2logfreq_matrix).float()
+        )
 
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])
@@ -103,42 +122,59 @@ class Combined_Frequency_Periodicity(nn.Module):
         if self.NumofLayer >= 2:
             for gc in range(1, self.NumofLayer):
                 if np.remainder(gc, 2) == 1:
-                    ceps = rfft_fn(spec, 1, onesided=False)[:, :, :, 0] / np.sqrt(self.N)
+                    ceps = rfft_fn(spec, 1, onesided=False)[:, :, :, 0] / np.sqrt(
+                        self.N
+                    )
                     ceps = self.nonlinear_func(ceps, self.g[gc], self.tc_idx)
                 else:
-                    spec = rfft_fn(ceps, 1, onesided=False)[:, :, :, 0] / np.sqrt(self.N)
+                    spec = rfft_fn(ceps, 1, onesided=False)[:, :, :, 0] / np.sqrt(
+                        self.N
+                    )
                     spec = self.nonlinear_func(spec, self.g[gc], self.fc_idx)
 
         return spec, ceps
 
     def forward(self, x):
-        tfr0 = torch.stft(x, self.N, hop_length=self.hop_length, win_length=self.window_size,
-                          window=self.h, onesided=False, pad_mode='constant')
-        tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(self.h)  # calcuate magnitude
-        tfr0 = tfr0.transpose(1, 2)[:, 1:-1]  # transpose F and T axis and discard first and last frames
+        tfr0 = torch.stft(
+            x,
+            self.N,
+            hop_length=self.hop_length,
+            win_length=self.window_size,
+            window=self.h,
+            onesided=False,
+            pad_mode="constant",
+        )
+        tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
+            self.h
+        )  # calcuate magnitude
+        tfr0 = tfr0.transpose(1, 2)[
+            :, 1:-1
+        ]  # transpose F and T axis and discard first and last frames
         # The transpose is necessary for rfft later
         # (batch, timesteps, n_fft)
         tfr, ceps = self._CFP(tfr0)
 
         #         return tfr0
         # removing duplicate bins
-        tfr0 = tfr0[:, :, :int(round(self.N / 2))]
-        tfr = tfr[:, :, :int(round(self.N / 2))]
-        ceps = ceps[:, :, :int(round(self.N / 2))]
+        tfr0 = tfr0[:, :, : int(round(self.N / 2))]
+        tfr = tfr[:, :, : int(round(self.N / 2))]
+        ceps = ceps[:, :, : int(round(self.N / 2))]
 
         # Crop up to the highest frequency
-        tfr0 = tfr0[:, :, :self.HighFreqIdx]
-        tfr = tfr[:, :, :self.HighFreqIdx]
-        ceps = ceps[:, :, :self.HighQuefIdx]
+        tfr0 = tfr0[:, :, : self.HighFreqIdx]
+        tfr = tfr[:, :, : self.HighFreqIdx]
+        ceps = ceps[:, :, : self.HighQuefIdx]
         tfrL0 = torch.matmul(self.freq2logfreq_matrix, tfr0.transpose(1, 2))
         tfrLF = torch.matmul(self.freq2logfreq_matrix, tfr.transpose(1, 2))
         tfrLQ = torch.matmul(self.quef2logfreq_matrix, ceps.transpose(1, 2))
         Z = tfrLF * tfrLQ
 
         # Only need to calculate this once
-        self.t = np.arange(self.hop_length,
-                           np.ceil(len(x) / float(self.hop_length)) * self.hop_length,
-                           self.hop_length)  # it won't be used but will be returned
+        self.t = np.arange(
+            self.hop_length,
+            np.ceil(len(x) / float(self.hop_length)) * self.hop_length,
+            self.hop_length,
+        )  # it won't be used but will be returned
 
         return Z, tfrL0, tfrLF, tfrLQ
 
@@ -181,23 +217,30 @@ class Combined_Frequency_Periodicity(nn.Module):
             else:
                 for j in range(l, r):
                     if f[j] > central_freq[i - 1] and f[j] < central_freq[i]:
-                        freq_band_transformation[i, j] = (f[j] - central_freq[i - 1]) / (
-                                    central_freq[i] - central_freq[i - 1])
+                        freq_band_transformation[i, j] = (
+                            f[j] - central_freq[i - 1]
+                        ) / (central_freq[i] - central_freq[i - 1])
                     elif f[j] > central_freq[i] and f[j] < central_freq[i + 1]:
-                        freq_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (
-                                    central_freq[i + 1] - central_freq[i])
+                        freq_band_transformation[i, j] = (
+                            central_freq[i + 1] - f[j]
+                        ) / (central_freq[i + 1] - central_freq[i])
 
         # Calculating the quef_band_transformation
         f = 1 / q  # divide by 0, do I need to fix this?
         quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
         for i in range(1, Nest - 1):
-            for j in range(int(round(fs / central_freq[i + 1])), int(round(fs / central_freq[i - 1]) + 1)):
+            for j in range(
+                int(round(fs / central_freq[i + 1])),
+                int(round(fs / central_freq[i - 1]) + 1),
+            ):
                 if f[j] > central_freq[i - 1] and f[j] < central_freq[i]:
                     quef_band_transformation[i, j] = (f[j] - central_freq[i - 1]) / (
-                                central_freq[i] - central_freq[i - 1])
+                        central_freq[i] - central_freq[i - 1]
+                    )
                 elif f[j] > central_freq[i] and f[j] < central_freq[i + 1]:
                     quef_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (
-                                central_freq[i + 1] - central_freq[i])
+                        central_freq[i + 1] - central_freq[i]
+                    )
 
         return freq_band_transformation, quef_band_transformation
 
@@ -257,9 +300,17 @@ class CFP(nn.Module):
 
     """
 
-    def __init__(self, fr=2, fs=16000, hop_length=320,
-                 window_size=2049, fc=80, tc=1 / 1000,
-                 g=[0.24, 0.6, 1], NumPerOct=48):
+    def __init__(
+        self,
+        fr=2,
+        fs=16000,
+        hop_length=320,
+        window_size=2049,
+        fc=80,
+        tc=1 / 1000,
+        g=[0.24, 0.6, 1],
+        NumPerOct=48,
+    ):
         super().__init__()
 
         self.window_size = window_size
@@ -267,29 +318,40 @@ class CFP(nn.Module):
 
         # variables for STFT part
         self.N = int(fs / float(fr))  # Will be used to calculate padding
-        self.f = fs * np.linspace(0, 0.5, np.round(self.N // 2),
-                                  endpoint=True)  # it won't be used but will be returned
-        self.pad_value = ((self.N - window_size))
+        self.f = fs * np.linspace(
+            0, 0.5, np.round(self.N // 2), endpoint=True
+        )  # it won't be used but will be returned
+        self.pad_value = self.N - window_size
         # Create window function, always blackmanharris?
         h = scipy.signal.blackmanharris(window_size)  # window function for STFT
-        self.register_buffer('h', torch.tensor(h).float())
+        self.register_buffer("h", torch.tensor(h).float())
 
         # variables for CFP
         self.NumofLayer = np.size(g)
         self.g = g
-        self.tc_idx = round(fs * tc)  # index to filter out top tc_idx and bottom tc_idx bins
-        self.fc_idx = round(fc / fr)  # index to filter out top fc_idx and bottom fc_idx bins
+        self.tc_idx = round(
+            fs * tc
+        )  # index to filter out top tc_idx and bottom tc_idx bins
+        self.fc_idx = round(
+            fc / fr
+        )  # index to filter out top fc_idx and bottom fc_idx bins
         self.HighFreqIdx = int(round((1 / tc) / fr) + 1)
         self.HighQuefIdx = int(round(fs / fc) + 1)
 
         # attributes to be returned
-        self.f = self.f[:self.HighFreqIdx]
+        self.f = self.f[: self.HighFreqIdx]
         self.q = np.arange(self.HighQuefIdx) / float(fs)
 
         # filters for the final step
-        freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(self.f, self.q, fr, fc, tc, NumPerOct, fs)
-        self.register_buffer('freq2logfreq_matrix', torch.tensor(freq2logfreq_matrix).float())
-        self.register_buffer('quef2logfreq_matrix', torch.tensor(quef2logfreq_matrix).float())
+        freq2logfreq_matrix, quef2logfreq_matrix = self.create_logfreq_matrix(
+            self.f, self.q, fr, fc, tc, NumPerOct, fs
+        )
+        self.register_buffer(
+            "freq2logfreq_matrix", torch.tensor(freq2logfreq_matrix).float()
+        )
+        self.register_buffer(
+            "quef2logfreq_matrix", torch.tensor(quef2logfreq_matrix).float()
+        )
 
     def _CFP(self, spec):
         spec = torch.relu(spec).pow(self.g[0])
@@ -297,42 +359,59 @@ class CFP(nn.Module):
         if self.NumofLayer >= 2:
             for gc in range(1, self.NumofLayer):
                 if np.remainder(gc, 2) == 1:
-                    ceps = rfft_fn(spec, 1, onesided=False)[:, :, :, 0] / np.sqrt(self.N)
+                    ceps = rfft_fn(spec, 1, onesided=False)[:, :, :, 0] / np.sqrt(
+                        self.N
+                    )
                     ceps = self.nonlinear_func(ceps, self.g[gc], self.tc_idx)
                 else:
-                    spec = rfft_fn(ceps, 1, onesided=False)[:, :, :, 0] / np.sqrt(self.N)
+                    spec = rfft_fn(ceps, 1, onesided=False)[:, :, :, 0] / np.sqrt(
+                        self.N
+                    )
                     spec = self.nonlinear_func(spec, self.g[gc], self.fc_idx)
 
         return spec, ceps
 
     def forward(self, x):
-        tfr0 = torch.stft(x, self.N, hop_length=self.hop_length, win_length=self.window_size,
-                          window=self.h, onesided=False, pad_mode='constant')
-        tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(self.h)  # calcuate magnitude
-        tfr0 = tfr0.transpose(1, 2)  # transpose F and T axis and discard first and last frames
+        tfr0 = torch.stft(
+            x,
+            self.N,
+            hop_length=self.hop_length,
+            win_length=self.window_size,
+            window=self.h,
+            onesided=False,
+            pad_mode="constant",
+        )
+        tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
+            self.h
+        )  # calcuate magnitude
+        tfr0 = tfr0.transpose(
+            1, 2
+        )  # transpose F and T axis and discard first and last frames
         # The transpose is necessary for rfft later
         # (batch, timesteps, n_fft)
         tfr, ceps = self._CFP(tfr0)
 
         #         return tfr0
         # removing duplicate bins
-        tfr0 = tfr0[:, :, :int(round(self.N / 2))]
-        tfr = tfr[:, :, :int(round(self.N / 2))]
-        ceps = ceps[:, :, :int(round(self.N / 2))]
+        tfr0 = tfr0[:, :, : int(round(self.N / 2))]
+        tfr = tfr[:, :, : int(round(self.N / 2))]
+        ceps = ceps[:, :, : int(round(self.N / 2))]
 
         # Crop up to the highest frequency
-        tfr0 = tfr0[:, :, :self.HighFreqIdx]
-        tfr = tfr[:, :, :self.HighFreqIdx]
-        ceps = ceps[:, :, :self.HighQuefIdx]
+        tfr0 = tfr0[:, :, : self.HighFreqIdx]
+        tfr = tfr[:, :, : self.HighFreqIdx]
+        ceps = ceps[:, :, : self.HighQuefIdx]
         tfrL0 = torch.matmul(self.freq2logfreq_matrix, tfr0.transpose(1, 2))
         tfrLF = torch.matmul(self.freq2logfreq_matrix, tfr.transpose(1, 2))
         tfrLQ = torch.matmul(self.quef2logfreq_matrix, ceps.transpose(1, 2))
         Z = tfrLF * tfrLQ
 
         # Only need to calculate this once
-        self.t = np.arange(self.hop_length,
-                           np.ceil(len(x) / float(self.hop_length)) * self.hop_length,
-                           self.hop_length)  # it won't be used but will be returned
+        self.t = np.arange(
+            self.hop_length,
+            np.ceil(len(x) / float(self.hop_length)) * self.hop_length,
+            self.hop_length,
+        )  # it won't be used but will be returned
 
         return Z  # , tfrL0, tfrLF, tfrLQ
 
@@ -375,22 +454,29 @@ class CFP(nn.Module):
             else:
                 for j in range(l, r):
                     if f[j] > central_freq[i - 1] and f[j] < central_freq[i]:
-                        freq_band_transformation[i, j] = (f[j] - central_freq[i - 1]) / (
-                                    central_freq[i] - central_freq[i - 1])
+                        freq_band_transformation[i, j] = (
+                            f[j] - central_freq[i - 1]
+                        ) / (central_freq[i] - central_freq[i - 1])
                     elif f[j] > central_freq[i] and f[j] < central_freq[i + 1]:
-                        freq_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (
-                                    central_freq[i + 1] - central_freq[i])
+                        freq_band_transformation[i, j] = (
+                            central_freq[i + 1] - f[j]
+                        ) / (central_freq[i + 1] - central_freq[i])
 
         # Calculating the quef_band_transformation
         f = 1 / q  # divide by 0, do I need to fix this?
         quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
         for i in range(1, Nest - 1):
-            for j in range(int(round(fs / central_freq[i + 1])), int(round(fs / central_freq[i - 1]) + 1)):
+            for j in range(
+                int(round(fs / central_freq[i + 1])),
+                int(round(fs / central_freq[i - 1]) + 1),
+            ):
                 if f[j] > central_freq[i - 1] and f[j] < central_freq[i]:
                     quef_band_transformation[i, j] = (f[j] - central_freq[i - 1]) / (
-                            central_freq[i] - central_freq[i - 1])
+                        central_freq[i] - central_freq[i - 1]
+                    )
                 elif f[j] > central_freq[i] and f[j] < central_freq[i + 1]:
                     quef_band_transformation[i, j] = (central_freq[i + 1] - f[j]) / (
-                            central_freq[i + 1] - central_freq[i])
+                        central_freq[i + 1] - central_freq[i]
+                    )
 
         return freq_band_transformation, quef_band_transformation

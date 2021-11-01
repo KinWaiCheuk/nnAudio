@@ -52,9 +52,24 @@ class Gammatonegram(nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=44100, n_fft=2048, n_bins=64, hop_length=512, window='hann', center=True, pad_mode='reflect',
-                 power=2.0, htk=False, fmin=20.0, fmax=None, norm=1, trainable_bins=False, trainable_STFT=False,
-                 verbose=True):
+    def __init__(
+        self,
+        sr=44100,
+        n_fft=2048,
+        n_bins=64,
+        hop_length=512,
+        window="hann",
+        center=True,
+        pad_mode="reflect",
+        power=2.0,
+        htk=False,
+        fmin=20.0,
+        fmax=None,
+        norm=1,
+        trainable_bins=False,
+        trainable_STFT=False,
+        verbose=True,
+    ):
         super(Gammatonegram, self).__init__()
         self.stride = hop_length
         self.center = center
@@ -64,8 +79,9 @@ class Gammatonegram(nn.Module):
 
         # Create filter windows for stft
         start = time()
-        wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(n_fft, freq_bins=None, window=window, freq_scale='no',
-                                                                  sr=sr)
+        wsin, wcos, self.bins2freq, _, _ = create_fourier_kernels(
+            n_fft, freq_bins=None, window=window, freq_scale="no", sr=sr
+        )
 
         wsin = torch.tensor(wsin, dtype=torch.float)
         wcos = torch.tensor(wcos, dtype=torch.float)
@@ -73,11 +89,11 @@ class Gammatonegram(nn.Module):
         if trainable_STFT:
             wsin = nn.Parameter(wsin, requires_grad=trainable_STFT)
             wcos = nn.Parameter(wcos, requires_grad=trainable_STFT)
-            self.register_parameter('wsin', wsin)
-            self.register_parameter('wcos', wcos)
+            self.register_parameter("wsin", wsin)
+            self.register_parameter("wcos", wcos)
         else:
-            self.register_buffer('wsin', wsin)
-            self.register_buffer('wcos', wcos)
+            self.register_buffer("wsin", wsin)
+            self.register_buffer("wcos", wcos)
 
             # Creating kenral for Gammatone spectrogram
         start = time()
@@ -85,17 +101,25 @@ class Gammatonegram(nn.Module):
         gammatone_basis = torch.tensor(gammatone_basis)
 
         if verbose == True:
-            print("STFT filter created, time used = {:.4f} seconds".format(time() - start))
-            print("Gammatone filter created, time used = {:.4f} seconds".format(time() - start))
+            print(
+                "STFT filter created, time used = {:.4f} seconds".format(time() - start)
+            )
+            print(
+                "Gammatone filter created, time used = {:.4f} seconds".format(
+                    time() - start
+                )
+            )
         else:
             pass
         # Making everything nn.Prarmeter, so that this model can support nn.DataParallel
 
         if trainable_bins:
-            gammatone_basis = nn.Parameter(gammatone_basis, requires_grad=trainable_bins)
-            self.register_parameter('gammatone_basis', gammatone_basis)
+            gammatone_basis = nn.Parameter(
+                gammatone_basis, requires_grad=trainable_bins
+            )
+            self.register_parameter("gammatone_basis", gammatone_basis)
         else:
-            self.register_buffer('gammatone_basis', gammatone_basis)
+            self.register_buffer("gammatone_basis", gammatone_basis)
 
         # if trainable_mel==True:
         #     self.mel_basis = nn.Parameter(self.mel_basis)
@@ -106,15 +130,20 @@ class Gammatonegram(nn.Module):
     def forward(self, x):
         x = broadcast_dim(x)
         if self.center:
-            if self.pad_mode == 'constant':
+            if self.pad_mode == "constant":
                 padding = nn.ConstantPad1d(self.n_fft // 2, 0)
-            elif self.pad_mode == 'reflect':
+            elif self.pad_mode == "reflect":
                 padding = nn.ReflectionPad1d(self.n_fft // 2)
 
             x = padding(x)
 
-        spec = torch.sqrt(conv1d(x, self.wsin, stride=self.stride).pow(2) \
-                          + conv1d(x, self.wcos, stride=self.stride).pow(2)) ** self.power  # Doing STFT by using conv1d
+        spec = (
+            torch.sqrt(
+                conv1d(x, self.wsin, stride=self.stride).pow(2)
+                + conv1d(x, self.wcos, stride=self.stride).pow(2)
+            )
+            ** self.power
+        )  # Doing STFT by using conv1d
 
         gammatonespec = torch.matmul(self.gammatone_basis, spec)
         return gammatonespec

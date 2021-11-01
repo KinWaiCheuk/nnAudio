@@ -6,11 +6,13 @@ To make sure nnAudio would not become broken when updating librosa
 
 import numpy as np
 import warnings
+
 ### ----------------Functions for generating kenral for Mel Spectrogram------------ ###
 # This code is equalvant to from librosa.filters import mel
 # By doing so, we can run nnAudio without installing librosa
-def fft2gammatonemx(sr=20000, n_fft=2048, n_bins=64, width=1.0, fmin=0.0,
-                    fmax=11025, maxlen=1024):
+def fft2gammatonemx(
+    sr=20000, n_fft=2048, n_bins=64, width=1.0, fmin=0.0, fmax=11025, maxlen=1024
+):
     """
     # Ellis' description in MATLAB:
     # [wts,cfreqa] = fft2gammatonemx(nfft, sr, nfilts, width, minfreq, maxfreq, maxlen)
@@ -34,64 +36,123 @@ def fft2gammatonemx(sr=20000, n_fft=2048, n_bins=64, width=1.0, fmin=0.0,
     wts = np.zeros([n_bins, n_fft], dtype=np.float32)
 
     # after Slaney's MakeERBFilters
-    EarQ = 9.26449;
-    minBW = 24.7;
-    order = 1;
+    EarQ = 9.26449
+    minBW = 24.7
+    order = 1
 
     nFr = np.array(range(n_bins)) + 1
     em = EarQ * minBW
-    cfreqs = (fmax + em) * np.exp(nFr * (-np.log(fmax + em) + np.log(fmin + em)) / n_bins) - em
+    cfreqs = (fmax + em) * np.exp(
+        nFr * (-np.log(fmax + em) + np.log(fmin + em)) / n_bins
+    ) - em
     cfreqs = cfreqs[::-1]
 
     GTord = 4
     ucircArray = np.array(range(int(n_fft / 2 + 1)))
-    ucirc = np.exp(1j * 2 * np.pi * ucircArray / n_fft);
+    ucirc = np.exp(1j * 2 * np.pi * ucircArray / n_fft)
     # justpoles = 0 :taking out the 'if' corresponding to this.
 
-    ERB = width * np.power(np.power(cfreqs / EarQ, order) + np.power(minBW, order), 1 / order);
-    B = 1.019 * 2 * np.pi * ERB;
+    ERB = width * np.power(
+        np.power(cfreqs / EarQ, order) + np.power(minBW, order), 1 / order
+    )
+    B = 1.019 * 2 * np.pi * ERB
     r = np.exp(-B / sr)
     theta = 2 * np.pi * cfreqs / sr
     pole = r * np.exp(1j * theta)
     T = 1 / sr
-    ebt = np.exp(B * T);
-    cpt = 2 * cfreqs * np.pi * T;
-    ccpt = 2 * T * np.cos(cpt);
-    scpt = 2 * T * np.sin(cpt);
-    A11 = -np.divide(np.divide(ccpt, ebt) + np.divide(np.sqrt(3 + 2 ** 1.5) * scpt, ebt), 2);
-    A12 = -np.divide(np.divide(ccpt, ebt) - np.divide(np.sqrt(3 + 2 ** 1.5) * scpt, ebt), 2);
-    A13 = -np.divide(np.divide(ccpt, ebt) + np.divide(np.sqrt(3 - 2 ** 1.5) * scpt, ebt), 2);
-    A14 = -np.divide(np.divide(ccpt, ebt) - np.divide(np.sqrt(3 - 2 ** 1.5) * scpt, ebt), 2);
-    zros = -np.array([A11, A12, A13, A14]) / T;
+    ebt = np.exp(B * T)
+    cpt = 2 * cfreqs * np.pi * T
+    ccpt = 2 * T * np.cos(cpt)
+    scpt = 2 * T * np.sin(cpt)
+    A11 = -np.divide(
+        np.divide(ccpt, ebt) + np.divide(np.sqrt(3 + 2 ** 1.5) * scpt, ebt), 2
+    )
+    A12 = -np.divide(
+        np.divide(ccpt, ebt) - np.divide(np.sqrt(3 + 2 ** 1.5) * scpt, ebt), 2
+    )
+    A13 = -np.divide(
+        np.divide(ccpt, ebt) + np.divide(np.sqrt(3 - 2 ** 1.5) * scpt, ebt), 2
+    )
+    A14 = -np.divide(
+        np.divide(ccpt, ebt) - np.divide(np.sqrt(3 - 2 ** 1.5) * scpt, ebt), 2
+    )
+    zros = -np.array([A11, A12, A13, A14]) / T
     wIdx = range(int(n_fft / 2 + 1))
-    gain = np.abs((-2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T + 2 * np.exp(
-        -(B * T) + 2 * 1j * cfreqs * np.pi * T) * T * (
-                               np.cos(2 * cfreqs * np.pi * T) - np.sqrt(3 - 2 ** (3 / 2)) * np.sin(
-                           2 * cfreqs * np.pi * T))) * (-2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T + 2 * np.exp(
-        -(B * T) + 2 * 1j * cfreqs * np.pi * T) * T * (np.cos(2 * cfreqs * np.pi * T) + np.sqrt(
-        3 - 2 ** (3 / 2)) * np.sin(2 * cfreqs * np.pi * T))) * (
-                              -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T + 2 * np.exp(
-                          -(B * T) + 2 * 1j * cfreqs * np.pi * T) * T * (
-                                          np.cos(2 * cfreqs * np.pi * T) - np.sqrt(3 + 2 ** (3 / 2)) * np.sin(
-                                      2 * cfreqs * np.pi * T))) * (
-                              -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T + 2 * np.exp(
-                          -(B * T) + 2 * 1j * cfreqs * np.pi * T) * T * (
-                                          np.cos(2 * cfreqs * np.pi * T) + np.sqrt(3 + 2 ** (3 / 2)) * np.sin(
-                                      2 * cfreqs * np.pi * T))) / (
-                              -2 / np.exp(2 * B * T) - 2 * np.exp(4 * 1j * cfreqs * np.pi * T) + 2 * (
-                                  1 + np.exp(4 * 1j * cfreqs * np.pi * T)) / np.exp(B * T)) ** 4);
+    gain = np.abs(
+        (
+            -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T
+            + 2
+            * np.exp(-(B * T) + 2 * 1j * cfreqs * np.pi * T)
+            * T
+            * (
+                np.cos(2 * cfreqs * np.pi * T)
+                - np.sqrt(3 - 2 ** (3 / 2)) * np.sin(2 * cfreqs * np.pi * T)
+            )
+        )
+        * (
+            -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T
+            + 2
+            * np.exp(-(B * T) + 2 * 1j * cfreqs * np.pi * T)
+            * T
+            * (
+                np.cos(2 * cfreqs * np.pi * T)
+                + np.sqrt(3 - 2 ** (3 / 2)) * np.sin(2 * cfreqs * np.pi * T)
+            )
+        )
+        * (
+            -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T
+            + 2
+            * np.exp(-(B * T) + 2 * 1j * cfreqs * np.pi * T)
+            * T
+            * (
+                np.cos(2 * cfreqs * np.pi * T)
+                - np.sqrt(3 + 2 ** (3 / 2)) * np.sin(2 * cfreqs * np.pi * T)
+            )
+        )
+        * (
+            -2 * np.exp(4 * 1j * cfreqs * np.pi * T) * T
+            + 2
+            * np.exp(-(B * T) + 2 * 1j * cfreqs * np.pi * T)
+            * T
+            * (
+                np.cos(2 * cfreqs * np.pi * T)
+                + np.sqrt(3 + 2 ** (3 / 2)) * np.sin(2 * cfreqs * np.pi * T)
+            )
+        )
+        / (
+            -2 / np.exp(2 * B * T)
+            - 2 * np.exp(4 * 1j * cfreqs * np.pi * T)
+            + 2 * (1 + np.exp(4 * 1j * cfreqs * np.pi * T)) / np.exp(B * T)
+        )
+        ** 4
+    )
     # in MATLAB, there used to be 64 where here it says n_bins:
-    wts[:, wIdx] = ((T ** 4) / np.reshape(gain, (n_bins, 1))) * np.abs(
-        ucirc - np.reshape(zros[0], (n_bins, 1))) * np.abs(ucirc - np.reshape(zros[1], (n_bins, 1))) * np.abs(
-        ucirc - np.reshape(zros[2], (n_bins, 1))) * np.abs(ucirc - np.reshape(zros[3], (n_bins, 1))) * (np.abs(
-        np.power(np.multiply(np.reshape(pole, (n_bins, 1)) - ucirc, np.conj(np.reshape(pole, (n_bins, 1))) - ucirc),
-                 -GTord)));
-    wts = wts[:, range(maxlen)];
+    wts[:, wIdx] = (
+        ((T ** 4) / np.reshape(gain, (n_bins, 1)))
+        * np.abs(ucirc - np.reshape(zros[0], (n_bins, 1)))
+        * np.abs(ucirc - np.reshape(zros[1], (n_bins, 1)))
+        * np.abs(ucirc - np.reshape(zros[2], (n_bins, 1)))
+        * np.abs(ucirc - np.reshape(zros[3], (n_bins, 1)))
+        * (
+            np.abs(
+                np.power(
+                    np.multiply(
+                        np.reshape(pole, (n_bins, 1)) - ucirc,
+                        np.conj(np.reshape(pole, (n_bins, 1))) - ucirc,
+                    ),
+                    -GTord,
+                )
+            )
+        )
+    )
+    wts = wts[:, range(maxlen)]
 
     return wts, cfreqs
 
-def gammatone(sr, n_fft, n_bins=64, fmin=20.0, fmax=None, htk=False,
-        norm=1, dtype=np.float32):
+
+def gammatone(
+    sr, n_fft, n_bins=64, fmin=20.0, fmax=None, htk=False, norm=1, dtype=np.float32
+):
     """Create a Filterbank matrix to combine FFT bins into Gammatone bins
     Parameters
     ----------
@@ -124,10 +185,18 @@ def gammatone(sr, n_fft, n_bins=64, fmin=20.0, fmax=None, htk=False,
     if fmax is None:
         fmax = float(sr) / 2
     n_bins = int(n_bins)
-    
-    weights,_ = fft2gammatonemx(sr=sr, n_fft=n_fft, n_bins=n_bins, fmin=fmin, fmax=fmax, maxlen=int(n_fft//2+1))
 
-    return (1/n_fft)*weights
+    weights, _ = fft2gammatonemx(
+        sr=sr,
+        n_fft=n_fft,
+        n_bins=n_bins,
+        fmin=fmin,
+        fmax=fmax,
+        maxlen=int(n_fft // 2 + 1),
+    )
+
+    return (1 / n_fft) * weights
+
 
 def mel_to_hz(mels, htk=False):
     """Convert mel bin numbers to frequencies
@@ -155,7 +224,7 @@ def mel_to_hz(mels, htk=False):
     mels = np.asanyarray(mels)
 
     if htk:
-        return 700.0 * (10.0**(mels / 2595.0) - 1.0)
+        return 700.0 * (10.0 ** (mels / 2595.0) - 1.0)
 
     # Fill in the linear scale
     f_min = 0.0
@@ -163,19 +232,20 @@ def mel_to_hz(mels, htk=False):
     freqs = f_min + f_sp * mels
 
     # And now the nonlinear scale
-    min_log_hz = 1000.0                         # beginning of log region (Hz)
-    min_log_mel = (min_log_hz - f_min) / f_sp   # same (Mels)
-    logstep = np.log(6.4) / 27.0                # step size for log region
+    min_log_hz = 1000.0  # beginning of log region (Hz)
+    min_log_mel = (min_log_hz - f_min) / f_sp  # same (Mels)
+    logstep = np.log(6.4) / 27.0  # step size for log region
 
     if mels.ndim:
         # If we have vector data, vectorize
-        log_t = (mels >= min_log_mel)
+        log_t = mels >= min_log_mel
         freqs[log_t] = min_log_hz * np.exp(logstep * (mels[log_t] - min_log_mel))
     elif mels >= min_log_mel:
         # If we have scalar data, check directly
         freqs = min_log_hz * np.exp(logstep * (mels - min_log_mel))
 
     return freqs
+
 
 def hz_to_mel(frequencies, htk=False):
     """Convert Hz to Mels
@@ -213,22 +283,23 @@ def hz_to_mel(frequencies, htk=False):
 
     # Fill in the log-scale part
 
-    min_log_hz = 1000.0                         # beginning of log region (Hz)
-    min_log_mel = (min_log_hz - f_min) / f_sp   # same (Mels)
-    logstep = np.log(6.4) / 27.0                # step size for log region
+    min_log_hz = 1000.0  # beginning of log region (Hz)
+    min_log_mel = (min_log_hz - f_min) / f_sp  # same (Mels)
+    logstep = np.log(6.4) / 27.0  # step size for log region
 
     if frequencies.ndim:
         # If we have array data, vectorize
-        log_t = (frequencies >= min_log_hz)
-        mels[log_t] = min_log_mel + np.log(frequencies[log_t]/min_log_hz) / logstep
+        log_t = frequencies >= min_log_hz
+        mels[log_t] = min_log_mel + np.log(frequencies[log_t] / min_log_hz) / logstep
     elif frequencies >= min_log_hz:
         # If we have scalar data, heck directly
         mels = min_log_mel + np.log(frequencies / min_log_hz) / logstep
 
     return mels
 
+
 def fft_frequencies(sr=22050, n_fft=2048):
-    '''Alternative implementation of `np.fft.fftfreq`
+    """Alternative implementation of `np.fft.fftfreq`
     Parameters
     ----------
     sr : number > 0 [scalar]
@@ -244,20 +315,18 @@ def fft_frequencies(sr=22050, n_fft=2048):
     >>> librosa.fft_frequencies(sr=22050, n_fft=16)
     array([     0.   ,   1378.125,   2756.25 ,   4134.375,
              5512.5  ,   6890.625,   8268.75 ,   9646.875,  11025.   ])
-    '''
+    """
 
-    return np.linspace(0,
-                       float(sr) / 2,
-                       int(1 + n_fft//2),
-                       endpoint=True)
+    return np.linspace(0, float(sr) / 2, int(1 + n_fft // 2), endpoint=True)
+
 
 def mel_frequencies(n_mels=128, fmin=0.0, fmax=11025.0, htk=False):
     """
     This function is cloned from librosa 0.7.
-    Please refer to the original 
+    Please refer to the original
     `documentation <https://librosa.org/doc/latest/generated/librosa.mel_frequencies.html?highlight=mel_frequencies#librosa.mel_frequencies>`__
     for more info.
-    
+
     Parameters
     ----------
     n_mels    : int > 0 [scalar]
@@ -302,13 +371,15 @@ def mel_frequencies(n_mels=128, fmin=0.0, fmax=11025.0, htk=False):
 
     return mel_to_hz(mels, htk=htk)
 
-def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
-        norm=1, dtype=np.float32):
+
+def mel(
+    sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False, norm=1, dtype=np.float32
+):
     """
     This function is cloned from librosa 0.7.
-    Please refer to the original 
+    Please refer to the original
     `documentation <https://librosa.org/doc/latest/generated/librosa.filters.mel.html>`__
-    for more info.    
+    for more info.
     Create a Filterbank matrix to combine FFT bins into Mel-frequency bins
 
 
@@ -343,7 +414,7 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
     Notes
     -----
     This function caches at level 10.
-    
+
     Examples
     --------
     >>> melfb = librosa.filters.mel(22050, 2048)
@@ -374,7 +445,7 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
         fmax = float(sr) / 2
 
     if norm is not None and norm != 1 and norm != np.inf:
-        raise ParameterError('Unsupported norm: {}'.format(repr(norm)))
+        raise ParameterError("Unsupported norm: {}".format(repr(norm)))
 
     # Initialize the weights
     n_mels = int(n_mels)
@@ -392,31 +463,35 @@ def mel(sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False,
     for i in range(n_mels):
         # lower and upper slopes for all bins
         lower = -ramps[i] / fdiff[i]
-        upper = ramps[i+2] / fdiff[i+1]
+        upper = ramps[i + 2] / fdiff[i + 1]
 
         # .. then intersect them with each other and zero
         weights[i] = np.maximum(0, np.minimum(lower, upper))
 
     if norm == 1:
         # Slaney-style mel is scaled to be approx constant energy per channel
-        enorm = 2.0 / (mel_f[2:n_mels+2] - mel_f[:n_mels])
+        enorm = 2.0 / (mel_f[2 : n_mels + 2] - mel_f[:n_mels])
         weights *= enorm[:, np.newaxis]
 
     # Only check weights if f_mel[0] is positive
     if not np.all((mel_f[:-2] == 0) | (weights.max(axis=1) > 0)):
         # This means we have an empty channel somewhere
-        warnings.warn('Empty filters detected in mel frequency basis. '
-                      'Some channels will produce empty responses. '
-                      'Try increasing your sampling rate (and fmax) or '
-                      'reducing n_mels.')
+        warnings.warn(
+            "Empty filters detected in mel frequency basis. "
+            "Some channels will produce empty responses. "
+            "Try increasing your sampling rate (and fmax) or "
+            "reducing n_mels."
+        )
 
     return weights
+
+
 ### ------------------End of Functions for generating kenral for Mel Spectrogram ----------------###
 
 
 ### ------------------Functions for making STFT same as librosa ---------------------------------###
 def pad_center(data, size, axis=-1, **kwargs):
-    '''Wrapper for np.pad to automatically center an array prior to padding.
+    """Wrapper for np.pad to automatically center an array prior to padding.
     This is analogous to `str.center()`
 
     Examples
@@ -470,9 +545,9 @@ def pad_center(data, size, axis=-1, **kwargs):
     See Also
     --------
     numpy.pad
-    '''
+    """
 
-    kwargs.setdefault('mode', 'constant')
+    kwargs.setdefault("mode", "constant")
 
     n = data.shape[axis]
 
@@ -482,8 +557,9 @@ def pad_center(data, size, axis=-1, **kwargs):
     lengths[axis] = (lpad, int(size - n - lpad))
 
     if lpad < 0:
-        raise ParameterError(('Target size ({:d}) must be '
-                              'at least input size ({:d})').format(size, n))
+        raise ParameterError(
+            ("Target size ({:d}) must be " "at least input size ({:d})").format(size, n)
+        )
 
     return np.pad(data, lengths, **kwargs)
 
@@ -493,7 +569,18 @@ def pad_center(data, size, axis=-1, **kwargs):
 
 ### ------------------Functions for making Chroma_stft same as librosa ---------------------------------###
 
-def chroma(sr, n_fft, n_chroma=12, tuning=0.0, ctroct=5.0, octwidth=2, norm=2, base_c=True, dtype=np.float32):
+
+def chroma(
+    sr,
+    n_fft,
+    n_chroma=12,
+    tuning=0.0,
+    ctroct=5.0,
+    octwidth=2,
+    norm=2,
+    base_c=True,
+    dtype=np.float32,
+):
     """Create a chroma filter bank.
 
     This creates a linear transformation matrix to project
@@ -953,11 +1040,13 @@ def tiny(x):
 
     # Only floating types generate a tiny
     if np.issubdtype(x.dtype, np.floating) or np.issubdtype(
-            x.dtype, np.complexfloating
+        x.dtype, np.complexfloating
     ):
         dtype = x.dtype
     else:
         dtype = np.float32
 
     return np.finfo(dtype).tiny
+
+
 ### ------------------End of functions for making Chroma_stft same as librosa ---------------------------###

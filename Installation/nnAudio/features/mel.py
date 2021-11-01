@@ -90,10 +90,26 @@ class MelSpectrogram(nn.Module):
     >>> specs = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, n_fft=2048, win_length=None, n_mels=128, hop_length=512,
-                 window='hann', center=True, pad_mode='reflect', power=2.0, htk=False,
-                 fmin=0.0, fmax=None, norm=1, trainable_mel=False, trainable_STFT=False,
-                 verbose=True, **kwargs):
+    def __init__(
+        self,
+        sr=22050,
+        n_fft=2048,
+        win_length=None,
+        n_mels=128,
+        hop_length=512,
+        window="hann",
+        center=True,
+        pad_mode="reflect",
+        power=2.0,
+        htk=False,
+        fmin=0.0,
+        fmax=None,
+        norm=1,
+        trainable_mel=False,
+        trainable_STFT=False,
+        verbose=True,
+        **kwargs
+    ):
 
         super().__init__()
         self.stride = hop_length
@@ -105,10 +121,21 @@ class MelSpectrogram(nn.Module):
         self.trainable_STFT = trainable_STFT
 
         # Preparing for the stft layer. No need for center
-        self.stft = STFT(n_fft=n_fft, win_length=win_length, freq_bins=None,
-                         hop_length=hop_length, window=window, freq_scale='no',
-                         center=center, pad_mode=pad_mode, sr=sr, trainable=trainable_STFT,
-                         output_format="Magnitude", verbose=verbose, **kwargs)
+        self.stft = STFT(
+            n_fft=n_fft,
+            win_length=win_length,
+            freq_bins=None,
+            hop_length=hop_length,
+            window=window,
+            freq_scale="no",
+            center=center,
+            pad_mode=pad_mode,
+            sr=sr,
+            trainable=trainable_STFT,
+            output_format="Magnitude",
+            verbose=verbose,
+            **kwargs
+        )
 
         # Create filter windows for stft
         start = time()
@@ -119,17 +146,21 @@ class MelSpectrogram(nn.Module):
         mel_basis = torch.tensor(mel_basis)
 
         if verbose == True:
-            print("STFT filter created, time used = {:.4f} seconds".format(time() - start))
-            print("Mel filter created, time used = {:.4f} seconds".format(time() - start))
+            print(
+                "STFT filter created, time used = {:.4f} seconds".format(time() - start)
+            )
+            print(
+                "Mel filter created, time used = {:.4f} seconds".format(time() - start)
+            )
         else:
             pass
 
         if trainable_mel:
             # Making everything nn.Parameter, so that this model can support nn.DataParallel
             mel_basis = nn.Parameter(mel_basis, requires_grad=trainable_mel)
-            self.register_parameter('mel_basis', mel_basis)
+            self.register_parameter("mel_basis", mel_basis)
         else:
-            self.register_buffer('mel_basis', mel_basis)
+            self.register_buffer("mel_basis", mel_basis)
 
         # if trainable_mel==True:
         #     self.mel_basis = nn.Parameter(self.mel_basis)
@@ -152,13 +183,13 @@ class MelSpectrogram(nn.Module):
         """
         x = broadcast_dim(x)
 
-        spec = self.stft(x, output_format='Magnitude') ** self.power
+        spec = self.stft(x, output_format="Magnitude") ** self.power
 
         melspec = torch.matmul(self.mel_basis, spec)
         return melspec
 
     def extra_repr(self) -> str:
-        return 'Mel filter banks size = {}, trainable_mel={}'.format(
+        return "Mel filter banks size = {}, trainable_mel={}".format(
             (*self.mel_basis.shape,), self.trainable_mel, self.trainable_STFT
         )
 
@@ -204,32 +235,42 @@ class MFCC(nn.Module):
     >>> mfcc = spec_layer(x)
     """
 
-    def __init__(self, sr=22050, n_mfcc=20, norm='ortho', verbose=True, ref=1.0, amin=1e-10, top_db=80.0, **kwargs):
+    def __init__(
+        self,
+        sr=22050,
+        n_mfcc=20,
+        norm="ortho",
+        verbose=True,
+        ref=1.0,
+        amin=1e-10,
+        top_db=80.0,
+        **kwargs
+    ):
         super().__init__()
         self.melspec_layer = MelSpectrogram(sr=sr, verbose=verbose, **kwargs)
         self.m_mfcc = n_mfcc
 
         # attributes that will be used for _power_to_db
         if amin <= 0:
-            raise ParameterError('amin must be strictly positive')
+            raise ParameterError("amin must be strictly positive")
         amin = torch.tensor([amin])
         ref = torch.abs(torch.tensor([ref]))
-        self.register_buffer('amin', amin)
-        self.register_buffer('ref', ref)
+        self.register_buffer("amin", amin)
+        self.register_buffer("ref", ref)
         self.top_db = top_db
         self.n_mfcc = n_mfcc
 
     def _power_to_db(self, S):
-        '''
+        """
         Refer to https://librosa.github.io/librosa/_modules/librosa/core/spectrum.html#power_to_db
         for the original implmentation.
-        '''
+        """
 
         log_spec = 10.0 * torch.log10(torch.max(S, self.amin))
         log_spec -= 10.0 * torch.log10(torch.max(self.amin, self.ref))
         if self.top_db is not None:
             if self.top_db < 0:
-                raise ParameterError('top_db must be non-negative')
+                raise ParameterError("top_db must be non-negative")
 
             # make the dim same as log_spec so that it can be broadcasted
             batch_wise_max = log_spec.flatten(1).max(1)[0].unsqueeze(1).unsqueeze(1)
@@ -238,10 +279,12 @@ class MFCC(nn.Module):
         return log_spec
 
     def _dct(self, x, norm=None):
-        '''
+        """
         Refer to https://github.com/zh217/torch-dct for the original implmentation.
-        '''
-        x = x.permute(0, 2, 1)  # make freq the last axis, since dct applies to the frequency axis
+        """
+        x = x.permute(
+            0, 2, 1
+        )  # make freq the last axis, since dct applies to the frequency axis
         x_shape = x.shape
         N = x_shape[-1]
 
@@ -249,13 +292,13 @@ class MFCC(nn.Module):
         Vc = rfft_fn(v, 1, onesided=False)
 
         # TODO: Can make the W_r and W_i trainable here
-        k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
+        k = -torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
         W_r = torch.cos(k)
         W_i = torch.sin(k)
 
         V = Vc[:, :, :, 0] * W_r - Vc[:, :, :, 1] * W_i
 
-        if norm == 'ortho':
+        if norm == "ortho":
             V[:, :, 0] /= np.sqrt(N) * 2
             V[:, :, 1:] /= np.sqrt(N / 2) * 2
 
@@ -279,10 +322,8 @@ class MFCC(nn.Module):
 
         x = self.melspec_layer(x)
         x = self._power_to_db(x)
-        x = self._dct(x, norm='ortho')[:, :self.m_mfcc, :]
+        x = self._dct(x, norm="ortho")[:, : self.m_mfcc, :]
         return x
 
     def extra_repr(self) -> str:
-        return 'n_mfcc = {}'.format(
-            (self.n_mfcc)
-        )
+        return "n_mfcc = {}".format((self.n_mfcc))
