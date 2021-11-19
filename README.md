@@ -8,7 +8,7 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 
 or
 
-`pip install nnAudio==0.2.6`
+`pip install nnAudio==0.3.0`
 
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
@@ -35,6 +35,9 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 
 ## News & Changelog
 To view the full changelog, please go to [CHANGELOG.md](CHANGELOG.md)
+
+**version 0.3.0** (19 Nov 2021):
+1. Changed module naming. `nnAudio.Spectrogram` will be replaced by `nnAudio.features` in the future releases. Currently, various spectrogram types are accessible via both methods.
 
 **version 0.2.6** (02 Sep 2021): 
 1. Add `relu()` to the `nonlinear_func` in `CFP()` to prevent negative values [#105](/../../pull/105).
