@@ -1,0 +1,6 @@
+nnAudio.Spectrogram.rfft\_fn
+============================
+
+.. currentmodule:: nnAudio.Spectrogram
+
+.. autofunction:: rfft_fn

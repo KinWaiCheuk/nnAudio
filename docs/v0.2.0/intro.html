@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Introduction &mdash; 0.2.0</title>
   
@@ -13,11 +13,16 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/banner.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -52,7 +57,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
+            <a href="index.html" class="icon icon-home"> nnAudio
           
 
           
@@ -162,6 +167,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -173,7 +180,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/intro.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -230,8 +237,8 @@ The input shape should be <cite>(batch, len_audio)</cite>.</p>
 <span class="n">x</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Converting Stereo  to Mono</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># casting the array into a PyTorch Tensor</span>
 
-<span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
-                              <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span>
+<span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+                              <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span>
                               <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">fmax</span><span class="o">=</span><span class="mi">11025</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span> <span class="c1"># Initializing the model</span>
 
 <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># Feed-forward your waveform to get the spectrogram</span>
@@ -245,11 +252,11 @@ The input shape should be <cite>(batch, len_audio)</cite>.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># Getting Mel Spectrogram on the fly</span>
-<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 </span><span class="hll">                                           <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span>
-</span><span class="hll">                                           <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span class="hll">                                           <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-</span><span class="hll">                                           <span class="n">fmax</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="mi">22050</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+</span><span class="hll">                                           <span class="n">fmax</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="mi">22050</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span class="hll">                                           <span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;Magnitude&#39;</span><span class="p">)</span>
 </span>        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">freq_bins</span>
 
@@ -264,7 +271,7 @@ The input shape should be <cite>(batch, len_audio)</cite>.</p>
                                 <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">regions</span><span class="p">),</span><span class="n">stride</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">region_v</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">CNN_freq_kernel_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">//</span><span class="bp">self</span><span class="o">.</span><span class="n">CNN_freq_kernel_stride</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">k2_out</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">region_v</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">k2_out</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">region_v</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
 <span class="hll">        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -332,37 +339,29 @@ To explicitly choose which CQT to use, you can refer to the <a class="reference 
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="nnAudio.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="nnAudio 0.2.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="nnAudio.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="nnAudio 0.2.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Cheuk Kin Wai
+        &#169; Copyright 2019, Cheuk Kin Wai.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -381,6 +380,7 @@ To explicitly choose which CQT to use, you can refer to the <a class="reference 
             <dt>Tags</dt>
             <dd><a href="../v0.1.5/intro.html">v0.1.5</a></dd>
             <dd><a href="intro.html">v0.2.0</a></dd>
+            <dd><a href="../v0.2.6/intro.html">v0.2.6</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>

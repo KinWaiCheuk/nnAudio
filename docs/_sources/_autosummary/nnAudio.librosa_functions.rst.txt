@@ -15,14 +15,18 @@
       :toctree:
       :nosignatures:
    
+      chroma
       fft2gammatonemx
       fft_frequencies
-      gammatone
+      get_gammatone
+      get_mel
       hz_to_mel
-      mel
+      hz_to_octs
       mel_frequencies
       mel_to_hz
+      normalize
       pad_center
+      tiny
    
    
 

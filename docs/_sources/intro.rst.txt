@@ -58,14 +58,14 @@ The input shape should be `(batch, len_audio)`.
 
 .. code-block:: python
 
-    from nnAudio import Spectrogram
+    from nnAudio import features
     from scipy.io import wavfile
     import torch
     sr, song = wavfile.read('./Bach.wav') # Loading your audio
     x = song.mean(1) # Converting Stereo  to Mono
     x = torch.tensor(x, device='cuda:0').float() # casting the array into a PyTorch Tensor
 
-    spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, hop_length=512, 
+    spec_layer = features.STFT(n_fft=2048, freq_bins=None, hop_length=512, 
                                   window='hann', freq_scale='linear', center=True, pad_mode='reflect', 
                                   fmin=50,fmax=11025, sr=sr) # Initializing the model
 
@@ -76,22 +76,27 @@ The input shape should be `(batch, len_audio)`.
  
 On-the-fly audio processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-One application for nnAudio is on-the-fly spectrogram generation when integrating it inside your neural network
+By integrating nnAudio inside your neural network, it can be used as on-the-fly spectrogram extracting. Here is one example on how to put nnAudio inside your neural network (highlighted in yellow):
 
 .. code-block:: python
-    :emphasize-lines: 5-10,27
+    :emphasize-lines: 10-15,32
+    
+    from nnAudio import features
+    import torch
+    import torch.nn as nn    
     
     class Model(torch.nn.Module):
-        def __init__(self):
-            super(Model, self).__init__()
+        def __init__(self, n_fft, output_dim):
+            super().__init__()
+            self.epsilon=1e-10
             # Getting Mel Spectrogram on the fly
-            self.spec_layer = Spectrogram.STFT(n_fft=2048, freq_bins=None, 
+            self.spec_layer = features.STFT(n_fft=n_fft, freq_bins=None,
                                                hop_length=512, window='hann',
-                                               freq_scale='no', center=True, 
+                                               freq_scale='no', center=True,
                                                pad_mode='reflect', fmin=50,
                                                fmax=6000, sr=22050, trainable=False,
                                                output_format='Magnitude')
-            self.n_bins = freq_bins         
+            self.n_bins = n_fft//2
 
             # Creating CNN Layers
             self.CNN_freq_kernel_size=(128,1)
@@ -101,18 +106,26 @@ One application for nnAudio is on-the-fly spectrogram generation when integratin
             self.CNN_freq = nn.Conv2d(1,k_out,
                                     kernel_size=self.CNN_freq_kernel_size,stride=self.CNN_freq_kernel_stride)
             self.CNN_time = nn.Conv2d(k_out,k2_out,
-                                    kernel_size=(1,regions),stride=(1,1))    
+                                    kernel_size=(1,3),stride=(1,1))
 
             self.region_v = 1 + (self.n_bins-self.CNN_freq_kernel_size[0])//self.CNN_freq_kernel_stride[0]
-            self.linear = torch.nn.Linear(k2_out*self.region_v, m, bias=False)
+            self.linear = torch.nn.Linear(k2_out*self.region_v, output_dim, bias=False)
 
         def forward(self,x):
             z = self.spec_layer(x)
-            z = torch.log(z+epsilon)
+            z = torch.log(z+self.epsilon)
             z2 = torch.relu(self.CNN_freq(z.unsqueeze(1)))
-            z3 = torch.relu(self.CNN_time(z2))
+            z3 = torch.relu(self.CNN_time(z2)).mean(-1)
             y = self.linear(torch.relu(torch.flatten(z3,1)))
             return torch.sigmoid(y)
+            
+After that, your model can take waveforms directly as the input, and extract spectrograms on-the-fly during feedforward.
+
+.. code-block:: python
+    :emphasize-lines: 2
+
+    waveforms = torch.randn(4,44100)
+    model(waveforms) # automatically convert waveforms into spectrograms
             
             
 Using GPU
@@ -124,9 +137,9 @@ to transfer the spectrogram layer to any device you like.
 
 .. code-block:: python
 
-    spec_layer = Spectrogram.STFT().to(device)
+    spec_layer = features.STFT().to(device)
     
-Alternatively, if your ``Spectrogram`` module is used inside your PyTorch model 
+Alternatively, if your ``features`` module is used inside your PyTorch model 
 as in the :ref:`on-the-fly processing section<on-the-fly>`, then you just need 
 to simply do ``net.to(device)``, where ``net = Model()``.
 
@@ -149,7 +162,7 @@ The speed test is conducted using three different machines, and it shows that nn
 Trainable kernals
 *****************
 
-Fourier basis in :func:`~nnAudio.Spectrogram.STFT` can be set trainable by using ``trainable=True`` argument. Fourier basis in :func:`~nnAudio.Spectrogram.MelSpectrogram` can be also set trainable by using `trainable_STFT=True`, and Mel filter banks can be set trainable using ``trainable_mel=False`` argument. The same goes for :func:`~nnAudio.Spectrogram.CQT`.
+Fourier basis in :func:`~nnAudio.features.stft.STFT` can be set trainable by using ``trainable=True`` argument. Fourier basis in :func:`~nnAudio.features.mel.MelSpectrogram` can be also set trainable by using `trainable_STFT=True`, and Mel filter banks can be set trainable using ``trainable_mel=False`` argument. The same goes for :func:`~nnAudio.features.cqt.CQT`.
 
 The follow demonstrations are avaliable on Google colab.
 
@@ -186,7 +199,7 @@ The default CQT in nnAudio is the ``CQT1992v2`` version.
 For more detail, please refer to our `paper <https://ieeexplore.ieee.org/document/9174990>`__
 
 All versions of CQT are available for users to choose.
-To explicitly choose which CQT to use, you can refer to the :ref:`CQT API section<nnAudio.Spectrogram.CQT>`.
+To explicitly choose which CQT to use, you can refer to the :ref:`CQT API section<nnAudio.features.cqt.CQT>`.
 
 
 .. image:: ../../figures/CQT_compare.png

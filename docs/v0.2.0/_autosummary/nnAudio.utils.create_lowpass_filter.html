@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>nnAudio.utils.create_lowpass_filter &mdash; 0.2.0</title>
   
@@ -13,11 +13,16 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -52,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> nnAudio
+            <a href="../index.html" class="icon icon-home"> nnAudio
           
 
           
@@ -172,6 +177,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -187,7 +194,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/_autosummary/nnAudio.utils.create_lowpass_filter.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -204,8 +211,8 @@
   <div class="section" id="nnaudio-utils-create-lowpass-filter">
 <h1>nnAudio.utils.create_lowpass_filter<a class="headerlink" href="#nnaudio-utils-create-lowpass-filter" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="nnAudio.utils.create_lowpass_filter">
-<code class="sig-prename descclassname">nnAudio.utils.</code><code class="sig-name descname">create_lowpass_filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band_center</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">kernelLength</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">transitionBandwidth</span><span class="o">=</span><span class="default_value">0.03</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.utils.create_lowpass_filter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nnAudio.utils.create_lowpass_filter">
+<span class="sig-prename descclassname"><span class="pre">nnAudio.utils.</span></span><span class="sig-name descname"><span class="pre">create_lowpass_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">band_center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernelLength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitionBandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.utils.create_lowpass_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the highest frequency we need to preserve and the lowest frequency we allow
 to pass through.
 Note that frequency is on a scale from 0 to 1 where 0 is 0 and 1 is Nyquist frequency of
@@ -219,37 +226,29 @@ the signal BEFORE downsampling.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="nnAudio.utils.downsampling_by_2.html" class="btn btn-neutral float-right" title="nnAudio.utils.downsampling_by_2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="nnAudio.utils.create_fourier_kernels.html" class="btn btn-neutral float-left" title="nnAudio.utils.create_fourier_kernels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="nnAudio.utils.downsampling_by_2.html" class="btn btn-neutral float-right" title="nnAudio.utils.downsampling_by_2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.utils.create_fourier_kernels.html" class="btn btn-neutral float-left" title="nnAudio.utils.create_fourier_kernels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Cheuk Kin Wai
+        &#169; Copyright 2019, Cheuk Kin Wai.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -268,6 +267,7 @@ the signal BEFORE downsampling.</p>
             <dt>Tags</dt>
             <dd><a href="../../v0.1.5/_autosummary/nnAudio.utils.create_lowpass_filter.html">v0.1.5</a></dd>
             <dd><a href="nnAudio.utils.create_lowpass_filter.html">v0.2.0</a></dd>
+            <dd><a href="../../v0.2.6/_autosummary/nnAudio.utils.create_lowpass_filter.html">v0.2.6</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>

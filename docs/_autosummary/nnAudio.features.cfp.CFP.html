@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>nnAudio.features.cfp.CFP &mdash; 0.3.0</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nnAudio.features.cfp.Combined_Frequency_Periodicity" href="nnAudio.features.cfp.Combined_Frequency_Periodicity.html" />
+    <link rel="prev" title="nnAudio.features.cfp" href="nnAudio.features.cfp.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> nnAudio
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#speed">Speed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#different-cqt-versions">Different CQT versions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="nnAudio.features.html">nnAudio.features</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="nnAudio.features.cfp.html">nnAudio.features.cfp</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">nnAudio.features.cfp.CFP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nnAudio.features.cfp.Combined_Frequency_Periodicity.html">nnAudio.features.cfp.Combined_Frequency_Periodicity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.cqt.html">nnAudio.features.cqt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.gammatone.html">nnAudio.features.gammatone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.griffin_lim.html">nnAudio.features.griffin_lim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.mel.html">nnAudio.features.mel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.stft.html">nnAudio.features.stft</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.utils.html">nnAudio.utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">PyTorch Template for Audio projects</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../github.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../github.html#call-for-contribution">Call for Contribution</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Citation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing nnAudio</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">nnAudio</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../nnAudio.html">&lt;no title&gt;</a> &raquo;</li>
+        
+          <li><a href="nnAudio.features.html">nnAudio.features</a> &raquo;</li>
+        
+          <li><a href="nnAudio.features.cfp.html">nnAudio.features.cfp</a> &raquo;</li>
+        
+      <li>nnAudio.features.cfp.CFP</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_autosummary/nnAudio.features.cfp.CFP.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nnaudio-features-cfp-cfp">
+<h1>nnAudio.features.cfp.CFP<a class="headerlink" href="#nnaudio-features-cfp-cfp" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="nnAudio.features.cfp.CFP">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">nnAudio.features.cfp.</span></span><span class="sig-name descname"><span class="pre">CFP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">320</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2049</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.24,</span> <span class="pre">0.6,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NumPerOct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.features.cfp.CFP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>This is the modified version of <code class="xref py py-func docutils literal notranslate"><span class="pre">Combined_Frequency_Periodicity()</span></code>. This version different from the original version by returnning only <code class="docutils literal notranslate"><span class="pre">Z</span></code> and the number of timesteps fits with other classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fr</strong> (<em>int</em>) – Frequency resolution. The higher the number, the lower the resolution is.
+Maximum frequency resolution occurs when <code class="docutils literal notranslate"><span class="pre">fr=1</span></code>. The default value is <code class="docutils literal notranslate"><span class="pre">2</span></code></p></li>
+<li><p><strong>fs</strong> (<em>int</em>) – Sample rate of the input audio clips. The default value is <code class="docutils literal notranslate"><span class="pre">16000</span></code></p></li>
+<li><p><strong>hop_length</strong> (<em>int</em>) – The hop (or stride) size. The default value is <code class="docutils literal notranslate"><span class="pre">320</span></code>.</p></li>
+<li><p><strong>window_size</strong> (<em>str</em>) – It is same as <code class="docutils literal notranslate"><span class="pre">n_fft</span></code> in other Spectrogram classes. The default value is <code class="docutils literal notranslate"><span class="pre">2049</span></code></p></li>
+<li><p><strong>fc</strong> (<em>int</em>) – Starting frequency. For example, <code class="docutils literal notranslate"><span class="pre">fc=80</span></code> means that <cite>Z</cite> starts at 80Hz.
+The default value is <code class="docutils literal notranslate"><span class="pre">80</span></code>.</p></li>
+<li><p><strong>tc</strong> (<em>int</em>) – Inverse of ending frequency. For example <code class="docutils literal notranslate"><span class="pre">tc=1/8000</span></code> means that <cite>Z</cite> ends at 8000Hz.
+The default value is <code class="docutils literal notranslate"><span class="pre">1/8000</span></code>.</p></li>
+<li><p><strong>g</strong> (<em>list</em>) – Coefficients for non-linear activation function. <code class="docutils literal notranslate"><span class="pre">len(g)</span></code> should be the number of activation layers.
+Each element in <code class="docutils literal notranslate"><span class="pre">g</span></code> is the activation coefficient, for example <code class="docutils literal notranslate"><span class="pre">[0.24,</span> <span class="pre">0.6,</span> <span class="pre">1]</span></code>.</p></li>
+<li><p><strong>device</strong> (<em>str</em>) – Choose which device to initialize this layer. Default value is ‘cpu’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>Z</strong> (<em>torch.tensor</em>) – The Combined Frequency and Period Feature. It is equivalent to <code class="docutils literal notranslate"><span class="pre">tfrLF</span> <span class="pre">*</span> <span class="pre">tfrLQ</span></code></p></li>
+<li><p><strong>tfrL0</strong> (<em>torch.tensor</em>) – STFT output</p></li>
+<li><p><strong>tfrLF</strong> (<em>torch.tensor</em>) – Frequency Feature</p></li>
+<li><p><strong>tfrLQ</strong> (<em>torch.tensor</em>) – Period Feature</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">Combined_Frequency_Periodicity</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span><span class="p">,</span> <span class="n">tfrL0</span><span class="p">,</span> <span class="n">tfrLF</span><span class="p">,</span> <span class="n">tfrLQ</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></p></td>
+<td><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_logfreq_matrix</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nonlinear_func</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="nnAudio.features.cfp.Combined_Frequency_Periodicity.html" class="btn btn-neutral float-right" title="nnAudio.features.cfp.Combined_Frequency_Periodicity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.features.cfp.html" class="btn btn-neutral float-left" title="nnAudio.features.cfp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Cheuk Kin Wai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: master
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../v0.1.5/index.html">v0.1.5</a></dd>
+            <dd><a href="../v0.2.0/index.html">v0.2.0</a></dd>
+            <dd><a href="../v0.2.6/index.html">v0.2.6</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="../master/_autosummary/nnAudio.features.cfp.CFP.html">master</a></dd>
+        </dl>
+    </div>
+</div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

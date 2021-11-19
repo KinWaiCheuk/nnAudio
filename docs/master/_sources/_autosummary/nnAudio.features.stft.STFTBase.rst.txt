@@ -1,0 +1,21 @@
+nnAudio.features.stft.STFTBase
+==============================
+
+.. currentmodule:: nnAudio.features.stft
+
+.. autoclass:: STFTBase
+   :members:
+   :show-inheritance:
+   :no-inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~STFTBase.inverse_stft
+   
+   

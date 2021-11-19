@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>nnAudio.features.gammatone.Gammatonegram &mdash; 0.3.0</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nnAudio.features.griffin_lim" href="nnAudio.features.griffin_lim.html" />
+    <link rel="prev" title="nnAudio.features.gammatone" href="nnAudio.features.gammatone.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> nnAudio
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#speed">Speed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#different-cqt-versions">Different CQT versions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="nnAudio.features.html">nnAudio.features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.cfp.html">nnAudio.features.cfp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.cqt.html">nnAudio.features.cqt</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="nnAudio.features.gammatone.html">nnAudio.features.gammatone</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">nnAudio.features.gammatone.Gammatonegram</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.griffin_lim.html">nnAudio.features.griffin_lim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.mel.html">nnAudio.features.mel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.features.stft.html">nnAudio.features.stft</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.utils.html">nnAudio.utils</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">PyTorch Template for Audio projects</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../github.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../github.html#call-for-contribution">Call for Contribution</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Citation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing nnAudio</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">nnAudio</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../nnAudio.html">&lt;no title&gt;</a> &raquo;</li>
+        
+          <li><a href="nnAudio.features.html">nnAudio.features</a> &raquo;</li>
+        
+          <li><a href="nnAudio.features.gammatone.html">nnAudio.features.gammatone</a> &raquo;</li>
+        
+      <li>nnAudio.features.gammatone.Gammatonegram</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_autosummary/nnAudio.features.gammatone.Gammatonegram.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nnaudio-features-gammatone-gammatonegram">
+<h1>nnAudio.features.gammatone.Gammatonegram<a class="headerlink" href="#nnaudio-features-gammatone-gammatonegram" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="nnAudio.features.gammatone.Gammatonegram">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">nnAudio.features.gammatone.</span></span><span class="sig-name descname"><span class="pre">Gammatonegram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">htk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_STFT</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.features.gammatone.Gammatonegram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>This function is to calculate the Gammatonegram of the input signal.</p>
+<p>Input signal should be in either of the following shapes. 1. <code class="docutils literal notranslate"><span class="pre">(len_audio)</span></code>, 2. <code class="docutils literal notranslate"><span class="pre">(num_audio,</span> <span class="pre">len_audio)</span></code>, 3. <code class="docutils literal notranslate"><span class="pre">(num_audio,</span> <span class="pre">1,</span> <span class="pre">len_audio)</span></code>. The correct shape will be inferred autommatically if the input follows these 3 shapes. This class inherits from <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code>, therefore, the usage is same as <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sr</strong> (<em>int</em>) – The sampling rate for the input audio. It is used to calucate the correct <code class="docutils literal notranslate"><span class="pre">fmin</span></code> and <code class="docutils literal notranslate"><span class="pre">fmax</span></code>. Setting the correct sampling rate is very important for calculating the correct frequency.</p></li>
+<li><p><strong>n_fft</strong> (<em>int</em>) – The window size for the STFT. Default value is 2048</p></li>
+<li><p><strong>n_mels</strong> (<em>int</em>) – The number of Gammatonegram filter banks. The filter banks maps the n_fft to Gammatone bins. Default value is 64</p></li>
+<li><p><strong>hop_length</strong> (<em>int</em>) – The hop (or stride) size. Default value is 512.</p></li>
+<li><p><strong>window</strong> (<em>str</em>) – The windowing function for STFT. It uses <code class="docutils literal notranslate"><span class="pre">scipy.signal.get_window</span></code>, please refer to scipy documentation for possible windowing functions. The default value is ‘hann’</p></li>
+<li><p><strong>center</strong> (<em>bool</em>) – Putting the STFT keneral at the center of the time-step or not. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the time index is the beginning of the STFT kernel, if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the time index is the center of the STFT kernel. Default value if <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>pad_mode</strong> (<em>str</em>) – The padding method. Default value is ‘reflect’.</p></li>
+<li><p><strong>htk</strong> (<em>bool</em>) – When <code class="docutils literal notranslate"><span class="pre">False</span></code> is used, the Mel scale is quasi-logarithmic. When <code class="docutils literal notranslate"><span class="pre">True</span></code> is used, the Mel scale is logarithmic. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>fmin</strong> (<em>int</em>) – The starting frequency for the lowest Gammatone filter bank</p></li>
+<li><p><strong>fmax</strong> (<em>int</em>) – The ending frequency for the highest Gammatone filter bank</p></li>
+<li><p><strong>trainable_mel</strong> (<em>bool</em>) – Determine if the Gammatone filter banks are trainable or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the gradients for Mel filter banks will also be caluclated and the Mel filter banks will be updated during model training. Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>trainable_STFT</strong> (<em>bool</em>) – Determine if the STFT kenrels are trainable or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the gradients for STFT kernels will also be caluclated and the STFT kernels will be updated during model training. Default value is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, it shows layer information. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, it suppresses all prints</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>spectrogram</strong> – It returns a tensor of spectrograms.  shape = <code class="docutils literal notranslate"><span class="pre">(num_samples,</span> <span class="pre">freq_bins,time_steps)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.tensor</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">Spectrogram</span><span class="o">.</span><span class="n">Gammatonegram</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">specs</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></p></td>
+<td><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="nnAudio.features.griffin_lim.html" class="btn btn-neutral float-right" title="nnAudio.features.griffin_lim" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.features.gammatone.html" class="btn btn-neutral float-left" title="nnAudio.features.gammatone" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Cheuk Kin Wai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: master
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../v0.1.5/index.html">v0.1.5</a></dd>
+            <dd><a href="../v0.2.0/index.html">v0.2.0</a></dd>
+            <dd><a href="../v0.2.6/index.html">v0.2.6</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="../master/_autosummary/nnAudio.features.gammatone.Gammatonegram.html">master</a></dd>
+        </dl>
+    </div>
+</div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

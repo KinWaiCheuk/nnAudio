@@ -5,9 +5,27 @@
 
 nnAudio |ProjectVersion|
 ===================================
-Welcome to nnAudio |ProjectVersion|. This new version changes the syntax of the spectrogram layers creation, 
-such that ``stft_layer.to(device)`` can be used. This new version is more stable 
-than the previous version since it is more compatible with other torch modules.
+Welcome to nnAudio |ProjectVersion|. A big shout out to `Miguel Pérez <https://github.com/migperfer>`_ who made this new update possible. Please feel free to check out his `github repositories <https://github.com/migperfer>`_ too.
+
+This new version restructured the coding style, making things more modular and pythonic. In terms of functionalities, everything remains the same. In the future releases, ``nnAudio.Spectrogram`` will be replaced by ``nnAudio.features`` (see also :func:`~nnAudio.features`.)
+
+Quick Start
+***********
+.. code-block:: python
+    :emphasize-lines: 1,8-10,12
+
+    from nnAudio import features
+    from scipy.io import wavfile
+    import torch
+    sr, song = wavfile.read('./Bach.wav') # Loading your audio
+    x = song.mean(1) # Converting Stereo  to Mono
+    x = torch.tensor(x, device='cuda:0').float() # casting the array into a PyTorch Tensor
+
+    spec_layer = features.STFT(n_fft=2048, freq_bins=None, hop_length=512, 
+                                  window='hann', freq_scale='linear', center=True, pad_mode='reflect', 
+                                  fmin=50,fmax=11025, sr=sr) # Initializing the model
+
+    spec = spec_layer(x) # Feed-forward your waveform to get the spectrogram      
 
 nnAudio is an audio processing toolbox using PyTorch convolutional neural
 network as its backend. By doing so, spectrograms can be generated from
@@ -49,9 +67,16 @@ The source code for **nnAudio** can be found in `GitHub <https://github.com/KinW
 
 .. toctree::
     :maxdepth: 1
-    :caption: Tutorials
+    :caption: Examples
     
     examples
+    
+    
+.. toctree::
+    :maxdepth: 1
+    :caption: GitHub
+    
+    github
 
 
 .. toctree::

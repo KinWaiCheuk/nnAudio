@@ -1,0 +1,33 @@
+nnAudio.features.cfp
+====================
+
+.. automodule:: nnAudio.features.cfp
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   
+      CFP
+      Combined_Frequency_Periodicity
+   
+   
+
+   
+   
+   
+
+
+

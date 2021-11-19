@@ -1,0 +1,6 @@
+nnAudio.utils.rfft\_fn
+======================
+
+.. currentmodule:: nnAudio.utils
+
+.. autofunction:: rfft_fn

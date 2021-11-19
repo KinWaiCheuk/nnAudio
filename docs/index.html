@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>nnAudio 0.2.4 &mdash; 0.2.4</title>
+  <title>nnAudio 0.3.0 &mdash; 0.3.0</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                0.2.4
+                0.3.0
               </div>
             
           
@@ -105,13 +105,18 @@
 </ul>
 <p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.features.html">nnAudio.features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.utils.html">nnAudio.utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Tutorials</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyTorch Template for Audio projects</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="github.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="github.html#call-for-contribution">Call for Contribution</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Citation</span></p>
 <ul>
@@ -164,7 +169,7 @@
     
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
         
-      <li>nnAudio 0.2.4</li>
+      <li>nnAudio 0.3.0</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -184,10 +189,25 @@
            <div itemprop="articleBody">
             
   <div class="section" id="nnaudio-projectversion">
-<h1>nnAudio 0.2.4<a class="headerlink" href="#nnaudio-projectversion" title="Permalink to this headline">¶</a></h1>
-<p>Welcome to nnAudio 0.2.4. This new version changes the syntax of the spectrogram layers creation,
-such that <code class="docutils literal notranslate"><span class="pre">stft_layer.to(device)</span></code> can be used. This new version is more stable
-than the previous version since it is more compatible with other torch modules.</p>
+<h1>nnAudio 0.3.0<a class="headerlink" href="#nnaudio-projectversion" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to nnAudio 0.3.0. A big shout out to <a class="reference external" href="https://github.com/migperfer">Miguel Pérez</a> who made this new update possible. Please feel free to check out his <a class="reference external" href="https://github.com/migperfer">github repositories</a> too.</p>
+<p>This new version restructured the coding style, making things more modular and pythonic. In terms of functionalities, everything remains the same. In the future releases, <code class="docutils literal notranslate"><span class="pre">nnAudio.Spectrogram</span></code> will be replaced by <code class="docutils literal notranslate"><span class="pre">nnAudio.features</span></code> (see also <a class="reference internal" href="_autosummary/nnAudio.features.html#module-nnAudio.features" title="nnAudio.features"><code class="xref py py-func docutils literal notranslate"><span class="pre">features()</span></code></a>.)</p>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">nnAudio</span> <span class="kn">import</span> <span class="n">features</span>
+</span><span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="n">sr</span><span class="p">,</span> <span class="n">song</span> <span class="o">=</span> <span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;./Bach.wav&#39;</span><span class="p">)</span> <span class="c1"># Loading your audio</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Converting Stereo  to Mono</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="c1"># casting the array into a PyTorch Tensor</span>
+
+<span class="hll"><span class="n">spec_layer</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">STFT</span><span class="p">(</span><span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">freq_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+</span><span class="hll">                              <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hann&#39;</span><span class="p">,</span> <span class="n">freq_scale</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pad_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span>
+</span><span class="hll">                              <span class="n">fmin</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">fmax</span><span class="o">=</span><span class="mi">11025</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span> <span class="c1"># Initializing the model</span>
+</span>
+<span class="hll"><span class="n">spec</span> <span class="o">=</span> <span class="n">spec_layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># Feed-forward your waveform to get the spectrogram</span>
+</span></pre></div>
+</div>
 <p>nnAudio is an audio processing toolbox using PyTorch convolutional neural
 network as its backend. By doing so, spectrograms can be generated from
 audio on-the-fly during neural network training and the Fourier kernels
@@ -221,15 +241,22 @@ convolutional neural network. The name of nnAudio comes from
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.features.html">nnAudio.features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.utils.html">nnAudio.utils</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Tutorials</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">PyTorch Template for Audio projects</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="github.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="github.html#call-for-contribution">Call for Contribution</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -239,11 +266,12 @@ convolutional neural network. The name of nnAudio comes from
 </ul>
 </div>
 <div class="section" id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -292,6 +320,7 @@ convolutional neural network. The name of nnAudio comes from
             <dt>Tags</dt>
             <dd><a href="v0.1.5/index.html">v0.1.5</a></dd>
             <dd><a href="v0.2.0/index.html">v0.2.0</a></dd>
+            <dd><a href="v0.2.6/index.html">v0.2.6</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Tutorials &mdash; 0.2.4</title>
+  <title>PyTorch Template for Audio projects &mdash; 0.3.0</title>
   
 
   
@@ -42,7 +42,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Citing nnAudio" href="citing.html" />
+    <link rel="next" title="Source Code" href="github.html" />
     <link rel="prev" title="nnAudio.utils.uniform_distribution" href="_autosummary/nnAudio.utils.uniform_distribution.html" /> 
 </head>
 
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                0.2.4
+                0.3.0
               </div>
             
           
@@ -106,16 +106,18 @@
 </ul>
 <p class="caption"><span class="caption-text">API Documentation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.features.html">nnAudio.features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_autosummary/nnAudio.utils.html">nnAudio.utils</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Tutorials</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#call-for-contribution">Call for Contribution:</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PyTorch Template for Audio projects</a></li>
 </ul>
-</li>
+<p class="caption"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="github.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="github.html#call-for-contribution">Call for Contribution</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Citation</span></p>
 <ul>
@@ -168,7 +170,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Tutorials</li>
+      <li>PyTorch Template for Audio projects</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -187,28 +189,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="call-for-contribution">
-<h2>Call for Contribution:<a class="headerlink" href="#call-for-contribution" title="Permalink to this headline">¶</a></h2>
-<p>nnAudio is a fast-growing package. With the increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:</p>
-<ol class="arabic simple">
-<li><p>Invertible Constant Q Transform (CQT)</p></li>
-<li><p>CQT with filter scale factor (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/54">#54</a>)</p></li>
-<li><p>Variable Q Transform see <a class="reference external" href="https://www.researchgate.net/publication/274009051_A_Matlab_Toolbox_for_Efficient_Perfect_Reconstruction_Time-Frequency_Transforms_with_Log-Frequency_Resolution">VQT</a>)</p></li>
-<li><p>Speed and Performance improvements for Griffin-Lim (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/41">#41</a>)</p></li>
-<li><p>Data Augmentation (see issue <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio/issues/49">#49</a>)</p></li>
-</ol>
-<p>(Quick tips for unit test: <cite>cd</cite> inside Installation folder, then type <cite>pytest</cite>. You need at least 1931 MiB GPU memory to pass all the unit tests)</p>
-<p>Alternatively, you may also contribute by:</p>
-<ol class="arabic simple">
-<li><p>Refactoring the code structure (Now all functions are within the same file, but with the increasing number of features, I think we need to break it down into smaller modules)</p></li>
-<li><p>Making a better demonstration code or tutorial</p></li>
-</ol>
-<p>People who are interested in contributing to nnAudio can visit
-the <a class="reference external" href="https://github.com/KinWaiCheuk/nnAudio">github page</a> or
-contact me via kinwai&lt;underscore&gt;cheuk&lt;at&gt;mymail.sutd.edu.sg.</p>
-</div>
+  <div class="section" id="id1">
+<h1><a class="reference external" href="https://github.com/KinWaiCheuk/pytorch_template">PyTorch Template for Audio projects</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>I am building a pytorch template which allows audio related projects to be quick setup.
+This <a class="reference external" href="https://github.com/KinWaiCheuk/pytorch_template">template</a> uses nnAudio to extract spectrograms on-the-fly.</p>
 </div>
 
 
@@ -217,7 +201,7 @@ contact me via kinwai&lt;underscore&gt;cheuk&lt;at&gt;mymail.sutd.edu.sg.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="citing.html" class="btn btn-neutral float-right" title="Citing nnAudio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="github.html" class="btn btn-neutral float-right" title="Source Code" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="_autosummary/nnAudio.utils.uniform_distribution.html" class="btn btn-neutral float-left" title="nnAudio.utils.uniform_distribution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
@@ -257,6 +241,7 @@ contact me via kinwai&lt;underscore&gt;cheuk&lt;at&gt;mymail.sutd.edu.sg.</p>
             <dt>Tags</dt>
             <dd><a href="../v0.1.5/examples.html">v0.1.5</a></dd>
             <dd><a href="../v0.2.0/examples.html">v0.2.0</a></dd>
+            <dd><a href="../v0.2.6/examples.html">v0.2.6</a></dd>
         </dl>
         <dl>
             <dt>Branches</dt>
