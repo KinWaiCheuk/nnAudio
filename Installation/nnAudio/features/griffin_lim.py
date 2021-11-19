@@ -146,3 +146,4 @@ class Griffin_Lim(nn.Module):
             center=self.center,
         )
         return inverse
+

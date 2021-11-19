@@ -142,7 +142,7 @@ class MelSpectrogram(nn.Module):
 
         # Creating kernel for mel spectrogram
         start = time()
-        mel_basis = mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
+        mel_basis = get_mel(sr, n_fft, n_mels, fmin, fmax, htk=htk, norm=norm)
         mel_basis = torch.tensor(mel_basis)
 
         if verbose == True:

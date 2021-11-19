@@ -7,7 +7,9 @@ from ..utils import *
 
 class Gammatonegram(nn.Module):
     """
-    This function is to calculate the Gammatonegram of the input signal. Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. This class inherits from ``nn.Module``, therefore, the usage is same as ``nn.Module``.
+    This function is to calculate the Gammatonegram of the input signal.
+    
+    Input signal should be in either of the following shapes. 1. ``(len_audio)``, 2. ``(num_audio, len_audio)``, 3. ``(num_audio, 1, len_audio)``. The correct shape will be inferred autommatically if the input follows these 3 shapes. This class inherits from ``nn.Module``, therefore, the usage is same as ``nn.Module``.
 
     Parameters
     ----------
@@ -50,6 +52,7 @@ class Gammatonegram(nn.Module):
     --------
     >>> spec_layer = Spectrogram.Gammatonegram()
     >>> specs = spec_layer(x)
+    
     """
 
     def __init__(
@@ -70,7 +73,7 @@ class Gammatonegram(nn.Module):
         trainable_STFT=False,
         verbose=True,
     ):
-        super(Gammatonegram, self).__init__()
+        super().__init__()
         self.stride = hop_length
         self.center = center
         self.pad_mode = pad_mode
@@ -97,7 +100,7 @@ class Gammatonegram(nn.Module):
 
             # Creating kenral for Gammatone spectrogram
         start = time()
-        gammatone_basis = gammatone(sr, n_fft, n_bins, fmin, fmax)
+        gammatone_basis = get_gammatone(sr, n_fft, n_bins, fmin, fmax)
         gammatone_basis = torch.tensor(gammatone_basis)
 
         if verbose == True:
@@ -147,3 +150,4 @@ class Gammatonegram(nn.Module):
 
         gammatonespec = torch.matmul(self.gammatone_basis, spec)
         return gammatonespec
+

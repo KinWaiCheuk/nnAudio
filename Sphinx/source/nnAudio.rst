@@ -1,4 +1,3 @@
-
 .. automodule:: nnAudio
 
 .. autosummary::
@@ -6,6 +5,6 @@
    :template: custom-module-template.rst
    :recursive:
 
-   nnAudio.Spectrogram
+   nnAudio.features
    nnAudio.librosa_functions
    nnAudio.utils

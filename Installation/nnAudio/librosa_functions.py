@@ -150,7 +150,7 @@ def fft2gammatonemx(
     return wts, cfreqs
 
 
-def gammatone(
+def get_gammatone(
     sr, n_fft, n_bins=64, fmin=20.0, fmax=None, htk=False, norm=1, dtype=np.float32
 ):
     """Create a Filterbank matrix to combine FFT bins into Gammatone bins
@@ -372,7 +372,7 @@ def mel_frequencies(n_mels=128, fmin=0.0, fmax=11025.0, htk=False):
     return mel_to_hz(mels, htk=htk)
 
 
-def mel(
+def get_mel(
     sr, n_fft, n_mels=128, fmin=0.0, fmax=None, htk=False, norm=1, dtype=np.float32
 ):
     """
