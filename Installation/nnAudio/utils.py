@@ -274,9 +274,9 @@ def create_fourier_kernels(
         The sampling rate for the input audio. It is used to calculate the correct ``fmin`` and ``fmax``.
         Setting the correct sampling rate is very important for calculating the correct frequency.
 
-    freq_scale: 'linear', 'log', or 'no'
+    freq_scale: 'linear', 'log', 'log2', or 'no'
         Determine the spacing between each frequency bin.
-        When 'linear' or 'log' is used, the bin spacing can be controlled by ``fmin`` and ``fmax``.
+        When 'linear', 'log' or 'log2' is used, the bin spacing can be controlled by ``fmin`` and ``fmax``.
         If 'no' is used, the bin will start at 0Hz and end at Nyquist frequency with linear spacing.
 
     Returns
@@ -355,6 +355,26 @@ def create_fourier_kernels(
             )
             wcos[k, 0, :] = np.cos(
                 2 * np.pi * (np.exp(k * scaling_ind) * start_bin) * s / n_fft
+            )
+
+    elif freq_scale == "log2":
+        if verbose == True:
+            print(
+                f"sampling rate = {sr}. Please make sure the sampling rate is correct in order to"
+                f"get a valid freq range"
+            )
+        start_bin = start_freq * n_fft / sr
+        scaling_ind = np.log2(end_freq / start_freq) / freq_bins
+
+        for k in range(freq_bins):  # Only half of the bins contain useful info
+            # print("log freq = {}".format(np.exp(k*scaling_ind)*start_bin*sr/n_fft))
+            bins2freq.append(2**(k * scaling_ind) * start_bin * sr / n_fft)
+            binslist.append((2**(k * scaling_ind) * start_bin))
+            wsin[k, 0, :] = np.sin(
+                2 * np.pi * (2**(k * scaling_ind) * start_bin) * s / n_fft
+            )
+            wcos[k, 0, :] = np.cos(
+                2 * np.pi * (2**(k * scaling_ind) * start_bin) * s / n_fft
             )
 
     elif freq_scale == "no":
