@@ -39,7 +39,6 @@ def rfft_fn(x, n=None, onesided=False):
     else:
         return torch.rfft(x, n, onesided=onesided)
 
-
 ## --------------------------- Filter Design ---------------------------##
 def torch_window_sumsquare(w, n_frames, stride, n_fft, power=2):
     w_stacks = w.unsqueeze(-1).repeat((1, n_frames)).unsqueeze(0)
@@ -387,6 +386,8 @@ def create_cqt_kernels(
     window="hann",
     fmax=None,
     topbin_check=True,
+    gamma=0,
+    pad_fft=True
 ):
     """
     Automatically create CQT kernels in time domain
@@ -419,13 +420,19 @@ def create_cqt_kernels(
             )
         )
 
+    alpha = 2.0 ** (1.0 / bins_per_octave) - 1.0
+    lengths = np.ceil(Q * fs / (freqs + gamma / alpha))
+    
+    # get max window length depending on gamma value
+    max_len = int(max(lengths))
+    fftLen = int(2 ** (np.ceil(np.log2(max_len))))
+
     tempKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
     specKernel = np.zeros((int(n_bins), int(fftLen)), dtype=np.complex64)
 
-    lengths = np.ceil(Q * fs / freqs)
     for k in range(0, int(n_bins)):
         freq = freqs[k]
-        l = np.ceil(Q * fs / freq)
+        l = lengths[k]
 
         # Centering the kernels
         if l % 2 == 1:  # pad more zeros on RHS
@@ -433,11 +440,8 @@ def create_cqt_kernels(
         else:
             start = int(np.ceil(fftLen / 2.0 - l / 2.0))
 
-        sig = (
-            get_window_dispatch(window, int(l), fftbins=True)
-            * np.exp(np.r_[-l // 2 : l // 2] * 1j * 2 * np.pi * freq / fs)
-            / l
-        )
+        window_dispatch = get_window_dispatch(window, int(l), fftbins=True)
+        sig = window_dispatch * np.exp(np.r_[-l // 2 : l // 2] * 1j * 2 * np.pi * freq / fs) / l
 
         if norm:  # Normalizing the filter # Trying to normalize like librosa
             tempKernel[k, start : start + int(l)] = sig / np.linalg.norm(sig, norm)
