@@ -95,8 +95,8 @@ class STFT(STFTBase):
         The windowing function for STFT. It uses ``scipy.signal.get_window``, please refer to
         scipy documentation for possible windowing functions. The default value is 'hann'.
 
-    freq_scale : 'linear', 'log', or 'no'
-        Determine the spacing between each frequency bin. When `linear` or `log` is used,
+    freq_scale : 'linear', 'log', 'log2' or 'no'
+        Determine the spacing between each frequency bin. When `linear`, 'log' or `log2` is used,
         the bin spacing can be controlled by ``fmin`` and ``fmax``. If 'no' is used, the bin will
         start at 0Hz and end at Nyquist frequency with linear spacing.
 
