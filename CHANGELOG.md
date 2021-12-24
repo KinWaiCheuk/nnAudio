@@ -1,4 +1,16 @@
 # Changelog
+
+## version 0.3.0 (19 Nov 2021):
+1. Changed module naming. `nnAudio.Spectrogram` will be replaced by `nnAudio.features` in the future releases. Currently, various spectrogram types are accessible via both methods.
+
+## version 0.2.6 (02 Sep 2021): 
+1. Add `relu()` to the `nonlinear_func` in `CFP()` to prevent negative values [#105](/../../pull/105).
+
+## version 0.2.5 (06 Aug 2021): 
+1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
+1. Add more test cases in unit test 
+1. Refactor `STFT` and `iSTFT`
+
 ## version 0.2.5 (06 Aug 2021): 
 1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
 1. Add more test cases in unit test 

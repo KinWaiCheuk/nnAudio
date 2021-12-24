@@ -8,7 +8,7 @@ Other GPU audio processing tools are [torchaudio](https://github.com/pytorch/aud
 
 or
 
-`pip install nnAudio==0.3.0`
+`pip install nnAudio==0.3.1`
 
 ## Documentation
 https://kinwaicheuk.github.io/nnAudio/index.html
@@ -25,6 +25,7 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 | Mel | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
 | MFCC | ✅  | ❌ | ❌ | ✅| ✅ | ❌ | ✅ |
 | CQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| VQT | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Gammatone | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | CFP<sup>1</sup> | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | GPU support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
@@ -36,16 +37,11 @@ https://kinwaicheuk.github.io/nnAudio/index.html
 ## News & Changelog
 To view the full changelog, please go to [CHANGELOG.md](CHANGELOG.md)
 
+**version 0.3.1** (24 Dec 2021):
+1. Added VQT feature [#113](/../../pull/113)
+
 **version 0.3.0** (19 Nov 2021):
 1. Changed module naming. `nnAudio.Spectrogram` will be replaced by `nnAudio.features` in the future releases. Currently, various spectrogram types are accessible via both methods.
-
-**version 0.2.6** (02 Sep 2021): 
-1. Add `relu()` to the `nonlinear_func` in `CFP()` to prevent negative values [#105](/../../pull/105).
-
-**version 0.2.5** (06 Aug 2021): 
-1. Incorrect inverse STFT calculation is fixed [#100](/../../issues/100).
-1. Add more test cases in unit test 
-1. Refactor `STFT` and `iSTFT`
 
 
 ## How to cite nnAudio
@@ -69,7 +65,6 @@ K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-Fly GPU
 nnAudio is a fast-growing package. With the increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
 1. Invertible Constant Q Transform (CQT)
 1. CQT with filter scale factor (see issue [#54](/../../issues/54))
-1. Variable Q Transform (see VQT[https://www.researchgate.net/publication/274009051_A_Matlab_Toolbox_for_Efficient_Perfect_Reconstruction_Time-Frequency_Transforms_with_Log-Frequency_Resolution])
 1. Speed and Performance improvements for Griffin-Lim (see issue [#41](/../../issues/41))
 1. Data Augmentation (see issue [#49](/../../issues/49))
 
