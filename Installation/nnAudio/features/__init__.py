@@ -11,3 +11,4 @@ from .gammatone import *
 from .griffin_lim import *
 from .mel import *
 from .stft import *
+from .vqt import *
