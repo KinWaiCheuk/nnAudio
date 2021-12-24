@@ -1,0 +1,22 @@
+nnAudio.features.vqt.VQT
+========================
+
+.. currentmodule:: nnAudio.features.vqt
+
+.. autoclass:: VQT
+   :members:
+   :show-inheritance:
+   :no-inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~VQT.__init__
+      ~VQT.forward
+   
+   

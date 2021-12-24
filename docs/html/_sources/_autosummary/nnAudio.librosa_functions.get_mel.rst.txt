@@ -1,0 +1,6 @@
+nnAudio.librosa\_functions.get\_mel
+===================================
+
+.. currentmodule:: nnAudio.librosa_functions
+
+.. autofunction:: get_mel

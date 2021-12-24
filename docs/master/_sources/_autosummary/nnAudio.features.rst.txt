@@ -32,4 +32,5 @@
    nnAudio.features.griffin_lim
    nnAudio.features.mel
    nnAudio.features.stft
+   nnAudio.features.vqt
 

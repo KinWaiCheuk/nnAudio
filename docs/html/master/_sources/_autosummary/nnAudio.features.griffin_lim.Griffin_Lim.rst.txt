@@ -1,0 +1,22 @@
+nnAudio.features.griffin\_lim.Griffin\_Lim
+==========================================
+
+.. currentmodule:: nnAudio.features.griffin_lim
+
+.. autoclass:: Griffin_Lim
+   :members:
+   :show-inheritance:
+   :no-inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :nosignatures:
+   
+      ~Griffin_Lim.__init__
+      ~Griffin_Lim.forward
+   
+   

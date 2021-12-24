@@ -9,6 +9,8 @@ Welcome to nnAudio |ProjectVersion|. A big shout out to `Miguel Pérez <https://
 
 This new version restructured the coding style, making things more modular and pythonic. In terms of functionalities, everything remains the same. In the future releases, ``nnAudio.Spectrogram`` will be replaced by ``nnAudio.features`` (see also :func:`~nnAudio.features`.)
 
+:func:`~nnAudio.features.vqt.VQT` is finally avaliable in version |ProjectVersion| thanks to `Hao Hao Tan <https://github.com/gudgud96>`_!
+
 Quick Start
 ***********
 .. code-block:: python

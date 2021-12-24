@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>nnAudio.utils.complex_mul &mdash; 0.2.0</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/banner.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nnAudio.utils.create_cqt_kernels" href="nnAudio.utils.create_cqt_kernels.html" />
+    <link rel="prev" title="nnAudio.utils.broadcast_dim_conv2d" href="nnAudio.utils.broadcast_dim_conv2d.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> nnAudio
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#speed">Speed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#trainable-kernals">Trainable kernals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html#different-cqt-versions">Different CQT versions</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.Spectrogram.html">nnAudio.Spectrogram</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nnAudio.librosa_functions.html">nnAudio.librosa_functions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="nnAudio.utils.html">nnAudio.utils</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.broadcast_dim.html">nnAudio.utils.broadcast_dim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.broadcast_dim_conv2d.html">nnAudio.utils.broadcast_dim_conv2d</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">nnAudio.utils.complex_mul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.create_cqt_kernels.html">nnAudio.utils.create_cqt_kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.create_fourier_kernels.html">nnAudio.utils.create_fourier_kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.create_lowpass_filter.html">nnAudio.utils.create_lowpass_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.downsampling_by_2.html">nnAudio.utils.downsampling_by_2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.downsampling_by_n.html">nnAudio.utils.downsampling_by_n</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.early_downsample.html">nnAudio.utils.early_downsample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.early_downsample_count.html">nnAudio.utils.early_downsample_count</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.extend_fbins.html">nnAudio.utils.extend_fbins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.get_cqt_complex.html">nnAudio.utils.get_cqt_complex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.get_cqt_complex2.html">nnAudio.utils.get_cqt_complex2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.get_early_downsample_params.html">nnAudio.utils.get_early_downsample_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.get_window_dispatch.html">nnAudio.utils.get_window_dispatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.nextpow2.html">nnAudio.utils.nextpow2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.overlap_add.html">nnAudio.utils.overlap_add</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.prepow2.html">nnAudio.utils.prepow2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.rfft_fn.html">nnAudio.utils.rfft_fn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.torch_window_sumsquare.html">nnAudio.utils.torch_window_sumsquare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nnAudio.utils.uniform_distribution.html">nnAudio.utils.uniform_distribution</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Tutorials</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Citation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing nnAudio</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">nnAudio</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../nnAudio.html">&lt;no title&gt;</a> &raquo;</li>
+        
+          <li><a href="nnAudio.utils.html">nnAudio.utils</a> &raquo;</li>
+        
+      <li>nnAudio.utils.complex_mul</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_autosummary/nnAudio.utils.complex_mul.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nnaudio-utils-complex-mul">
+<h1>nnAudio.utils.complex_mul<a class="headerlink" href="#nnaudio-utils-complex-mul" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="nnAudio.utils.complex_mul">
+<span class="sig-prename descclassname"><span class="pre">nnAudio.utils.</span></span><span class="sig-name descname"><span class="pre">complex_mul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cqt_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stft</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nnAudio.utils.complex_mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Since PyTorch does not support complex numbers and its operation.
+We need to write our own complex multiplication function. This one is specially
+designed for CQT usage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cqt_filter</strong> (<em>tuple of torch.Tensor</em>) – The tuple is in the format of <code class="docutils literal notranslate"><span class="pre">(real_torch_tensor,</span> <span class="pre">imag_torch_tensor)</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output is in the format of <code class="docutils literal notranslate"><span class="pre">(real_torch_tensor,</span> <span class="pre">imag_torch_tensor)</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="nnAudio.utils.create_cqt_kernels.html" class="btn btn-neutral float-right" title="nnAudio.utils.create_cqt_kernels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nnAudio.utils.broadcast_dim_conv2d.html" class="btn btn-neutral float-left" title="nnAudio.utils.broadcast_dim_conv2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Cheuk Kin Wai.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="fa fa-book"> Other Versions</span>
+        v: v0.2.0
+        <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../v0.1.5/_autosummary/nnAudio.utils.complex_mul.html">v0.1.5</a></dd>
+            <dd><a href="nnAudio.utils.complex_mul.html">v0.2.0</a></dd>
+            <dd><a href="../../v0.2.6/_autosummary/nnAudio.utils.complex_mul.html">v0.2.6</a></dd>
+        </dl>
+        <dl>
+            <dt>Branches</dt>
+            <dd><a href="../../master/_autosummary/nnAudio.utils.complex_mul.html">master</a></dd>
+        </dl>
+    </div>
+</div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

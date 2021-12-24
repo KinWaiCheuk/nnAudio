@@ -1,0 +1,6 @@
+nnAudio.librosa\_functions.normalize
+====================================
+
+.. currentmodule:: nnAudio.librosa_functions
+
+.. autofunction:: normalize

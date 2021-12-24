@@ -1,0 +1,42 @@
+﻿nnAudio.librosa\_functions
+==========================
+
+.. automodule:: nnAudio.librosa_functions
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   
+      chroma
+      fft2gammatonemx
+      fft_frequencies
+      get_gammatone
+      get_mel
+      hz_to_mel
+      hz_to_octs
+      mel_frequencies
+      mel_to_hz
+      normalize
+      pad_center
+      tiny
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
