@@ -115,6 +115,29 @@ class VQT(torch.nn.Module):
 
         lenghts = torch.tensor(lenghts).float()
         self.register_buffer('lenghts', lenghts)
+        
+        
+        my_sr = self.sr
+        for i in range(self.n_octaves):
+            if i > 0:
+                my_sr /= 2          
+            
+            Q = float(self.filter_scale)/(2**(1/self.bins_per_octave)-1)
+
+            basis, self.n_fft, lengths, _ = create_cqt_kernels(Q,
+                                                               my_sr, 
+                                                               self.fmin_t * 2 ** -i,
+                                                               self.n_filters,
+                                                               self.bins_per_octave,
+                                                               norm=self.basis_norm,
+                                                               topbin_check=False,
+                                                               gamma=self.gamma)
+            
+            cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1)
+            cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
+            
+            self.register_buffer("cqt_kernels_real_{}".format(i), cqt_kernels_real)
+            self.register_buffer("cqt_kernels_imag_{}".format(i), cqt_kernels_imag)            
             
 
     def forward(self, x, output_format=None, normalization_type='librosa'):
@@ -144,32 +167,23 @@ class VQT(torch.nn.Module):
         for i in range(self.n_octaves):
             if i > 0:
                 x_down = downsampling_by_2(x_down, self.lowpass_filter)
-                my_sr /= 2
                 hop //= 2
 
             else:
                 x_down = x
-            
-            Q = float(self.filter_scale)/(2**(1/self.bins_per_octave)-1)
-
-            basis, self.n_fft, lengths, _ = create_cqt_kernels(Q,
-                                                               my_sr, 
-                                                               self.fmin_t * 2 ** -i,
-                                                               self.n_filters,
-                                                               self.bins_per_octave,
-                                                               norm=self.basis_norm,
-                                                               topbin_check=False,
-                                                               gamma=self.gamma)
-            
-            cqt_kernels_real = torch.tensor(basis.real.astype(np.float32)).unsqueeze(1)
-            cqt_kernels_imag = torch.tensor(basis.imag.astype(np.float32)).unsqueeze(1)
 
             if self.pad_mode == 'constant':
-                my_padding = nn.ConstantPad1d(cqt_kernels_real.shape[-1] // 2, 0)
+                my_padding = nn.ConstantPad1d(getattr(self,
+                                                      'cqt_kernels_real_{}'.format(i)).shape[-1] // 2, 0)
             elif self.pad_mode == 'reflect':
-                my_padding= nn.ReflectionPad1d(cqt_kernels_real.shape[-1] // 2)
+                my_padding= nn.ReflectionPad1d(getattr(self,
+                                                       'cqt_kernels_real_{}'.format(i)).shape[-1] // 2)
 
-            cur_vqt = get_cqt_complex(x_down, cqt_kernels_real, cqt_kernels_imag, hop, my_padding)
+            cur_vqt = get_cqt_complex(x_down,
+                                      getattr(self, 'cqt_kernels_real_{}'.format(i)),
+                                      getattr(self, 'cqt_kernels_imag_{}'.format(i)),
+                                      hop,
+                                      my_padding)
             vqt.insert(0, cur_vqt)
 
         vqt = torch.cat(vqt, dim=1)
