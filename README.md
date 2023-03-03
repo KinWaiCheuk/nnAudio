@@ -64,14 +64,11 @@ K. W. Cheuk, H. Anderson, K. Agres and D. Herremans, "nnAudio: An on-the-Fly GPU
 ## Call for Contributions
 nnAudio is a fast-growing package. With the increasing number of feature requests, we welcome anyone who is familiar with digital signal processing and neural network to contribute to nnAudio. The current list of pending features includes:
 1. Invertible Constant Q Transform (CQT)
-1. CQT with filter scale factor (see issue [#54](/../../issues/54))
-1. Speed and Performance improvements for Griffin-Lim (see issue [#41](/../../issues/41))
-1. Data Augmentation (see issue [#49](/../../issues/49))
+
 
 (Quick tips for unit test: `cd` inside Installation folder, then type `pytest`. You need at least 1931 MiB GPU memory to pass all the unit tests)
 
 Alternatively, you may also contribute by:
-   1. Refactoring the code structure (Now all functions are within the same file, but with the increasing number of features, I think we need to break it down into smaller modules)
    1. Making a better demonstration code or tutorial
 
 
