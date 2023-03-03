@@ -38,7 +38,9 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "scipy",
+        "scipy>=1.2.0",
+        "numpy>=1.14.5",
+        "torch>=1.6.0",
     ],
     extras_require={"tests": ["pytest", "librosa"]},
 )

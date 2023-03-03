@@ -205,7 +205,7 @@ class Combined_Frequency_Periodicity(nn.Module):
                 break
 
         Nest = len(central_freq)
-        freq_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
+        freq_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.double)
 
         # Calculating the freq_band_transformation
         for i in range(1, Nest - 1):
@@ -227,7 +227,7 @@ class Combined_Frequency_Periodicity(nn.Module):
 
         # Calculating the quef_band_transformation
         f = 1 / q  # divide by 0, do I need to fix this?
-        quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
+        quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.double)
         for i in range(1, Nest - 1):
             for j in range(
                 int(round(fs / central_freq[i + 1])),
@@ -442,7 +442,7 @@ class CFP(nn.Module):
                 break
 
         Nest = len(central_freq)
-        freq_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
+        freq_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.double)
 
         # Calculating the freq_band_transformation
         for i in range(1, Nest - 1):
@@ -464,7 +464,7 @@ class CFP(nn.Module):
 
         # Calculating the quef_band_transformation
         f = 1 / q  # divide by 0, do I need to fix this?
-        quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.float)
+        quef_band_transformation = np.zeros((Nest - 1, len(f)), dtype=np.double)
         for i in range(1, Nest - 1):
             for j in range(
                 int(round(fs / central_freq[i + 1])),

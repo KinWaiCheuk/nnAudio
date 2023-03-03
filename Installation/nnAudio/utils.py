@@ -420,17 +420,17 @@ def create_cqt_kernels(
         n_bins = np.ceil(
             bins_per_octave * np.log2(fmax / fmin)
         )  # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
 
     elif (fmax == None) and (n_bins != None):
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
 
     else:
         warnings.warn("If fmax is given, n_bins will be ignored", SyntaxWarning)
         n_bins = np.ceil(
             bins_per_octave * np.log2(fmax / fmin)
         )  # Calculate the number of bins
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
 
     if np.max(freqs) > fs / 2 and topbin_check == True:
         raise ValueError(
