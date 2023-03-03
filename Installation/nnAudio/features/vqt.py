@@ -105,7 +105,7 @@ class VQT(torch.nn.Module):
         # Since that returns only the top octave bins
         # We need the information for all freq bin
         alpha = 2.0 ** (1.0 / bins_per_octave) - 1.0
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
         self.frequencies = freqs
         lenghts = np.ceil(Q * sr / (freqs + gamma / alpha))
         

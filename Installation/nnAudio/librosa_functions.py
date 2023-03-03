@@ -924,7 +924,7 @@ def normalize(S, norm=np.inf, axis=0, threshold=None, fill=None):
         raise ParameterError("Input must be finite")
 
     # All norms only depend on magnitude, let's do that first
-    mag = np.abs(S).astype(np.float)
+    mag = np.abs(S).astype(np.double)
 
     # For max/min norms, filling with 1 works
     fill_norm = 1
