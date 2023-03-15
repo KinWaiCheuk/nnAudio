@@ -95,7 +95,8 @@ def downsampling_by_n(x, filterKernel, n):
     >>> x_down = downsampling_by_n(x, filterKernel)
     """
 
-    x = conv1d(x, filterKernel, stride=n, padding=(filterKernel.shape[-1] - 1) // 2)
+    padding = int((filterKernel.shape[-1] - 1) // 2)
+    x = conv1d(x, filterKernel, stride=(n,), padding=(padding,))
     return x
 
 
@@ -120,8 +121,7 @@ def downsampling_by_2(x, filterKernel):
     >>> x_down = downsampling_by_2(x, filterKernel)
     """
 
-    x = conv1d(x, filterKernel, stride=2, padding=(filterKernel.shape[-1] - 1) // 2)
-    return x
+    return downsampling_by_n(x, filterKernel, 2)
 
 
 ## Basic tools for computation ##
