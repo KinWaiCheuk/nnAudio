@@ -172,12 +172,11 @@ class VQT(torch.nn.Module):
             else:
                 x_down = x
 
+            pad_length = int(getattr(self, 'cqt_kernels_real_{}'.format(i)).shape[-1] // 2)
             if self.pad_mode == 'constant':
-                my_padding = nn.ConstantPad1d(getattr(self,
-                                                      'cqt_kernels_real_{}'.format(i)).shape[-1] // 2, 0)
+                my_padding = nn.ConstantPad1d((pad_length, pad_length), 0)
             elif self.pad_mode == 'reflect':
-                my_padding= nn.ReflectionPad1d(getattr(self,
-                                                       'cqt_kernels_real_{}'.format(i)).shape[-1] // 2)
+                my_padding = nn.ReflectionPad1d((pad_length, pad_length))
 
             cur_vqt = get_cqt_complex(x_down,
                                       getattr(self, 'cqt_kernels_real_{}'.format(i)),
