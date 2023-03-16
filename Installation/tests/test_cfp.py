@@ -24,7 +24,7 @@ else:
     device_args = ["cpu"]
 
 # librosa example audio for testing
-example_y, example_sr = librosa.load(librosa.util.example_audio_file())
+example_y, example_sr = librosa.load(librosa.example('vibeace', hq=False))
 
 
 @pytest.mark.parametrize("device", [*device_args])

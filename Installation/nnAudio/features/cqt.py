@@ -404,7 +404,7 @@ class CQT2010(nn.Module):
         )
 
         # This is for the normalization in the end
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
         self.frequencies = freqs
 
         lenghts = np.ceil(Q * sr / freqs)
@@ -1033,7 +1033,7 @@ class CQT2010v2(nn.Module):
         # The freqs returned by create_cqt_kernels cannot be used
         # Since that returns only the top octave bins
         # We need the information for all freq bin
-        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.float(bins_per_octave))
+        freqs = fmin * 2.0 ** (np.r_[0:n_bins] / np.double(bins_per_octave))
         self.frequencies = freqs
 
         lenghts = np.ceil(Q * sr / freqs)
