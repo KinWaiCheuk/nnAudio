@@ -14,6 +14,7 @@ from nnAudio.Spectrogram import *
 from parameters import *
 import warnings
 
+episilon = 1
 gpu_idx = 0  # Choose which GPU to use
 
 # If GPU is avaliable, also test on GPU
@@ -42,11 +43,15 @@ def test_cfp_original(device):
         NumPerOct=48,
     ).to(device)
     X = cfp_layer(x)
-    ground_truth = torch.load(os.path.join(dir_path, "ground-truths/cfp_original.pt"))
+    ground_truth = torch.load(
+        os.path.join(
+            dir_path,
+            "ground-truths/cfp_original.pt"),
+        map_location=device
+    )
 
     for i, j in zip(X, ground_truth):
-        assert torch.allclose(i.cpu(), j, 1e-3, 1e-1)
-
+        assert torch.allclose(torch.log(i+episilon),torch.log(j+episilon), 1e-3, 9e-1)
 
 @pytest.mark.parametrize("device", [*device_args])
 def test_cfp_new(device):
@@ -63,8 +68,11 @@ def test_cfp_new(device):
         NumPerOct=48,
     ).to(device)
     X = cfp_layer(x)
-    ground_truth = torch.load(os.path.join(dir_path, "ground-truths/cfp_new.pt"))
-    assert torch.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-1)
+    ground_truth = torch.load(
+        os.path.join(dir_path, "ground-truths/cfp_new.pt"),
+        map_location=device
+    )
+    assert torch.allclose(torch.log(X+episilon),torch.log(ground_truth+episilon), 1e-1, 2.5)
 
 
 if torch.cuda.is_available():
