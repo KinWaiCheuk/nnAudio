@@ -50,6 +50,10 @@ class Gammatonegram(nn.Module):
     pad_mode : str
         The padding method. Default value is 'reflect'.
 
+    htk : bool
+        When ``False`` is used, the Mel scale is quasi-logarithmic. When ``True`` is used, the
+        Mel scale is logarithmic. The default value is ``False``.
+
     fmin : int
         The starting frequency for the lowest Gammatone filter bank.
 
@@ -101,7 +105,7 @@ class Gammatonegram(nn.Module):
         fmin=0.0,
         fmax=None,
         norm=1,
-        trainable_gammatone=False,
+        trainable_bins=False,
         trainable_STFT=False,
         verbose=True,
         **kwargs
@@ -113,7 +117,7 @@ class Gammatonegram(nn.Module):
         self.pad_mode = pad_mode
         self.n_fft = n_fft
         self.power = power
-        self.trainable_gammatone = trainable_gammatone
+        self.trainable_bins = trainable_gammatone
         self.trainable_STFT = trainable_STFT
 
         # Preparing for the stft layer. No need for center
