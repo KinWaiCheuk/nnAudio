@@ -14,10 +14,9 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10']
         torch-version: ['1.11.0', '1.12.0', '1.13.0', '2.1.0']
         exclude:
-          matrix:
             # excludes torch 2.1 on older python versions
             - python-version: ['3.7', '3.8']
-              torch-version: ['2.1.0']      
+              torch-version: ['2.1.0']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
