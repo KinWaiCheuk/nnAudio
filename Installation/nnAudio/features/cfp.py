@@ -143,6 +143,7 @@ class Combined_Frequency_Periodicity(nn.Module):
             window=self.h,
             onesided=False,
             pad_mode="constant",
+            return_complex=False
         )
         tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
             self.h
@@ -380,6 +381,7 @@ class CFP(nn.Module):
             window=self.h,
             onesided=False,
             pad_mode="constant",
+            return_complex=False
         )
         tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
             self.h
