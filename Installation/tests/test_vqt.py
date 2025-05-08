@@ -9,7 +9,7 @@ import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-from nnAudio.features import CQT2010v2, VQT
+from nnAudio.features import CQT2010v2, VQT, CQT1992v2
 import numpy as np
 from parameters import *
 import warnings
@@ -38,6 +38,7 @@ def test_vqt_gamma_zero(device):
     V2 = spec(torch.tensor(y).unsqueeze(0).to(device), output_format="Magnitude", normalization_type='librosa')
     V2 = V2.cpu().numpy().squeeze()
 
+    # print('successfully alter vqt hop length')
     assert (C2 == V2).all() == True
 
 
