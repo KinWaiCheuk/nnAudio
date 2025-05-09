@@ -186,11 +186,19 @@ class VQT(torch.nn.Module):
 
             vqt.insert(0, cur_vqt)
 
+        # print('vqt shape: ', vqt[0].shape)
+
         # PREVENT SIZE ALIGMENT ERROR
         # padding smaller frames, if the hop_length is not power of 2
-        max_time_axis_frame = max(vqt_i.shape[-2] for vqt_i in vqt)
+        # max_time_axis_frame = max(vqt_i.shape[-2] for vqt_i in vqt)
+        min_time_axis_frame = min(vqt_i.shape[-2] for vqt_i in vqt)
         # print('max_time_axis_frame: ', max_time_axis_frame)
-        vqt = [nn.functional.pad(vqt_i, (0, 0, max_time_axis_frame - vqt_i.shape[-2], 0), mode='constant', value=0) for vqt_i in vqt]
+        # print('min_time_axis_frame: ', min_time_axis_frame)
+        # vqt = [nn.functional.pad(vqt_i, (0, 0, max_time_axis_frame - vqt_i.shape[-2], 0), mode='constant', value=0) for vqt_i in vqt]
+        vqt = [nn.functional.interpolate(vqt_i, size=(min_time_axis_frame, 2), mode='bilinear', align_corners=False) for vqt_i in vqt]
+
+        # for vqt_i in vqt:
+        #     print(vqt_i.shape)
 
         vqt = torch.cat(vqt, dim=1)
         vqt = vqt[:,-self.n_bins:,:]    # Removing unwanted bottom bins
