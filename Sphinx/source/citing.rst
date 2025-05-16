@@ -1,7 +1,7 @@
 Citing nnAudio
 ===============
 
-If you use nnAudio in your research, please feel free to cite our work.
+You can use nnAudio for free, but if you use it, please cite our paper.
 
 Plain Text
 **********
