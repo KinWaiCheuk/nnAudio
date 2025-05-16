@@ -11,6 +11,9 @@ This new version restructured the coding style, making things more modular and p
 
 :func:`~nnAudio.features.vqt.VQT` is finally avaliable in version |ProjectVersion| thanks to `Hao Hao Tan <https://github.com/gudgud96>`_!
 
+Reminder: if you use nnAudio, please cite `The paper <https://ieeexplore.ieee.org/abstract/document/9174990>`_ describing its release.
+
+
 Quick Start
 ***********
 .. code-block:: python
