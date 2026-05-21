@@ -1,3 +1,12 @@
+> **New version available**
+> 
+> A new version of nnAudio has been released
+> 
+> https://github.com/AMAAI-Lab/nnAudio2
+> 
+> It is being actively maintained by my PhD supervisor Dorien Herremans and her lab.
+> Feel free to check it out!
+
 > 🚨 **Maintainers wanted**
 > 
 > This project has grown beyond what one person can maintain.
