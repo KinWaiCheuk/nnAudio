@@ -41,6 +41,23 @@ def test_mfcc(device):
     assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-2)
 
 
+@pytest.mark.parametrize("device", [*device_args])
+def test_mfcc_half(device):
+    # Half precision must work for MFCC like the other transforms: its DCT uses
+    # torch.fft, which has no half/bfloat16 kernel, so a .half()/autocast model
+    # used to crash with "Unsupported dtype Half".
+    x = example_y
+    mfcc = MFCC(sr=example_sr).to(device).half()
+    X = mfcc(torch.tensor(x, device=device).unsqueeze(0).half()).squeeze()
+    # Regression: previously raised "Unsupported dtype Half" in the DCT's FFT.
+    assert X.dtype == torch.float16
+    assert torch.isfinite(X).all()
+    # sanity: shape matches the float32 output
+    mfcc32 = MFCC(sr=example_sr).to(device)
+    X32 = mfcc32(torch.tensor(x, device=device).unsqueeze(0)).squeeze()
+    assert X.shape == X32.shape
+
+
 if torch.cuda.is_available():
     x = torch.randn((4,44100)).to(f'cuda:{gpu_idx}') # Create a batch of input for the following Data.Parallel test
     @pytest.mark.parametrize("device", [f'cuda:{gpu_idx}'])
