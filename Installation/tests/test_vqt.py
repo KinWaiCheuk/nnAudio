@@ -33,7 +33,7 @@ def test_vqt_gamma_zero(device):
     # print('sr: ', sr)
 
     # nnAudio cqt
-    spec = CQT1992v2(sr=sr, verbose=False).to(device)
+    spec = CQT2010v2(sr=sr, verbose=False).to(device)
     C2 = spec(torch.tensor(y).unsqueeze(0).to(device), output_format="Magnitude", normalization_type='librosa')
     C2 = C2.cpu().numpy().squeeze()
 

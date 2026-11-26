@@ -28,7 +28,7 @@ def test_mel_spectrogram(n_fft, win_length, device):
     x = example_y
     melspec = MelSpectrogram(n_fft=n_fft, win_length=win_length, hop_length=512).to(device)
     X = melspec(torch.tensor(x, device=device).unsqueeze(0)).squeeze()
-    X_librosa = librosa.feature.melspectrogram(x, n_fft=n_fft, win_length=win_length, hop_length=512)
+    X_librosa = librosa.feature.melspectrogram(y=x, n_fft=n_fft, win_length=win_length, hop_length=512)
     assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-3)
 
 
@@ -37,7 +37,7 @@ def test_mfcc(device):
     x = example_y
     mfcc = MFCC(sr=example_sr).to(device)
     X = mfcc(torch.tensor(x, device=device).unsqueeze(0)).squeeze()
-    X_librosa = librosa.feature.mfcc(x, sr=example_sr)
+    X_librosa = librosa.feature.mfcc(y=x, sr=example_sr)
     assert np.allclose(X.cpu(), X_librosa, rtol=1e-3, atol=1e-2)
 
 
