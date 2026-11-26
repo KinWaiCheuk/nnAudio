@@ -123,6 +123,7 @@ def test_cqt_1992_v2_log(device):
         )
     )
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
+    nonzero = np.hypot(ground_truth[..., 0], ground_truth[..., 1]) > 1e-4
 
     # Phase
     stft = CQT1992v2(
@@ -134,7 +135,8 @@ def test_cqt_1992_v2_log(device):
             dir_path, "ground-truths/log-sweep-cqt-1992-phase-ground-truth.npy"
         )
     )
-    assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
+    # The phase is undefined where the CQT is numerically zero, so it is only compared where it is not
+    assert np.allclose(X.cpu().numpy()[nonzero], ground_truth[nonzero], rtol=1e-3, atol=1e-3)
 
 
 @pytest.mark.parametrize("device", [*device_args])
@@ -172,6 +174,7 @@ def test_cqt_1992_v2_linear(device):
         )
     )
     assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
+    nonzero = np.hypot(ground_truth[..., 0], ground_truth[..., 1]) > 1e-4
 
     # Phase
     stft = CQT1992v2(
@@ -183,7 +186,8 @@ def test_cqt_1992_v2_linear(device):
             dir_path, "ground-truths/linear-sweep-cqt-1992-phase-ground-truth.npy"
         )
     )
-    assert np.allclose(X.cpu(), ground_truth, rtol=1e-3, atol=1e-3)
+    # The phase is undefined where the CQT is numerically zero, so it is only compared where it is not
+    assert np.allclose(X.cpu().numpy()[nonzero], ground_truth[nonzero], rtol=1e-3, atol=1e-3)
 
 
 @pytest.mark.parametrize("device", [*device_args])

@@ -86,7 +86,7 @@ class Combined_Frequency_Periodicity(nn.Module):
         )  # it won't be used but will be returned
         self.pad_value = self.N - window_size
         # Create window function, always blackmanharris?
-        h = scipy.signal.blackmanharris(window_size)  # window function for STFT
+        h = scipy.signal.windows.blackmanharris(window_size)  # window function for STFT
         self.register_buffer("h", torch.tensor(h).float())
 
         # variables for CFP
@@ -324,7 +324,7 @@ class CFP(nn.Module):
         )  # it won't be used but will be returned
         self.pad_value = self.N - window_size
         # Create window function, always blackmanharris?
-        h = scipy.signal.blackmanharris(window_size)  # window function for STFT
+        h = scipy.signal.windows.blackmanharris(window_size)  # window function for STFT
         self.register_buffer("h", torch.tensor(h).float())
 
         # variables for CFP
