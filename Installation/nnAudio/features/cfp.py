@@ -135,18 +135,26 @@ class Combined_Frequency_Periodicity(nn.Module):
         return spec, ceps
 
     def forward(self, x):
+        # torch.stft has no half kernel on CPU: compute half input in float32
+        out_dtype = x.dtype
+        half = out_dtype in (torch.float16, torch.bfloat16)
+        h = self.h.float() if half else self.h
+        freq2logfreq = self.freq2logfreq_matrix.float() if half else self.freq2logfreq_matrix
+        quef2logfreq = self.quef2logfreq_matrix.float() if half else self.quef2logfreq_matrix
+        if half:
+            x = x.float()
         tfr0 = torch.stft(
             x,
             self.N,
             hop_length=self.hop_length,
             win_length=self.window_size,
-            window=self.h,
+            window=h,
             onesided=False,
             pad_mode="constant",
             return_complex=False
         )
         tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
-            self.h
+            h
         )  # calcuate magnitude
         tfr0 = tfr0.transpose(1, 2)[
             :, 1:-1
@@ -165,9 +173,9 @@ class Combined_Frequency_Periodicity(nn.Module):
         tfr0 = tfr0[:, :, : self.HighFreqIdx]
         tfr = tfr[:, :, : self.HighFreqIdx]
         ceps = ceps[:, :, : self.HighQuefIdx]
-        tfrL0 = torch.matmul(self.freq2logfreq_matrix, tfr0.transpose(1, 2))
-        tfrLF = torch.matmul(self.freq2logfreq_matrix, tfr.transpose(1, 2))
-        tfrLQ = torch.matmul(self.quef2logfreq_matrix, ceps.transpose(1, 2))
+        tfrL0 = torch.matmul(freq2logfreq, tfr0.transpose(1, 2))
+        tfrLF = torch.matmul(freq2logfreq, tfr.transpose(1, 2))
+        tfrLQ = torch.matmul(quef2logfreq, ceps.transpose(1, 2))
         Z = tfrLF * tfrLQ
 
         # Only need to calculate this once
@@ -177,6 +185,8 @@ class Combined_Frequency_Periodicity(nn.Module):
             self.hop_length,
         )  # it won't be used but will be returned
 
+        if half:
+            return tuple(t.to(out_dtype) for t in (Z, tfrL0, tfrLF, tfrLQ))
         return Z, tfrL0, tfrLF, tfrLQ
 
     def nonlinear_func(self, X, g, cutoff):
@@ -373,18 +383,26 @@ class CFP(nn.Module):
         return spec, ceps
 
     def forward(self, x):
+        # torch.stft has no half kernel on CPU: compute half input in float32
+        out_dtype = x.dtype
+        half = out_dtype in (torch.float16, torch.bfloat16)
+        h = self.h.float() if half else self.h
+        freq2logfreq = self.freq2logfreq_matrix.float() if half else self.freq2logfreq_matrix
+        quef2logfreq = self.quef2logfreq_matrix.float() if half else self.quef2logfreq_matrix
+        if half:
+            x = x.float()
         tfr0 = torch.stft(
             x,
             self.N,
             hop_length=self.hop_length,
             win_length=self.window_size,
-            window=self.h,
+            window=h,
             onesided=False,
             pad_mode="constant",
             return_complex=False
         )
         tfr0 = torch.sqrt(tfr0.pow(2).sum(-1)) / torch.norm(
-            self.h
+            h
         )  # calcuate magnitude
         tfr0 = tfr0.transpose(
             1, 2
@@ -403,9 +421,9 @@ class CFP(nn.Module):
         tfr0 = tfr0[:, :, : self.HighFreqIdx]
         tfr = tfr[:, :, : self.HighFreqIdx]
         ceps = ceps[:, :, : self.HighQuefIdx]
-        tfrL0 = torch.matmul(self.freq2logfreq_matrix, tfr0.transpose(1, 2))
-        tfrLF = torch.matmul(self.freq2logfreq_matrix, tfr.transpose(1, 2))
-        tfrLQ = torch.matmul(self.quef2logfreq_matrix, ceps.transpose(1, 2))
+        tfrL0 = torch.matmul(freq2logfreq, tfr0.transpose(1, 2))
+        tfrLF = torch.matmul(freq2logfreq, tfr.transpose(1, 2))
+        tfrLQ = torch.matmul(quef2logfreq, ceps.transpose(1, 2))
         Z = tfrLF * tfrLQ
 
         # Only need to calculate this once
@@ -415,7 +433,7 @@ class CFP(nn.Module):
             self.hop_length,
         )  # it won't be used but will be returned
 
-        return Z  # , tfrL0, tfrLF, tfrLQ
+        return Z.to(out_dtype) if half else Z  # , tfrL0, tfrLF, tfrLQ
 
     def nonlinear_func(self, X, g, cutoff):
         cutoff = int(cutoff)
