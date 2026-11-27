@@ -34,6 +34,15 @@ if major_version > 1 or (major_version == 1 and minor_version >= 7):
 
 def rfft_fn(x, n=None, onesided=False):
     if __TORCH_GTE_1_7:
+        # `torch.fft` does not implement half/bfloat16 on CPU or CUDA, so a
+        # half-precision model (via `.half()` or autocast) would crash here with
+        # "Unsupported dtype Half". Compute the transform in float32 and cast the
+        # result back, so MFCC/CFP support half precision like the conv-based
+        # transforms (STFT, MelSpectrogram, CQT, VQT). The float32/float64 path
+        # is unchanged.
+        if x.dtype in (torch.float16, torch.bfloat16):
+            y = torch.fft.fft(x.float())
+            return torch.view_as_real(y).to(x.dtype)
         y = torch.fft.fft(x)
         return torch.view_as_real(y)
     else:
